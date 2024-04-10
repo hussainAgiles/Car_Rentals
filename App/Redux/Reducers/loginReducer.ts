@@ -2,6 +2,7 @@ import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {persistReducer} from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {handleLogin} from '../../API/NormalApi';
+import { setClientToken } from '../../API/APIClients';
 
 interface loginPayload {
   email: string;
@@ -14,6 +15,9 @@ export const login = createAsyncThunk(
   async (payload: loginPayload, {rejectWithValue}) => {
     try {
       const response = await handleLogin({body: payload});
+      const token = response.access_token;
+      // console.log("Token ",response)
+      setClientToken(token)
       return response;
     } catch (error) {
       return rejectWithValue(error);

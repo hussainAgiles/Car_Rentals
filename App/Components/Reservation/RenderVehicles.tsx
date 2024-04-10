@@ -9,43 +9,44 @@ import {
 } from 'react-native';
 import Colors from '../../Constants/Colors';
 import Icon from 'react-native-vector-icons/Entypo';
+import { ImageBase_URL } from '../../API/Constants';
 
 const screenWidth = Dimensions.get('window').width;
 
 type RenderVehicleProps = {
   item: {
     id: number;
-    info: string;
+    // info: string;
     Status: string;
     Pickup: string;
     drop: string;
     Vehicle: string;
     client: string;
-    Amount: number;
+    rental_price: number;
     actions: string;
     Vehicle_number: string;
     image: string;
     type: string;
-    PickupDate:string;
-    ReturnDate:string;
+    pickup_date:string;
+    dropoff_date:string;
     
   };
 };
 
 const RenderVehicles: React.FC<RenderVehicleProps> = ({ item }) => {
-   const statusColor = item.Status === 'done'
+   const statusColor = item.Status === 'Rented'
     ? Colors.green
-    : item.Status === 'rental'
+    : item.Status === 'Active'
     ? Colors.orange
-    : item.Status === 'reserved'
-    ? Colors.purple
+    : item.Status === 'Returned'
+    ? Colors.red
     : Colors.grey;
   return (
     <TouchableOpacity style={styles.card}>
       <View style={styles.container}>
         <View style={{justifyContent:'center'}}>
         <Image
-          source={{ uri: item.image }}
+          source={{ uri:ImageBase_URL + item.image }}
           style={styles.image}
           resizeMode="contain"
         />
@@ -60,19 +61,19 @@ const RenderVehicles: React.FC<RenderVehicleProps> = ({ item }) => {
           <View style={styles.infoContainer}>
             <View style={styles.iconText}>
               <Icon name="user" size={20} color={Colors.black} style={{marginRight:10}} />
-              <Text style={styles.info}>{item.client}</Text>
+              <Text style={styles.info}>{item?.client}</Text>
             </View>
             <View style={styles.iconText}>
               <Icon name="calendar" size={20} color={Colors.black} style={{marginRight:10}} />
-              <Text style={styles.info}>{item.PickupDate} - {item.ReturnDate}</Text>
+              <Text style={styles.info}>{item?.pickup_date} - {item?.dropoff_date}</Text>
             </View>
             <View style={styles.iconText}>
               <Icon name="location-pin" size={20} color={Colors.black} style={{marginRight:10}}/>
-              <Text style={styles.info}>{item.Pickup}</Text>
+              <Text style={styles.info}>{item?.Pickup}</Text>
             </View>
             <View style={styles.iconText}>
               <Icon name="location" size={20} color={Colors.black} style={{marginRight:10}} />
-              <Text style={styles.info}>{item.drop}</Text>
+              <Text style={styles.info}>{item?.drop}</Text>
             </View>
           </View>
         </View>
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
   card: {
     marginBottom:25,
   },
-  statusIndicator: (backgroundColor) => ({
+  statusIndicator: (backgroundColor:any) => ({
     backgroundColor,
     borderRadius: 10,
     paddingVertical: 3,

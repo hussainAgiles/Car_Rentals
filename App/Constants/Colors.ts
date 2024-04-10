@@ -16,6 +16,7 @@ export const disabled = 'rgba(0,0,0,0.25)';
 export const green = '#43A047'
 export const orange = '#FF9800'
 export const purple = '#673AB7'
+export const red ='#E53935'
 
 export default {
   primary,
@@ -29,6 +30,7 @@ export default {
   grey,
   white,
   green,
+  red,
   orange,purple,
   light: '#DEDEDE',
   brand: primary,
