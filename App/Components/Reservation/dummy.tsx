@@ -26,45 +26,27 @@ type RenderVehicleProps = {
     Vehicle_number: string;
     image: string;
     type: string;
-    PickupDate:string;
-    ReturnDate:string;
-    
   };
 };
 
 const RenderVehicles: React.FC<RenderVehicleProps> = ({ item }) => {
-   const statusColor = item.Status === 'done'
-    ? Colors.green
-    : item.Status === 'rental'
-    ? Colors.orange
-    : item.Status === 'reserved'
-    ? Colors.purple
-    : Colors.grey;
   return (
     <TouchableOpacity style={styles.card}>
       <View style={styles.container}>
-        <View style={{justifyContent:'center'}}>
         <Image
           source={{ uri: item.image }}
           style={styles.image}
           resizeMode="contain"
         />
-         <Text style={[styles.info,{textAlign:'center',fontWeight:'bold',marginTop:5}]}>{item.Vehicle_number}</Text>
-        </View>
-       
         <View style={styles.details}>
           <Text style={styles.title}>{item.Vehicle}</Text>
-          <View style={styles.statusIndicator(statusColor)}>
-            <Text style={styles.statusText}>{item.Status.toUpperCase()}</Text>
-          </View>
           <View style={styles.infoContainer}>
+            <Text style={[styles.info, { backgroundColor: '#64B5F6',borderRadius:10,padding:5,textAlign:'center'}]}>
+              {item.type}
+            </Text>
             <View style={styles.iconText}>
-              <Icon name="user" size={20} color={Colors.black} style={{marginRight:10}} />
+              <Icon name="user" size={15} color={Colors.black} style={{marginRight:10}} />
               <Text style={styles.info}>{item.client}</Text>
-            </View>
-            <View style={styles.iconText}>
-              <Icon name="calendar" size={20} color={Colors.black} style={{marginRight:10}} />
-              <Text style={styles.info}>{item.PickupDate} - {item.ReturnDate}</Text>
             </View>
             <View style={styles.iconText}>
               <Icon name="location-pin" size={20} color={Colors.black} style={{marginRight:10}}/>
@@ -83,21 +65,7 @@ const RenderVehicles: React.FC<RenderVehicleProps> = ({ item }) => {
 
 const styles = StyleSheet.create({
   card: {
-    marginBottom:25,
-  },
-  statusIndicator: (backgroundColor) => ({
-    backgroundColor,
-    borderRadius: 10,
-    paddingVertical: 3,
-    paddingHorizontal: 6,
-    alignSelf: 'flex-start',
-    marginTop: 5,
-  }),
-  statusText: {
-    color: Colors.white,
-    fontWeight: 'bold',
-    fontSize: 12,
-    textTransform: 'uppercase',
+    marginVertical: 15,
   },
   container: {
     flexDirection: 'row',
@@ -112,11 +80,10 @@ const styles = StyleSheet.create({
     height: screenWidth * 0.35,
     borderRadius: 65,
     alignSelf: 'center',
-
   },
   details: {
     flex: 1,
-    padding: 20,
+    padding: 10,
   },
   title: {
     color: Colors.black,
@@ -129,8 +96,6 @@ const styles = StyleSheet.create({
   iconText: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent:'flex-start',
-    alignSelf:'flex-start',
     marginTop: 5,
   },
   info: {

@@ -6,7 +6,7 @@ export const black = '#010100';
 export const grey = "#717171";
 export const backgroundS = "#1a1a1a";
 // export const primary = '#125F52';
-export const primary = '#895124';
+export const primary = '#ECC33D';
 export const lighterprimary = '#FCF5F5';
 export const Iconwhite = '#FEFEFF';
 export const success = '#125F52';
@@ -14,6 +14,8 @@ export const warning = '#BC782A';
 export const danger = '#A92E20';
 export const disabled = 'rgba(0,0,0,0.25)';
 export const green = '#43A047'
+export const orange = '#FF9800'
+export const purple = '#673AB7'
 
 export default {
   primary,
@@ -27,6 +29,7 @@ export default {
   grey,
   white,
   green,
+  orange,purple,
   light: '#DEDEDE',
   brand: primary,
   splash: '#D70216',

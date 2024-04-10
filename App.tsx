@@ -1,12 +1,12 @@
-import {StatusBar, StyleSheet, Text, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import SplashScreen from './App/Screens/SplashScreen';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
+import React, { useEffect, useState } from 'react';
+import { StatusBar, StyleSheet } from 'react-native';
+import { PaperProvider } from 'react-native-paper';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 import Navigation from './App/Navigation/Navigation';
-import {PaperProvider} from 'react-native-paper';
-import {Provider, useSelector} from 'react-redux';
-import store, {persistor} from './App/Redux/Store';
-import {PersistGate} from 'redux-persist/integration/react';
+import store, { persistor } from './App/Redux/Store';
+import SplashScreen from './App/Screens/SplashScreen';
 
 const Main = () => {
   return (

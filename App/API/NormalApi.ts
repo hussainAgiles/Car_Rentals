@@ -1,14 +1,16 @@
 import API from './APIClients';
+import { Base_url } from './Constants';
 
 
-export const handleReservationCard = async () => {
-    try {
-      const response = await API.get(
-        `https://api.agilefleets.online/api/fetch-reservation-details`,
-      );
-      return response.data; // Adjust based on the actual structure of your API response
-    } catch (error) {
-      console.error('Error fetching resrvation:', error);
-      throw error; // Rethrow the error to be caught by the calling code
-    }
-  };
+export const handleLogin = async ({body}: {body: object}) => {
+  try {
+    const response = await API.post(
+      Base_url + 'login?',
+      body,
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching home promotion:', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};

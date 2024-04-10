@@ -1,14 +1,13 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import MainNavigator from "./MainNavigation";
 import { NavigationContainer } from "@react-navigation/native";
-import StepperForm from "../Components/StepperForm/SteeperForm";
-import Step1Screen from "../Components/StepperForm/StepOne";
+import Login from "../Screens/Login";
+
 
 
 export type RootStackParamList = {
     Root: any;
-    add_reservation:any,
-
+    Login:any,
   };
 
 
@@ -24,13 +23,18 @@ export type RootStackParamList = {
 const Stack = createStackNavigator<RootStackParamList>();
 function RootNavigator() {
     return (
-      <Stack.Navigator screenOptions={{ headerShown: false}}>
+      <Stack.Navigator screenOptions={{ headerShown: false}} initialRouteName="Root">
         <Stack.Screen
           name="Root"
           component={MainNavigator}
           options={{ headerShown: false }}
         />
-        <Stack.Screen name="add_reservation" component={StepperForm} options={{ headerShown: false }}/>
+          <Stack.Screen
+          name="Login"
+          component={Login}
+          options={{ headerShown: false }}
+        />
+        {/* <Stack.Screen name="add_reservation" component={StepperForm} options={{ headerShown: false }}/> */}
       </Stack.Navigator>
     );
   }

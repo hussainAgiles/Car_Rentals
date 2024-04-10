@@ -1,19 +1,17 @@
+import { useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
 import {
   Dimensions,
-  FlatList,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
-import React, {useState} from 'react';
-import ReservationTable from '../Components/Reservation/ReservationTable';
-import Colors from '../Constants/Colors';
-import {useNavigation} from '@react-navigation/native';
-import {TextInput} from 'react-native-gesture-handler';
+import { TextInput } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import RenderVehicles from '../Components/Reservation/RenderVehicles';
+import Colors from '../Constants/Colors';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -28,13 +26,15 @@ const Reservations = () => {
     {
       id: 1,
       info: 'Created: 04.04.202414:52 test Manager: Andrew',
-      Status: 'reserve',
+      Status: 'rental',
       Pickup: 'Pharpos Airport',
       drop: 'Pharpos Airport',
       Vehicle: 'TOYOTA COROLLA Compact',
       type: 'Automatic',
       client: 'Gabriella Johnson',
       Amount: 265.0,
+      PickupDate:"Mar 26th",
+      ReturnDate:"Apr 2nd",
       actions: 'sold',
       Vehicle_number: 'ABC128',
       image:
@@ -43,13 +43,15 @@ const Reservations = () => {
     {
       id: 2,
       info: 'Created: 04.04.202414:52 test Manager: Gray',
-      Status: 'reserve',
+      Status: 'reserved',
       Pickup: 'Pharpos Airport',
       drop: 'Pharpos Airport',
       Vehicle: 'TOYOTA COROLLA Compact',
       type: 'Manual',
       client: 'Gabriella Johnson',
       Amount: 255.0,
+      PickupDate:"Mar 26th",
+      ReturnDate:"Apr 2nd",
       actions: 'sold',
       Vehicle_number: 'ABC1287',
       image:
@@ -58,12 +60,14 @@ const Reservations = () => {
     {
       id: 3,
       info: 'Created: 04.04.202414:52 test Manager: John Doe',
-      Status: 'reserve',
+      Status: 'done',
       Pickup: 'Pharpos Airport',
       drop: 'Pharpos Airport',
       Vehicle: 'Volkswagen Golf',
       type: 'Automatic',
       client: 'John Doe',
+      PickupDate:"Mar 26th",
+      ReturnDate:"Apr 2nd",
       Amount: 265.0,
       actions: 'sold',
       Vehicle_number: 'ABC126',
@@ -72,12 +76,14 @@ const Reservations = () => {
     {
       id: 4,
       info: 'Created: 04.04.202414:52 test Manager: Manish',
-      Status: 'reserve',
+      Status: 'reserved',
       Pickup: 'Pharpos Airport',
       drop: 'Pharpos Airport',
       Vehicle: 'Toyota Hybrid Compact',
       type: 'Automatic',
       client: 'Evangeline',
+      PickupDate:"Mar 26th",
+      ReturnDate:"Apr 2nd",
       Amount: 265.0,
       actions: 'sold',
       Vehicle_number: 'ABC129',
@@ -87,7 +93,7 @@ const Reservations = () => {
     {
       id: 5,
       info: 'Created: 04.04.202414:52 test Manager: Vivek',
-      Status: 'reserve',
+      Status: 'rental',
       Pickup: 'Pharpos Airport',
       drop: 'Pharpos Airport',
       Vehicle: 'TOYOTA COROLLA Compact',
@@ -95,6 +101,8 @@ const Reservations = () => {
       client: 'Robin Luther',
       Amount: 265.0,
       actions: 'sold',
+      PickupDate:"Mar 26th",
+      ReturnDate:"Apr 2nd",
       Vehicle_number: 'ABC130',
       image:
         'https://img.freepik.com/premium-photo/white-car-minimalistic-white-scene_599391-5603.jpg?w=740',
@@ -102,13 +110,15 @@ const Reservations = () => {
     {
       id: 6,
       info: 'Created: 04.04.202414:52 test Manager: Andrew',
-      Status: 'reserve',
+      Status: 'rental',
       Pickup: 'Pharpos Airport',
       drop: 'Pharpos Airport',
       Vehicle: 'TOYOTA COROLLA Compact',
       type: 'Automatic',
       client: 'Gary Thomas',
       Amount: 265.0,
+      PickupDate:"Mar 26th",
+      ReturnDate:"Apr 2nd",
       actions: 'sold',
       Vehicle_number: 'ABC131',
       image:
@@ -117,13 +127,15 @@ const Reservations = () => {
     {
       id: 7,
       info: 'Created: 04.04.202414:52 test Manager: Andrew',
-      Status: 'reserve',
+      Status: 'reserved',
       Pickup: 'Pharpos Airport',
       drop: 'Pharpos Airport',
       Vehicle: 'TOYOTA COROLLA Compact',
       type: 'Manual',
       client: 'GABRIELLA JOHNSON',
       Amount: 265.0,
+      PickupDate:"Mar 26th",
+      ReturnDate:"Apr 2nd",
       actions: 'sold',
       Vehicle_number: 'ABC132',
       image:
@@ -132,7 +144,7 @@ const Reservations = () => {
     {
       id: 8,
       info: 'Créé:02.04.202414:06 test Gestionnaire: Gary',
-      Status: 'reserve',
+      Status: 'reserved',
       Pickup: 'Pharpos Airport',
       drop: 'Pharpos Airport',
       Vehicle: 'TOYOTA COROLLA Compact',
@@ -140,6 +152,8 @@ const Reservations = () => {
       client: 'Gabriella Johnson',
       Amount: 265.0,
       actions: 'sold',
+      PickupDate:"Mar 26th",
+      ReturnDate:"Apr 2nd",
       Vehicle_number: 'ABC133',
       image:
         'https://img.freepik.com/free-photo/view-3d-car_23-2150796894.jpg?w=740',
@@ -204,6 +218,10 @@ const Reservations = () => {
                 actions: item.actions || '',
                 Vehicle_number: item.Vehicle_number || '',
                 type: item.type || '',
+                PickupDate:item.PickupDate || '',
+                ReturnDate:item.ReturnDate || '',
+                
+
               }}
             />
           ))
@@ -225,7 +243,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    margin: 15,
+    padding:15
   },
   headerContainer: {
     flexDirection: 'row',
@@ -260,6 +278,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 20,
+    marginBottom:10,
   },
   noDataContainer:{
     justifyContent:'center',
