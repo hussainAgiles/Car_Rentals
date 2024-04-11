@@ -10,6 +10,7 @@ import {
 import Colors from '../../Constants/Colors';
 import Icon from 'react-native-vector-icons/Entypo';
 import { ImageBase_URL } from '../../API/Constants';
+import { useNavigation } from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -41,8 +42,17 @@ const RenderVehicles: React.FC<RenderVehicleProps> = ({ item }) => {
     : item.Status === 'Returned'
     ? Colors.red
     : Colors.grey;
+
+
+    const navigation = useNavigation();
+
+    const handleRental = (id) => {
+      navigation.navigate("Rental",{
+        id:id
+      });
+    }
   return (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={() => handleRental(item.Vehicle_number)}> 
       <View style={styles.container}>
         <View style={{justifyContent:'center'}}>
         <Image

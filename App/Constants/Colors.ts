@@ -15,12 +15,15 @@ export const danger = '#A92E20';
 export const disabled = 'rgba(0,0,0,0.25)';
 export const green = '#43A047'
 export const orange = '#FF9800'
+export const background = '#f9f9fc'
 export const purple = '#673AB7'
 export const red ='#E53935'
+export const lightBg = "#f9f9fc"
 
 export default {
   primary,
   lighterprimary,
+  lightBg,
   Iconwhite,
   success,
   warning,
@@ -32,11 +35,12 @@ export default {
   green,
   red,
   orange,purple,
+  background,
   light: '#DEDEDE',
   brand: primary,
   splash: '#D70216',
   placeholder: '#919191',
-  background: '#F0F2F2',
+  // background: '#F0F2F2',
   backgroundS,
   // background: '#EDEDE1',
   heading: '#393A3B',
