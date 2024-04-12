@@ -10,26 +10,7 @@ import {
 import {TextInput, Button} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const paymentsData = [
-  {
-    id: '1',
-    type: 'Payment',
-    date: '01.04.2024 10:00',
-    method: 'Card',
-    amount: '480.00',
-    status: 'Paid',
-  },
-  {
-    id: '2',
-    type: 'Deposit',
-    date: '01.04.2024 10:00',
-    method: 'Cash',
-    amount: '800.00',
-    status: 'Paid',
-  },
-];
-
-const Payment = () => {
+const Payment = ({item}: any) => {
   const [type, setType] = useState('');
   const [date, setDate] = useState('');
   const [method, setMethod] = useState('');
@@ -37,18 +18,26 @@ const Payment = () => {
 
   return (
     <View style={styles.container}>
-      <View>
-        <FlatList
-          data={paymentsData}
-          keyExtractor={item => item.id}
-          renderItem={({item}) => <PaymentItem {...item} />}
-          style={styles.paymentList}
-        />
-      </View>
+      {/* <View style={styles.paymentItem}>
+        <Text style={styles.paymentType}>{type}</Text>
+        <Text style={styles.paymentDate}>{date}</Text>
+        <View style={styles.paymentMethod}>
+          <Icon
+            name={method === 'Card' ? 'credit-card' : 'money'}
+            size={20}
+            color="#000"
+          />
+          <Text>{method}</Text>
+        </View>
+        <TouchableOpacity style={[styles.statusButton,]}>
+          <Text style={styles.statusText}>{status}</Text>
+        </TouchableOpacity>
+        <Text style={styles.amount}>{`${amount} €`}</Text>
+      </View> */}
       <View style={styles.formContainer}>
         <TextInput
           label="Payment type"
-          value={type}
+          value={item?.reservation?.payment_method}
           onChangeText={setType}
           mode="outlined"
           style={styles.input}
@@ -56,7 +45,7 @@ const Payment = () => {
         />
         <TextInput
           label=""
-          value={date}
+          value={item?.reservation?.payment_date}
           onChangeText={setDate}
           mode="outlined"
           style={styles.input}
@@ -65,7 +54,7 @@ const Payment = () => {
         />
         <TextInput
           label="Payment method"
-          value={method}
+          value={item?.reservation?.payment_method}
           onChangeText={setMethod}
           mode="outlined"
           style={styles.input}
@@ -73,42 +62,13 @@ const Payment = () => {
         />
         <TextInput
           label="Value"
-          value={value}
+          value={item?.reservation?.rental_price}
           onChangeText={setValue}
           mode="outlined"
           style={styles.input}
           keyboardType="numeric"
         />
-        <Button
-          icon="plus"
-          mode="contained"
-          onPress={() => console.log('Add payment')}
-          style={styles.addButton}>
-          Add payment
-        </Button>
       </View>
-    </View>
-  );
-};
-
-const PaymentItem = ({type, date, method, amount, status}) => {
-  const statusStyles = status === 'Paid' ? styles.paid : styles.pending;
-  return (
-    <View style={styles.paymentItem}>
-      <Text style={styles.paymentType}>{type}</Text>
-      <Text style={styles.paymentDate}>{date}</Text>
-      <View style={styles.paymentMethod}>
-        <Icon
-          name={method === 'Card' ? 'credit-card' : 'money'}
-          size={20}
-          color="#000"
-        />
-        <Text>{method}</Text>
-      </View>
-      <TouchableOpacity style={[styles.statusButton, statusStyles]}>
-        <Text style={styles.statusText}>{status}</Text>
-      </TouchableOpacity>
-      <Text style={styles.amount}>{`${amount} €`}</Text>
     </View>
   );
 };

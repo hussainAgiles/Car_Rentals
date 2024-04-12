@@ -1,34 +1,24 @@
-import {useNavigation} from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Dimensions,
+  ActivityIndicator,
   FlatList,
-  ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
-import {TextInput} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useDispatch, useSelector } from 'react-redux';
 import RenderVehicles from '../Components/Reservation/RenderVehicles';
 import Colors from '../Constants/Colors';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '../Redux/Store';
 import useIsMounted from '../Hooks/useIsMounted';
-import {fetchReservation} from '../Redux/Reducers/ReservationDetailsReducer';
-import {RootStackParamList} from '../Navigation/Navigation';
-import {StackScreenProps} from '@react-navigation/stack';
+import { fetchReservation } from '../Redux/Reducers/ReservationDetailsReducer';
+import { AppDispatch, RootState } from '../Redux/Store';
+import Loader from '../Components/Loader/Loader';
 
-const screenWidth = Dimensions.get('window').width;
 
-type ResrvationProps = StackScreenProps<RootStackParamList, 'add_reservation'>;
-
-const Reservations: React.FC<ResrvationProps> = ({navigation}) => {
-  const handleOnPress = () => {
-    navigation.navigate('add_reservation');
-  };
-
+const Reservations = () => {
   const dispatch = useDispatch<AppDispatch>();
   const isMounted = useIsMounted();
   useEffect(() => {
@@ -37,32 +27,24 @@ const Reservations: React.FC<ResrvationProps> = ({navigation}) => {
     }
   }, []);
 
-  const resrvedVehicles = useSelector(
-    (state: RootState) => state.reservationDetailReducer,
-  );
-
-  console.log('Reserved Vehicle == ', resrvedVehicles.data);
-
+  const { data, loading } = useSelector((state: RootState) => state.reservationDetailReducer);
   const [searchQuery, setSearchQuery] = useState('');
-  const handleSearch = text => {
+
+  const handleSearch = (text: string) => {
     setSearchQuery(text);
   };
 
   const filteredCarDetails = searchQuery
-    ? resrvedVehicles.data.filter(reservation =>
-        reservation.fleet_master?.vehicledetails?.name
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()),
+    ? data.filter((reservation: { fleet_master: { vehicledetails: { name: string; }; }; }) =>
+        reservation.fleet_master?.vehicledetails?.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
-    : resrvedVehicles.data;
+    : data;
 
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={{color: Colors.black, fontSize: 30, fontWeight: 'bold'}}>
-          Car Rentals
-        </Text>
-        <TouchableOpacity onPress={handleOnPress} style={styles.addButton}>
+        <Text style={styles.headerText}>Car Rentals</Text>
+        <TouchableOpacity style={styles.addButton}>
           <Text style={styles.buttonText}>Add Reservation</Text>
         </TouchableOpacity>
       </View>
@@ -71,74 +53,27 @@ const Reservations: React.FC<ResrvationProps> = ({navigation}) => {
         <TextInput
           placeholder="Search.."
           placeholderTextColor={Colors.black}
-          style={{fontSize: 15, color: Colors.black, width: screenWidth * 0.75}}
-          onChangeText={text => handleSearch(text)}
+          style={styles.searchInput}
+          onChangeText={handleSearch}
         />
         <Icon name="magnify" color={Colors.primary} size={30} />
       </View>
 
       <View style={styles.reserved}>
-        <Text style={{color: Colors.black, fontSize: 18, fontWeight: 'bold'}}>
-          Reserved
-        </Text>
-        <Text style={{color: Colors.black, fontSize: 14, fontWeight: 'bold'}}>
-          View All
-        </Text>
+        <Text style={styles.reservedText}>Reserved</Text>
+        <Text style={styles.viewAllText}>View All</Text>
       </View>
-      {/* {resrvedVehicles.data?.length > 0 ? (
-          resrvedVehicles.data?.map(item => (
-            <RenderVehicles
-              key={item.id}
-              item={{
-                id: item?.id || 0,
-                image: item.fleet_master?.vehiclemodel?.image_url || '',
-                // info: item.info || '',
-                Status: item.reservations_status || '',
-                Pickup: item.pickup_location?.name || '',
-                drop: item.drop_off_location?.name || '',
-                Vehicle: item.fleet_master?.vehicle_variant || '',
-                client: item?.customers?.full_name || '',
-                rental_price: item.rental_price || 0,
-                Vehicle_number: item.fleet_master?.registration_no || '',
-                type: item.fleet_master?.vehicle_type || '',
-                pickup_date: item?.pickup_date || '',
-                dropoff_date: item?.dropoff_date || '',
-              }}
-            />
-          )) */}
 
-      {filteredCarDetails?.length != 0 ? (
+      {loading === 'pending' ? (
+        <Loader />
+      ) : (
         <FlatList
           data={filteredCarDetails}
-          renderItem={({item}) => (
-            <RenderVehicles
-              key={item.id}
-              item={{
-                id: item?.id || 0,
-                image: item.fleet_master?.vehiclemodel?.image_url || '',
-                // info: item.info || '',
-                Status: item.reservations_status || '',
-                Pickup: item.pickup_location?.name || '',
-                drop: item.drop_off_location?.name || '',
-                Vehicle: item.fleet_master?.vehicle_variant || '',
-                client: item?.customers?.full_name || '',
-                rental_price: item.rental_price || 0,
-                Vehicle_number: item.fleet_master?.registration_no || '',
-                type: item.fleet_master?.vehicle_type || '',
-                pickup_date: item?.pickup_date || '',
-                dropoff_date: item?.dropoff_date || '',
-              }}
-            />
-          )}
-          keyExtractor={item => item.id}
+          renderItem={({ item }) => <RenderVehicles item={item} />}
+          keyExtractor={(item) => item.id.toString()}
           showsHorizontalScrollIndicator={false}
+          ListEmptyComponent={<Text style={styles.noDataText}>No data found.</Text>}
         />
-      ) : (
-        <View style={styles.noDataContainer}>
-          <Text style={{color: Colors.black, fontSize: 18}}>
-            No data found.
-          </Text>
-        </View>
       )}
     </View>
   );
@@ -149,13 +84,18 @@ export default Reservations;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column',
     padding: 15,
   },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 20,
+  },
+  headerText: {
+    color: Colors.black,
+    fontSize: 30,
+    fontWeight: 'bold',
   },
   addButton: {
     width: 120,
@@ -171,24 +111,44 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   searchInputContainer: {
-    width: screenWidth * 0.92,
+    width: '100%',
     borderRadius: 15,
     borderWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    marginTop: 20,
+    marginBottom: 20,
+  },
+  searchInput: {
+    fontSize: 15,
+    color: Colors.black,
+    width: '75%',
   },
   reserved: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 20,
     marginBottom: 10,
   },
-  noDataContainer: {
+  reservedText: {
+    color: Colors.black,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  viewAllText: {
+    color: Colors.black,
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  loader: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  noDataText: {
+    color: Colors.black,
+    fontSize: 18,
+    textAlign: 'center',
   },
 });

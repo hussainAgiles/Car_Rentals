@@ -3,13 +3,13 @@ import { View, Text, StyleSheet } from 'react-native';
 import Colors from '../../Constants/Colors';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const Insurance = () => {
+const Insurance = ({item}:any) => {
   return (
     <View style={styles.container}>
       <View style={{padding:10,flexDirection:'row'}}>
       <Icon name="shield" size={30} color={Colors.black} />
       <View style={{marginLeft:10}}>
-        <Text>CDW CDW WITH 800 EXCESS</Text>
+        <Text>{item?.reservation?.insurance}</Text>
         <Text>Insurance</Text>
       </View>
       </View>

@@ -1,168 +1,143 @@
-import React, {useState} from 'react';
-import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import {Avatar, Checkbox} from 'react-native-paper';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
+import { Checkbox } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Colors from '../Constants/Colors';
-import Header from '../Components/Header/Header';
+import Loader from '../Components/Loader/Loader';
 import DateandVehicles from '../Components/Reservations/DateandVehicles';
 import Customers from '../Components/Reservations/Customers';
 import Insurance from '../Components/Reservations/Insurance';
 import Payment from '../Components/Reservations/Payment';
 import Documents from '../Components/Reservations/Documents';
+import ReservationSummary from '../Components/Reservations/ReservationSummary';
+import Header from '../Components/Header/Header';
+import useDispatch from '../Hooks/useDispatch';
+import useIsMounted from '../Hooks/useIsMounted';
+import { fetchRentalDetail } from '../Redux/Reducers/ReservationDetailsReducer';
+import useAppSelector from '../Hooks/useSelector';
+import { RootState } from '../Redux/Store';
+import { useNavigation } from '@react-navigation/native';
 
-const Rental = () => {
-  const [vehicleChecked, setVehicleChecked] = useState(false);
-  const [customerChecked, setCustomerChecked] = useState(false);
-  const [insuranceChecked, setInsuranceChecked] = useState(false);
-  const [paymentChecked, setPaymentChecked] = useState(false);
-  const [documentsChecked, setDocumentsChecked] = useState(false);
-  const [showDetails, setShowDetails] = useState({
+const sections = ['vehicle', 'customer', 'insurance', 'payment', 'documents'];
+
+const Rental = ({ route }:any) => {
+  const dispatch = useDispatch();
+  const isMounted = useIsMounted();
+  const navigation = useNavigation();
+  const { rentalDetail, loading } = useAppSelector((state: RootState) => state.rentalDetailReducer);
+
+  useEffect(() => {
+    if (isMounted()) {
+      dispatch(fetchRentalDetail(route.params.id));
+    }
+  }, [route.params.id]);
+
+  const [checkedItems, setCheckedItems] = useState({
     vehicle: false,
     customer: false,
     insurance: false,
     payment: false,
     documents: false,
   });
+  const [currentOpenSection, setCurrentOpenSection] = useState('');
 
-  const toggleAccordion = (accordion: any) => {
-    setShowDetails(prevState => ({
-      ...prevState,
-      [accordion]: !prevState[accordion],
-    }));
+  const handleCheck = (section) => {
+    setCheckedItems((prev) => ({ ...prev, [section]: !prev[section] }));
+};
+
+  const handleNextStep = (currentSection) => {
+    const currentIndex = sections.indexOf(currentSection);
+    const nextSection = sections[currentIndex + 1];
+    setCurrentOpenSection(nextSection);
+  };
+
+  const renderAccordion = (section) => {
+    const Component = {
+      vehicle: DateandVehicles,
+      customer: Customers,
+      insurance: Insurance,
+      payment: Payment,
+      documents: Documents,
+    }[section];
+
+    return (
+      <>
+        <View style={styles.subHeadingView}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Checkbox
+              status={checkedItems[section] ? 'checked' : 'unchecked'}
+              onPress={() => handleCheck(section)}
+              uncheckedColor="black"
+              color="green"
+            />
+            <TouchableOpacity onPress={() => setCurrentOpenSection(section === currentOpenSection ? '' : section)}>
+              <Text style={styles.headingText}>{section.charAt(0).toUpperCase() + section.slice(1)}</Text>
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity onPress={() => setCurrentOpenSection(section === currentOpenSection ? '' : section)}>
+            <View style={{ alignItems: 'center', alignSelf: 'center' }}>
+              <Icon
+                name={currentOpenSection === section ? "keyboard-arrow-up" : "keyboard-arrow-down"}
+                size={30}
+                color={Colors.black}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+        {currentOpenSection === section && <Component item={rentalDetail} />}
+        {currentOpenSection === section && (
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={() => handleCheck(section)}>
+              <Text style={styles.buttonText}>Check</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => handleNextStep(section)}>
+              <Text style={styles.buttonText}>Next Step</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </>
+    );
+  };
+
+  const allItemsChecked = () => {
+    return Object.values(checkedItems).every(status => status === true);
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Header text="Rental" />
-      <View style={styles.headingView}>
-        <Text style={styles.headingText}>Check Reservations before</Text>
-        <Text style={styles.headingText}>ID 5 (#MBCXF1)</Text>
-      </View>
-      <View style={styles.subHeadingView}>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <Checkbox
-            status={vehicleChecked ? 'checked' : 'unchecked'}
-            onPress={() => setVehicleChecked(!vehicleChecked)}
-            uncheckedColor="black"
-            color="green"
-          />
-          <TouchableOpacity onPress={() => toggleAccordion('vehicle')}>
-            <Text style={styles.headingText}>Date & Vehicles</Text>
+      {loading === 'pending' ? (
+        <Loader />
+      ) : (
+        <>
+          {/* Your existing code to render rental details */}
+          {sections.map((section) => renderAccordion(section))}
+          <ReservationSummary reservation={rentalDetail?.reservation} />
+          <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: allItemsChecked() ? Colors.primary : '#ccc' }]}
+            disabled={!allItemsChecked()}
+          >
+            <Text style={styles.buttonText}>Rental</Text>
+          </TouchableOpacity>
+         
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: Colors.primary }]}
+            onPress={()=> navigation.goBack()}
+          >
+            <Text style={styles.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: Colors.primary }]}
+          >
+            <Text style={styles.buttonText}>Reject</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={() => toggleAccordion('vehicle')}>
-          <View style={{alignItems: 'center', alignSelf: 'center'}}>
-            {showDetails.vehicle ? (
-              <Icon name="keyboard-arrow-up" size={30} color={Colors.black} />
-            ) : (
-              <Icon name="keyboard-arrow-down" size={30} color={Colors.black} />
-            )}
-          </View>
-        </TouchableOpacity>
-      </View>
-      {showDetails.vehicle && <DateandVehicles />}
-      {/* Similarly, render other accordions */}
-      {/* Customer */}
-      <View style={styles.subHeadingView}>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <Checkbox
-            status={customerChecked ? 'checked' : 'unchecked'}
-            onPress={() => setCustomerChecked(!customerChecked)}
-            uncheckedColor="black"
-            color="green"
-          />
-          <TouchableOpacity onPress={() => toggleAccordion('customer')}>
-            <Text style={styles.headingText}>Customer</Text>
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity onPress={() => toggleAccordion('customer')}>
-          <View style={{alignItems: 'center', alignSelf: 'center'}}>
-            {showDetails.customer ? (
-              <Icon name="keyboard-arrow-up" size={30} color={Colors.black} />
-            ) : (
-              <Icon name="keyboard-arrow-down" size={30} color={Colors.black} />
-            )}
-          </View>
-        </TouchableOpacity>
-      </View>
-      {showDetails.customer && <Customers />}
-      {/* Insurance */}
-      <View style={styles.subHeadingView}>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <Checkbox
-            status={insuranceChecked ? 'checked' : 'unchecked'}
-            onPress={() => setInsuranceChecked(!insuranceChecked)}
-            uncheckedColor="black"
-            color="green"
-          />
-          <TouchableOpacity onPress={() => toggleAccordion('insurance')}>
-            <Text style={styles.headingText}>Insurance</Text>
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity onPress={() => toggleAccordion('insurance')}>
-          <View style={{alignItems: 'center', alignSelf: 'center'}}>
-            {showDetails.insurance ? (
-              <Icon name="keyboard-arrow-up" size={30} color={Colors.black} />
-            ) : (
-              <Icon name="keyboard-arrow-down" size={30} color={Colors.black} />
-            )}
-          </View>
-        </TouchableOpacity>
-      </View>
-      {showDetails.insurance && <Insurance />}
-      {/* Payment */}
-      <View style={styles.subHeadingView}>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <Checkbox
-            status={paymentChecked ? 'checked' : 'unchecked'}
-            onPress={() => setPaymentChecked(!paymentChecked)}
-            uncheckedColor="black"
-            color="green"
-          />
-          <TouchableOpacity onPress={() => toggleAccordion('payment')}>
-            <Text style={styles.headingText}>Payment</Text>
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity onPress={() => toggleAccordion('payment')}>
-          <View style={{alignItems: 'center', alignSelf: 'center'}}>
-            {showDetails.payment ? (
-              <Icon name="keyboard-arrow-up" size={30} color={Colors.black} />
-            ) : (
-              <Icon name="keyboard-arrow-down" size={30} color={Colors.black} />
-            )}
-          </View>
-        </TouchableOpacity>
-      </View>
-      {showDetails.payment && <Payment />}
-      {/* Documents */}
-      <View style={styles.subHeadingView}>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <Checkbox
-            status={documentsChecked ? 'checked' : 'unchecked'}
-            onPress={() => setDocumentsChecked(!documentsChecked)}
-            uncheckedColor="black"
-            color="green"
-          />
-          <TouchableOpacity onPress={() => toggleAccordion('documents')}>
-            <Text style={styles.headingText}>Document</Text>
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity onPress={() => toggleAccordion('documents')}>
-          <View style={{alignItems: 'center', alignSelf: 'center'}}>
-            {showDetails.documents ? (
-              <Icon name="keyboard-arrow-up" size={30} color={Colors.black} />
-            ) : (
-              <Icon name="keyboard-arrow-down" size={30} color={Colors.black} />
-            )}
-          </View>
-        </TouchableOpacity>
-      </View>
-      {showDetails.documents && <Documents />}
-    </View>
+        </>
+      )}
+    </ScrollView>
   );
 };
-
-export default Rental;
 
 const styles = StyleSheet.create({
   container: {
@@ -192,4 +167,37 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f0f0f0',
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  button: {
+    backgroundColor: Colors.primary,
+    padding: 10,
+    borderRadius: 5,
+    marginLeft:10,
+    marginRight:10
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  actionButton: {
+    padding: 10,
+    borderRadius: 5,
+    minWidth: 100, // Adjust the width as needed
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
 });
+
+export default Rental;

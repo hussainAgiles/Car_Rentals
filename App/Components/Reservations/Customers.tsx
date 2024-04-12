@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Colors from '../../Constants/Colors';
 
-const HeadingView = () => {
+const HeadingView = ({item}:any) => {
+   
   return (
     <View style={styles.container}>
      <View style={{padding:5}}>
@@ -13,10 +14,10 @@ const HeadingView = () => {
         <Text style={styles.cell}>Deals</Text>
       </View>
       <View style={styles.row}>
-        <Text style={[styles.cell, styles.text]}>Rahul</Text>
-        <Text style={[styles.cell, styles.text, {backgroundColor:Colors.green, borderRadius:15, textAlign:'center'}]}>Personal</Text>
-        <Text style={[styles.cell, styles.text]}>India</Text>
-        <Text style={[styles.cell, styles.text]}>2</Text>
+        <Text style={[styles.cell, styles.text]}>{item.reservation?.customers?.full_name}</Text>
+        <Text style={[styles.cell, styles.text, {backgroundColor:Colors.green, borderRadius:15, textAlign:'center'}]}>{item.reservation?.customers?.customer_type}</Text>
+        <Text style={[styles.cell, styles.text]}>{item.reservation?.customers?.address}</Text>
+        <Text style={[styles.cell, styles.text]}>{item.reservation?.customers?.terms}</Text>
       </View>
      </View>
     </View>

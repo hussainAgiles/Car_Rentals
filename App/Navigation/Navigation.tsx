@@ -6,22 +6,18 @@ import {useEffect, useState} from 'react';
 import useIsMounted from '../Hooks/useIsMounted';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../Redux/Store';
+import Rental from '../Screens/Rental';
+import { setClientToken } from '../API/APIClients';
 
 export type RootStackParamList = {
   Root: any;
   Login: any;
+  Rental:{
+    id:string;
+  }
 };
 
 export default function Navigation() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const userData = useSelector((state: RootState) => state.loginReducer);
-  // console.log("UserData====", userData);
-  useEffect(() => {
-    // For demonstration, setting isLoggedIn to true directly
-    if (userData) {
-      setIsLoggedIn(true);
-    }
-  }, []);
   return (
     <NavigationContainer>
       <RootNavigator />
@@ -32,16 +28,26 @@ export default function Navigation() {
 const Stack = createStackNavigator<RootStackParamList>();
 function RootNavigator() {
   const userData = useSelector((state: RootState) => state.loginReducer);
+  console.log("this is",userData);
+  setClientToken(userData.userData.access_token);
 
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <>
         {userData.userData ? (
+          <>
           <Stack.Screen
             name="Root"
             component={MainNavigator}
             options={{headerShown: false}}
           />
+          <Stack.Screen
+            name="Rental"
+            component={Rental}
+            options={{headerShown: false}}
+          />
+          </>
+          
         ) : (
           <Stack.Screen
             name="Login"

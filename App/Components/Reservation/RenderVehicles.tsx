@@ -1,114 +1,97 @@
-import React from 'react';
-import {
-  Dimensions,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import Colors from '../../Constants/Colors';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import React, { useState } from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import { ImageBase_URL } from '../../API/Constants';
-import { useNavigation } from '@react-navigation/native';
+import Colors from '../../Constants/Colors';
+import { RootStackParamList } from '../../Navigation/Navigation';
+import ImageLoader from '../Loader/ImageLoader';
 
-const screenWidth = Dimensions.get('window').width;
 
-type RenderVehicleProps = {
-  item: {
-    id: number;
-    // info: string;
-    Status: string;
-    Pickup: string;
-    drop: string;
-    Vehicle: string;
-    client: string;
-    rental_price: number;
-    actions: string;
-    Vehicle_number: string;
-    image: string;
-    type: string;
-    pickup_date:string;
-    dropoff_date:string;
-    
+const RenderVehicles = React.memo(({item}: any) => {
+  console.log("item",item)
+  const statusColor = getStatusColor(item?.reservations_status);
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const imageUrl = item?.fleet_master?.vehiclemodel?.image_url
+    ? {uri: ImageBase_URL + item.fleet_master?.vehiclemodel?.image_url}
+    : require('../../Assets/car.png');
+
+  const handleRental = (id:string) => {
+    navigation.navigate('Rental', {id});
   };
-};
 
-const RenderVehicles: React.FC<RenderVehicleProps> = ({ item }) => {
-   const statusColor = item.Status === 'Rented'
-    ? Colors.green
-    : item.Status === 'Active'
-    ? Colors.orange
-    : item.Status === 'Returned'
-    ? Colors.red
-    : Colors.grey;
+  const [loading, setLoading] = useState(false);
 
+  const onLoading = (value: boolean) => {
+    setLoading(value);
+  };
 
-    const navigation = useNavigation();
-
-    const handleRental = (id) => {
-      navigation.navigate("Rental",{
-        id:id
-      });
-    }
   return (
-    <TouchableOpacity style={styles.card} onPress={() => handleRental(item.Vehicle_number)}> 
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => handleRental(item.slug)}>
       <View style={styles.container}>
-        <View style={{justifyContent:'center'}}>
+        {loading && <ImageLoader />}
+        <View style={{justifyContent:'center',alignItems:'center'}}>
         <Image
-          source={{ uri:ImageBase_URL + item.image }}
+          source={imageUrl}
           style={styles.image}
           resizeMode="contain"
+          onLoadStart={() => onLoading(true)}
+          onLoadEnd={() => onLoading(false)}
         />
-         <Text style={[styles.info,{textAlign:'center',fontWeight:'bold',marginTop:5}]}>{item.Vehicle_number}</Text>
+         <Text style={styles.title}>
+            {item?.fleet_master?.registration_no}
+          </Text>
         </View>
        
         <View style={styles.details}>
-          <Text style={styles.title}>{item.Vehicle}</Text>
-          <View style={styles.statusIndicator(statusColor)}>
-            <Text style={styles.statusText}>{item.Status.toUpperCase()}</Text>
+          <Text style={styles.title}>
+            {item?.fleet_master?.vehicle_variant}
+          </Text>
+          <View
+            style={[styles.statusIndicator, {backgroundColor: statusColor}]}>
+            <Text style={styles.statusText}>{item.reservations_status}</Text>
           </View>
           <View style={styles.infoContainer}>
-            <View style={styles.iconText}>
-              <Icon name="user" size={20} color={Colors.black} style={{marginRight:10}} />
-              <Text style={styles.info}>{item?.client}</Text>
-            </View>
-            <View style={styles.iconText}>
-              <Icon name="calendar" size={20} color={Colors.black} style={{marginRight:10}} />
-              <Text style={styles.info}>{item?.pickup_date} - {item?.dropoff_date}</Text>
-            </View>
-            <View style={styles.iconText}>
-              <Icon name="location-pin" size={20} color={Colors.black} style={{marginRight:10}}/>
-              <Text style={styles.info}>{item?.Pickup}</Text>
-            </View>
-            <View style={styles.iconText}>
-              <Icon name="location" size={20} color={Colors.black} style={{marginRight:10}} />
-              <Text style={styles.info}>{item?.drop}</Text>
-            </View>
+            <InfoItem icon="user" text={item?.customers?.full_name} />
+            <InfoItem
+              icon="calendar"
+              text={`${item.pickup_date} - ${item.dropoff_date}`}
+            />
+            <InfoItem icon="location-pin" text={item?.pickup_location?.name} />
+            <InfoItem icon="location" text={item?.drop_off_location?.name} />
           </View>
         </View>
       </View>
     </TouchableOpacity>
   );
+});
+
+const InfoItem: React.FC<{icon: string; text: string}> = ({icon, text}) => (
+  <View style={styles.iconText}>
+    <Icon name={icon} size={20} color={Colors.black} style={styles.icon} />
+    <Text style={styles.info}>{text}</Text>
+  </View>
+);
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'Rented':
+      return Colors.green;
+    case 'Active':
+      return Colors.orange;
+    case 'Returned':
+      return Colors.red;
+    default:
+      return Colors.grey;
+  }
 };
 
 const styles = StyleSheet.create({
   card: {
-    marginBottom:25,
-  },
-  statusIndicator: (backgroundColor:any) => ({
-    backgroundColor,
-    borderRadius: 10,
-    paddingVertical: 3,
-    paddingHorizontal: 6,
-    alignSelf: 'flex-start',
-    marginTop: 5,
-  }),
-  statusText: {
-    color: Colors.white,
-    fontWeight: 'bold',
-    fontSize: 12,
-    textTransform: 'uppercase',
+    marginBottom: 25,
   },
   container: {
     flexDirection: 'row',
@@ -116,14 +99,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: 15,
     overflow: 'hidden',
-    padding:5
+    padding: 5,
   },
   image: {
-    width: screenWidth * 0.35,
-    height: screenWidth * 0.35,
-    borderRadius: 65,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     alignSelf: 'center',
-
   },
   details: {
     flex: 1,
@@ -134,15 +116,29 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 15,
   },
+  statusIndicator: {
+    borderRadius: 10,
+    paddingVertical: 3,
+    paddingHorizontal: 6,
+    alignSelf: 'flex-start',
+    marginTop: 5,
+  },
+  statusText: {
+    color: Colors.white,
+    fontWeight: 'bold',
+    fontSize: 12,
+    textTransform: 'uppercase',
+  },
   infoContainer: {
     marginTop: 5,
   },
   iconText: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent:'flex-start',
-    alignSelf:'flex-start',
     marginTop: 5,
+  },
+  icon: {
+    marginRight: 10,
   },
   info: {
     color: Colors.black,

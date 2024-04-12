@@ -10,16 +10,46 @@ import Colors from '../../Constants/Colors';
 import {Avatar} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
+import { ImageBase_URL } from '../../API/Constants';
 
-const DateandVehicles = () => {
+const DateandVehicles = ({item}:any) => {
+    function formatTimeDifference(value:any) {
+        const currentDate = new Date();
+        const updatedDate = new Date(value);
+      
+        // Calculate the time difference in milliseconds
+        const timeDiff = currentDate - updatedDate;
+      
+        // Convert milliseconds to hours and days
+        const hoursDiff = Math.floor(timeDiff / (1000 * 60 * 60));
+        const daysDiff = Math.floor(hoursDiff / 24);
+      
+        // Format the output based on the time difference
+        if (hoursDiff < 24) {
+          if (hoursDiff === 0) {
+            return "Updated less than an hour ago";
+          } else if (hoursDiff === 1) {
+            return "Updated 1 hr ago";
+          } else {
+            return `Updated ${hoursDiff} hrs ago`;
+          }
+        } else {
+          if (daysDiff === 1) {
+            return "Updated 1 day ago";
+          } else {
+            return `Updated ${daysDiff} days ago`;
+          }
+        }
+      }
+
   return (
     <ScrollView style={styles.Container}>
       <View style={styles.vehicleDetails}>
         <View style={styles.carInfo}>
-          <Avatar.Text size={40} label="AD" />
+          <Avatar.Image size={60} source={{uri : ImageBase_URL + item?.reservation?.fleet_master?.vehiclemodel?.image_url }} />
           <View style={styles.carText}>
-            <Text>Audi Q3</Text>
-            <Text>Convertible Manual</Text>
+            <Text style={{fontWeight:'bold',color:Colors.black}}>{item?.reservation?.fleet_master?.vehicle_variant}</Text>
+            <Text>{item?.reservation?.fleet_master?.vehicle_type}</Text>
           </View>
         </View>
         <View style={[styles.carInfo, {justifyContent: 'space-between'}]}>
@@ -27,7 +57,7 @@ const DateandVehicles = () => {
             <Icon name={'location-on'} color={Colors.black} size={28} />
             <View style={styles.carText}>
               <Text>Current Location</Text>
-              <Text>Bangalore</Text>
+              <Text>{item?.reservation?.pickup_location?.name}</Text>
             </View>
           </View>
           <View style={styles.carInfo}>
@@ -38,7 +68,7 @@ const DateandVehicles = () => {
             />
             <View style={styles.carText}>
               <Text>Manually Updated</Text>
-              <Text>4 hours ago</Text>
+              <Text>{formatTimeDifference(item?.reservation?.updated_at)}</Text>
             </View>
           </View>
         </View>
@@ -141,14 +171,14 @@ const DateandVehicles = () => {
               <Text>Odometer:</Text>
               <View style={{flexDirection: 'row'}}>
                 <Icon name={'speed'} color={Colors.black} size={24} />
-                <Text style={styles.subText}>10</Text>
+                <Text style={styles.subText}>{item?.reservation?.fleet_master?.speedometer}</Text>
               </View>
             </View>
             <View>
               <Text>Fuel Level:</Text>
               <View style={{flexDirection: 'row'}}>
                 <Icon2 name={'fuel'} color={Colors.black} size={24} />
-                <Text style={styles.subText}>60</Text>
+                <Text style={styles.subText}>{item?.reservation?.fleet_master?.fuel_level}</Text>
               </View>
             </View>
           </View>
@@ -183,6 +213,7 @@ const styles = StyleSheet.create({
   },
   vehicleDetails: {
     backgroundColor: '#f0f0f0',
+    padding:10,
   },
   carInfo: {
     flexDirection: 'row',

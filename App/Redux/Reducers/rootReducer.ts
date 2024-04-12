@@ -1,11 +1,13 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import persistedLoginSlice from './loginReducer';
-import reservationDetailSlice from './ReservationDetailsReducer';
+import { rentalDetails, resrvationDetails } from './ReservationDetailsReducer';
+
 
 const rootReducer = combineReducers({
     // all the reducers will be here
     loginReducer: persistedLoginSlice,
-    reservationDetailReducer:reservationDetailSlice 
+    reservationDetailReducer:resrvationDetails,
+    rentalDetailReducer:rentalDetails
   });
   
   export default rootReducer;
