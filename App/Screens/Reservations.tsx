@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useMemo } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
@@ -10,13 +9,12 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useDispatch, useSelector } from 'react-redux';
+import Loader from '../Components/Loader/Loader';
 import RenderVehicles from '../Components/Reservation/RenderVehicles';
 import Colors from '../Constants/Colors';
 import useIsMounted from '../Hooks/useIsMounted';
 import { fetchReservation } from '../Redux/Reducers/ReservationDetailsReducer';
 import { AppDispatch, RootState } from '../Redux/Store';
-import Loader from '../Components/Loader/Loader';
-
 
 const Reservations = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,18 +25,27 @@ const Reservations = () => {
     }
   }, []);
 
-  const { data, loading } = useSelector((state: RootState) => state.reservationDetailReducer);
+  const {data, loading} = useSelector(
+    (state: RootState) => state.reservationDetailReducer,
+  );
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
   };
-
-  const filteredCarDetails = searchQuery
-    ? data.filter((reservation: { fleet_master: { vehicledetails: { name: string; }; }; }) =>
-        reservation.fleet_master?.vehicledetails?.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : data;
+  const filteredCarDetails = useMemo(() => {
+    if (!searchQuery) {
+      return data;
+    }
+  
+    return data.filter((reservation:any) => {
+      return reservation.fleet_master?.vehicledetails?.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+    });
+  }, [data, searchQuery]);
+  
+  
 
   return (
     <View style={styles.container}>
@@ -69,10 +76,15 @@ const Reservations = () => {
       ) : (
         <FlatList
           data={filteredCarDetails}
-          renderItem={({ item }) => <RenderVehicles item={item} />}
-          keyExtractor={(item) => item.id.toString()}
+          renderItem={({item}) => <RenderVehicles item={item} />}
+          keyExtractor={item => item.id.toString()}
           showsHorizontalScrollIndicator={false}
-          ListEmptyComponent={<Text style={styles.noDataText}>No data found.</Text>}
+          initialNumToRender={10} // Adjust numbers based on your list size and performance
+          maxToRenderPerBatch={5}
+          windowSize={5} 
+          ListEmptyComponent={
+            <Text style={styles.noDataText}>No data found.</Text>
+          }
         />
       )}
     </View>

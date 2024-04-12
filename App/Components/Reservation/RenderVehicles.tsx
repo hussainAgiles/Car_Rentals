@@ -10,7 +10,6 @@ import ImageLoader from '../Loader/ImageLoader';
 
 
 const RenderVehicles = React.memo(({item}: any) => {
-  console.log("item",item)
   const statusColor = getStatusColor(item?.reservations_status);
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const imageUrl = item?.fleet_master?.vehiclemodel?.image_url
