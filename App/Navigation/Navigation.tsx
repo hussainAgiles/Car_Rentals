@@ -1,20 +1,17 @@
-import {createStackNavigator} from '@react-navigation/stack';
-import MainNavigator from './MainNavigation';
-import {NavigationContainer} from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { useSelector } from 'react-redux';
+import { RootState } from '../Redux/Store';
 import Login from '../Screens/Login';
-import {useEffect, useState} from 'react';
-import useIsMounted from '../Hooks/useIsMounted';
-import {useDispatch, useSelector} from 'react-redux';
-import {RootState} from '../Redux/Store';
 import Rental from '../Screens/Rental';
-import { setClientToken } from '../API/APIClients';
+import MainNavigator from './MainNavigation';
 
 export type RootStackParamList = {
   Root: any;
   Login: any;
-  Rental:{
-    id:string;
-  }
+  Rental: {
+    id: string;
+  };
 };
 
 export default function Navigation() {
@@ -28,26 +25,27 @@ export default function Navigation() {
 const Stack = createStackNavigator<RootStackParamList>();
 function RootNavigator() {
   const userData = useSelector((state: RootState) => state.loginReducer);
-  console.log("this is",userData);
-  setClientToken(userData.userData.access_token);
+  // console.log("this is",userData);
+  // if(userData){
+  //   setClientToken(userData.userData.access_token);
+  // }
 
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <>
         {userData.userData ? (
           <>
-          <Stack.Screen
-            name="Root"
-            component={MainNavigator}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Rental"
-            component={Rental}
-            options={{headerShown: false}}
-          />
+            <Stack.Screen
+              name="Root"
+              component={MainNavigator}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="Rental"
+              component={Rental}
+              options={{headerShown: false}}
+            />
           </>
-          
         ) : (
           <Stack.Screen
             name="Login"

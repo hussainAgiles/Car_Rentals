@@ -1,28 +1,29 @@
+import {useNavigation} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import {
+  SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  ScrollView,
 } from 'react-native';
 import {Checkbox} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import Colors from '../Constants/Colors';
+import Header from '../Components/Header/Header';
 import Loader from '../Components/Loader/Loader';
-import DateandVehicles from '../Components/Reservations/DateandVehicles';
 import Customers from '../Components/Reservations/Customers';
+import DateandVehicles from '../Components/Reservations/DateandVehicles';
+import Documents from '../Components/Reservations/Documents';
 import Insurance from '../Components/Reservations/Insurance';
 import Payment from '../Components/Reservations/Payment';
-import Documents from '../Components/Reservations/Documents';
 import ReservationSummary from '../Components/Reservations/ReservationSummary';
-import Header from '../Components/Header/Header';
+import Colors from '../Constants/Colors';
 import useDispatch from '../Hooks/useDispatch';
 import useIsMounted from '../Hooks/useIsMounted';
-import {fetchRentalDetail} from '../Redux/Reducers/ReservationDetailsReducer';
 import useAppSelector from '../Hooks/useSelector';
+import {fetchRentalDetail} from '../Redux/Reducers/ReservationDetailsReducer';
 import {RootState} from '../Redux/Store';
-import {useNavigation} from '@react-navigation/native';
 
 const sections = ['vehicle', 'customer', 'insurance', 'payment', 'documents'];
 
@@ -59,7 +60,7 @@ const Rental = ({route}: any) => {
     setCurrentOpenSection(nextSection);
   };
 
-  const renderAccordion = section => {
+  const renderAccordion = (section: any) => {
     const Component = {
       vehicle: DateandVehicles,
       customer: Customers,
@@ -70,7 +71,7 @@ const Rental = ({route}: any) => {
 
     return (
       <>
-        <View style={styles.subHeadingView}>
+        <View key={section} style={styles.subHeadingView}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Checkbox
               status={checkedItems[section] ? 'checked' : 'unchecked'}
@@ -131,39 +132,86 @@ const Rental = ({route}: any) => {
     return Object.values(checkedItems).every(status => status === true);
   };
 
-  return (
-    <ScrollView style={styles.container}>
-      <Header text="Rental" />
-      {loading === 'pending' ? (
-        <Loader />
-      ) : (
-        <>
-          {/* Your existing code to render rental details */}
-          {sections.map(section => renderAccordion(section))}
-          <ReservationSummary reservation={rentalDetail?.reservation} />
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={[
-                styles.actionButton,
-                {backgroundColor: allItemsChecked() ? Colors.primary : '#ccc'},
-              ]}
-              disabled={!allItemsChecked()}>
-              <Text style={styles.buttonText}>Rental</Text>
-            </TouchableOpacity>
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Rented':
+        return Colors.green;
+      case 'Active':
+        return Colors.orange;
+      case 'Returned':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  };
 
-            <TouchableOpacity
-              style={[styles.actionButton, {backgroundColor: Colors.primary}]}
-              onPress={() => navigation.goBack()}>
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.actionButton, {backgroundColor: Colors.primary}]}>
-              <Text style={styles.buttonText}>Reject</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
-    </ScrollView>
+  const statusColor = getStatusColor(
+    rentalDetail?.reservation?.reservations_status,
+  );
+
+  return (
+ 
+      <ScrollView style={styles.container}>
+        <Header text="Rental" />
+        {loading === 'pending' ? (
+          <Loader />
+        ) : (
+          <>
+            {/* Your existing code to render rental details */}
+            <View
+              style={{
+                flexDirection: 'row',
+                padding: 25,
+                paddingBottom: 0,
+                justifyContent: 'space-between',
+              }}>
+              <Text style={styles.headingText}>Check Reservations before</Text>
+              <View
+                style={[
+                  styles.statusIndicator,
+                  {
+                    backgroundColor: statusColor,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  },
+                ]}>
+                <Text style={styles.statusText}>
+                  {rentalDetail?.reservation?.reservations_status}
+                </Text>
+              </View>
+            </View>
+            {sections.map(section => renderAccordion(section))}
+            <ReservationSummary reservation={rentalDetail?.reservation} />
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={[
+                  styles.actionButton,
+                  {
+                    backgroundColor: allItemsChecked()
+                      ? Colors.primary
+                      : '#ccc',
+                  },
+                ]}
+                disabled={!allItemsChecked()}>
+                <Text style={styles.buttonText}>Rental</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.actionButton, {backgroundColor: Colors.primary}]}
+                onPress={() => navigation.goBack()}>
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.actionButton,
+                  {backgroundColor: Colors.primary},
+                ]}>
+                <Text style={styles.buttonText}>Reject</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+      </ScrollView>
   );
 };
 
@@ -224,6 +272,19 @@ const styles = StyleSheet.create({
     minWidth: 100, // Adjust the width as needed
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  statusIndicator: {
+    borderRadius: 10,
+    paddingVertical: 3,
+    paddingHorizontal: 6,
+    alignSelf: 'flex-start',
+    marginTop: 5,
+  },
+  statusText: {
+    color: Colors.white,
+    fontWeight: 'bold',
+    fontSize: 12,
+    textTransform: 'uppercase',
   },
 });
 

@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { StatusBar, StyleSheet } from 'react-native';
-import { PaperProvider } from 'react-native-paper';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
+import React, {useEffect, useState} from 'react';
+import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
+import {PaperProvider} from 'react-native-paper';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {Provider} from 'react-redux';
+import {PersistGate} from 'redux-persist/integration/react';
 import Navigation from './App/Navigation/Navigation';
-import store, { persistor } from './App/Redux/Store';
+import store, {persistor} from './App/Redux/Store';
 import SplashScreen from './App/Screens/SplashScreen';
 
 const Main = () => {
@@ -30,13 +30,15 @@ const App = () => {
   }, []);
   return (
     <SafeAreaProvider>
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <PaperProvider>
-            {isSplashVisible ? <SplashScreen /> : <Main />}
-          </PaperProvider>
-        </PersistGate>
-      </Provider>
+      <SafeAreaView style={{flex: 1}}>
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
+            <PaperProvider>
+              {isSplashVisible ? <SplashScreen /> : <Main />}
+            </PaperProvider>
+          </PersistGate>
+        </Provider>
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 };

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchRentalDetails, fetchResrvationDetails } from '../../API/NormalApi';
+import { fetchInsurance, fetchRentalDetails, fetchResrvationDetails, handleAddons } from '../../API/NormalApi';
 
 export const fetchReservation = createAsyncThunk(
   'home/reservedVehicles',
@@ -12,8 +12,6 @@ export const fetchReservation = createAsyncThunk(
     }
 });
 
-
-
 export const fetchRentalDetail = createAsyncThunk('home/rentalDetails', async (body: string, { rejectWithValue }) => {
   try {
     const response = await fetchRentalDetails({body});
@@ -23,18 +21,50 @@ export const fetchRentalDetail = createAsyncThunk('home/rentalDetails', async (b
   }
 });
 
+export const fetchInsuranceDetails = createAsyncThunk('home/insuranceDetails', async (body: string, { rejectWithValue }) => {
+  try {
+    const response = await fetchInsurance({body});
+    return response;
+  } catch (error) {
+    return rejectWithValue(error);
+  }
+});
+
+interface fetchAddons {
+  model_id: string;
+  frequency: string;
+ 
+}
+
+export const fetchAddons = createAsyncThunk(
+  'home/fetchAddons',
+  async ({ model_id, frequency }:fetchAddons, { rejectWithValue }) => {
+    
+    try {
+      const response = await handleAddons({ model_id, frequency});
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 type InitialStateType = {
   loading: any;
   data: any;
   error: any;
-  rentalDetail:any
+  rentalDetail:any;
+  insuranceDetail:any;
+  addOns:any;
 };
 
 const initialState: InitialStateType = {
   data: null,
   loading: 'idle',
   rentalDetail:null,
+  insuranceDetail:null,
   error: null,
+  addOns:null
 };
 
 export const resrvationDetailSlice = createSlice({
@@ -82,6 +112,53 @@ export const rentalDetailsSlice = createSlice({
 });
 
 
+export const rentalInsuranceSlice = createSlice({
+  name: 'insuranceDetails',
+  initialState,
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(fetchInsuranceDetails.pending, state => {
+        state.loading = 'pending';
+      })
+      .addCase(fetchInsuranceDetails.fulfilled, (state, action) => {
+        state.loading = 'idle';
+        state.insuranceDetail = action.payload
+        state.error = null;
+      })
+      .addCase(fetchInsuranceDetails.rejected, (state, action) => {
+        state.loading = 'idle';
+        state.error = action.payload as string;
+      })
+  },
+});
+
+
+
+export const addonsSlice = createSlice({
+  name: 'addOns',
+  initialState,
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(fetchAddons.pending, state => {
+        state.loading = 'pending';
+      })
+      .addCase(fetchAddons.fulfilled, (state, action) => {
+        state.loading = 'idle';
+        state.addOns = action.payload
+        state.error = null;
+      })
+      .addCase(fetchAddons.rejected, (state, action) => {
+        state.loading = 'idle';
+        state.error = action.payload as string;
+      })
+  },
+});
+
+
 export const { reducer: resrvationDetails} = resrvationDetailSlice;
 export const { reducer: rentalDetails} = rentalDetailsSlice;
+export const {reducer :  insuranceDetails } = rentalInsuranceSlice;
+export const {reducer :  addOns } = addonsSlice;
 
