@@ -16,8 +16,10 @@ const RenderVehicles = React.memo(({item}: any) => {
     ? {uri: ImageBase_URL + item.fleet_master?.vehiclemodel?.image_url}
     : require('../../Assets/car.png');
 
-  const handleRental = (id:string) => {
-    navigation.navigate('Rental', {id});
+  const handleRental = (id:string,status:string) => {
+    if(status === "Active"){
+      navigation.navigate('Rental', {id})
+    }
   };
 
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,7 @@ const RenderVehicles = React.memo(({item}: any) => {
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => handleRental(item.slug)}>
+      onPress={() => handleRental(item.slug,item.reservations_status)}>
       <View style={styles.container}>
         {loading && <ImageLoader />}
         <View style={{justifyContent:'center',alignItems:'center'}}>
