@@ -1,5 +1,5 @@
 import React from 'react';
-import {View} from 'react-native';
+import {View,StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Text from '../Text/Text';
 import Colors from '../../Constants/Colors';
@@ -13,25 +13,14 @@ interface TabIconProps {
   label: string;
 }
 
-const TabIcon: React.FC<TabIconProps> = ({
-  name,
-  color,
-  size,
-  focused,
-  label,
-}) => {
+const TabIcon: React.FC<TabIconProps> = ({ name, color, size, focused, label }) => {
   return (
-    <View>
-      <View
-        style={{
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-        <Icon name={name} color={focused ? Colors.primary : color } size={size} />
-      </View>
-      <Text
-        size={10}
-        style={{color: focused ? Colors.primary : color ,  fontWeight: focused ? 'bold' : 'normal', marginBottom: 5, marginTop: 1, fontSize: 12,textAlign:'center'}}>
+    <View style={styles.iconContainer}>
+      <Icon name={name} color={focused ? Colors.primary : color} size={30} />
+      <Text style={[
+        styles.iconText,
+        { color: focused ? Colors.primary : color, fontWeight: focused ? 'bold' : 'normal' }
+      ]}>
         {label}
       </Text>
     </View>
@@ -39,3 +28,17 @@ const TabIcon: React.FC<TabIconProps> = ({
 };
 
 export default TabIcon;
+
+// Styles for the TabIcon component
+const styles = StyleSheet.create({
+  iconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width:100,
+  },
+  iconText: {
+    fontSize: 15, // Choose a size that fits well
+    textAlign: 'center',
+    marginTop: 2, // Adjust margin to align text below the icon
+  },
+});

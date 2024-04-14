@@ -20,7 +20,12 @@ import Loader from '../Loader/Loader';
 import ImageLoader from '../Loader/ImageLoader';
 import {ActivityIndicator} from 'react-native-paper';
 
-const Insurance = ({item}: any) => {
+interface InsuranceProps {
+  item: any; // You can specify a more specific type based on your usage
+  onInsuranceUpdate: (selectedInsurance: number | null, selectedAddons: number | null) => void;
+}
+
+const Insurance = ({item,onInsuranceUpdate}: InsuranceProps) => {
   const dispatch = useDispatch();
   const isMounted = useIsMounted();
   const [selectedInsurance, setSelectedInsurance] = useState<number | null>(
@@ -90,10 +95,12 @@ const Insurance = ({item}: any) => {
 
   const handleSelectInsurance = (id: number) => {
     setSelectedInsurance(id);
+    onInsuranceUpdate(id, selectedAddons); // Pass current selection up
   };
-
+  
   const handleSelectAddons = (id: number) => {
     setSelectedAddons(id);
+    onInsuranceUpdate(selectedInsurance, id); // Pass current selection up
   };
 
   return (
@@ -106,10 +113,10 @@ const Insurance = ({item}: any) => {
           <TouchableOpacity
             key={insurance.id}
             style={styles.radioContainer}
-            onPress={() => handleSelectInsurance(insurance.id)}>
+            onPress={() => handleSelectInsurance(insurance.price_by_day)}>
             <Icon
               name={
-                selectedInsurance === insurance.id
+                selectedInsurance === insurance.price_by_day
                   ? 'radio-button-checked'
                   : 'radio-button-unchecked'
               }
@@ -134,10 +141,10 @@ const Insurance = ({item}: any) => {
           <TouchableOpacity
             key={addons.id}
             style={styles.radioContainer}
-            onPress={() => handleSelectAddons(addons.id)}>
+            onPress={() => handleSelectAddons(addons.price)}>
             <Icon
               name={
-                selectedAddons === addons.id
+                selectedAddons === addons.price
                   ? 'radio-button-checked'
                   : 'radio-button-unchecked'
               }

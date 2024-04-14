@@ -23,7 +23,7 @@ const MainNavigator: React.FC = () => {
         },
         tabBarStyle: {
           padding: 2,
-          height: Platform.OS === 'ios' ? 70 : 62,
+          height: Platform.OS === 'ios' ? 90 : 62,
           backgroundColor: Colors.Iconwhite,
           flexDirection: 'row',
         },

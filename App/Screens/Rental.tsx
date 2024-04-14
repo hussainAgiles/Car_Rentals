@@ -34,6 +34,18 @@ const Rental = ({route}: any) => {
   const {rentalDetail, loading} = useAppSelector(
     (state: RootState) => state.rentalDetailReducer,
   );
+  const [insuranceOptions, setInsuranceOptions] = useState({
+    baseCost:null,
+    selectedInsurance: null, // Selected insurance plan
+    addOnsCost: 0, // Additional cost from add-ons
+  });
+
+  useEffect(() => {
+    if (rentalDetail) {
+      setInsuranceOptions(prev => ({...prev, baseCost: rentalDetail.baseCost}));
+      console.log(insuranceOptions);
+    }
+  }, [rentalDetail]);
 
   useEffect(() => {
     if (isMounted()) {
@@ -60,6 +72,16 @@ const Rental = ({route}: any) => {
     setCurrentOpenSection(nextSection);
   };
 
+  const handleInsuranceUpdate = (insuranceId: number | null, addonsId: number | null) => {
+    console.log(`Selected Insurance ID: ${insuranceId}, Addons ID: ${addonsId}`);
+    setInsuranceOptions(prev => ({
+      ...prev,
+      insuranceId,
+      addonsId,
+    }));
+  };
+  
+
   const renderAccordion = (section: any) => {
     const Component = {
       vehicle: DateandVehicles,
@@ -68,6 +90,11 @@ const Rental = ({route}: any) => {
       payment: Payment,
       documents: Documents,
     }[section];
+    const componentProps = {
+      item: rentalDetail,
+      ...(section === 'insurance' && { onInsuranceUpdate: handleInsuranceUpdate })
+  };
+
 
     return (
       <>
@@ -109,7 +136,7 @@ const Rental = ({route}: any) => {
             </View>
           </TouchableOpacity>
         </View>
-        {currentOpenSection === section && <Component item={rentalDetail} />}
+        {currentOpenSection === section && <Component {...componentProps}  />}
         {currentOpenSection === section && (
           <View style={styles.buttonContainer}>
             <TouchableOpacity
@@ -181,7 +208,7 @@ const Rental = ({route}: any) => {
               </View>
             </View>
             {sections.map(section => renderAccordion(section))}
-            <ReservationSummary reservation={rentalDetail?.reservation} />
+            <ReservationSummary reservation={rentalDetail?.reservation} insuranceAddon={insuranceOptions} />
             <View style={styles.buttonRow}>
               <TouchableOpacity
                 style={[
