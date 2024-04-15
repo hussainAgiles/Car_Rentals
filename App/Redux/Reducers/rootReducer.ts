@@ -1,6 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import persistedLoginSlice from './loginReducer';
-import { addOns, insuranceDetails, rentalDetails, resrvationDetails } from './ReservationDetailsReducer';
+import { addOns, fleetReport, insuranceDetails, paymentHistory, paymentStatus, payments, rentalDetails, resrvationDetails } from './ReservationDetailsReducer';
 
 
 const rootReducer = combineReducers({
@@ -9,7 +9,11 @@ const rootReducer = combineReducers({
     reservationDetailReducer:resrvationDetails,
     rentalDetailReducer:rentalDetails,
     rentailInsuranceReducer:insuranceDetails,
-    addOnsReducer:addOns
+    addOnsReducer:addOns,
+    createPaymentReducer:payments,
+    fetchPaymentReducer : paymentHistory,
+    fetchPaymentStatusReducer : paymentStatus,
+    fleetReportReducer:fleetReport,
   });
   
   export default rootReducer;

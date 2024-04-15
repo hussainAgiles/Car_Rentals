@@ -3,7 +3,7 @@ import {View, Text, StyleSheet} from 'react-native';
 import Colors from '../../Constants/Colors';
 
 const ReservationSummary = ({reservation, insuranceAddon}: any) => {
-  console.log(insuranceAddon);
+  // console.log(insuranceAddon);
   const calculateSubtotal = () => {
     const rentalPrice = reservation?.rental_price || 0;
     const addonTotalPrice = reservation?.addon_total_price || 0;

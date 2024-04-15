@@ -43,7 +43,7 @@ const Rental = ({route}: any) => {
   useEffect(() => {
     if (rentalDetail) {
       setInsuranceOptions(prev => ({...prev, baseCost: rentalDetail.baseCost}));
-      console.log(insuranceOptions);
+      // console.log(insuranceOptions);
     }
   }, [rentalDetail]);
 
@@ -73,7 +73,7 @@ const Rental = ({route}: any) => {
   };
 
   const handleInsuranceUpdate = (insuranceId: number | null, addonsId: number | null) => {
-    console.log(`Selected Insurance ID: ${insuranceId}, Addons ID: ${addonsId}`);
+    // console.log(`Selected Insurance ID: ${insuranceId}, Addons ID: ${addonsId}`);
     setInsuranceOptions(prev => ({
       ...prev,
       insuranceId,

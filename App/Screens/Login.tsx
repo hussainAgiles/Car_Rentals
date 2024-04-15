@@ -33,7 +33,7 @@ const Login = ({ navigation }: any) => {
             usertype:"CMSAdmin",
           })
         );
-        console.log(loginResponse);
+        // console.log(loginResponse);
         if (loginResponse.payload.status === 'S') {
          
           // const token = loginResponse.access_token;

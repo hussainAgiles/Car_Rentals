@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchInsurance, fetchRentalDetails, fetchResrvationDetails, handleAddons } from '../../API/NormalApi';
+import {fetchInsurance, fetchRentalDetails, fetchResrvationDetails, handleAddons, createPayment, fetchPayments, updatePayment, fetchFleetReport} from '../../API/NormalApi';
 
 export const fetchReservation = createAsyncThunk(
   'home/reservedVehicles',
@@ -49,6 +49,76 @@ export const fetchAddons = createAsyncThunk(
   }
 );
 
+
+export const fetchFleetReports = createAsyncThunk('home/fleetReport', async () => {
+  try {
+    const response = await fetchFleetReport();
+    return response;
+  } catch (error) {
+    return error;
+  }
+});
+
+interface paymentPayload {
+  type:string,
+  method: string;
+  date:string;
+  value:string;
+  reservation_id:string;
+  customer_id:string;
+  
+}
+
+export const create_Payment = createAsyncThunk(
+  'home/createPayment',
+  async (payload: paymentPayload, {rejectWithValue}) => {
+    // console.log("hello entered",payload.date);
+    try {
+      const response = createPayment({body: payload});
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
+
+export const fetchPayment = createAsyncThunk(
+  'home/fetchPayment',
+  async (id:string, {rejectWithValue}) => {
+    // console.log("id received",id);
+    try {
+      const response = fetchPayments(id);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
+
+interface paymentStatusPayload {
+  id:string
+  reservation_id:string;
+  status:string;
+  
+  
+}
+
+export const fetchStatus = createAsyncThunk(
+  'home/fetchStatus',
+  async (payload: paymentStatusPayload, {rejectWithValue}) => {
+    // console.log("payload received",payload);
+    try {
+      const response = await updatePayment({body: payload});
+      // console.log("Response fetch status reducers",response)
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
 type InitialStateType = {
   loading: any;
   data: any;
@@ -56,6 +126,10 @@ type InitialStateType = {
   rentalDetail:any;
   insuranceDetail:any;
   addOns:any;
+  paymentData:any;
+  paymentHistory:any;
+  paymentStatus:any
+  fleetData:any;
 };
 
 const initialState: InitialStateType = {
@@ -64,7 +138,11 @@ const initialState: InitialStateType = {
   rentalDetail:null,
   insuranceDetail:null,
   error: null,
-  addOns:null
+  addOns:null,
+  paymentData:null,
+  paymentHistory:null,
+  paymentStatus:null,
+  fleetData:null,
 };
 
 export const resrvationDetailSlice = createSlice({
@@ -157,8 +235,102 @@ export const addonsSlice = createSlice({
 });
 
 
+export const paymentSlice = createSlice({
+  name: 'payments',
+  initialState,
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(create_Payment.pending, state => {
+        state.loading = 'pending';
+      })
+      .addCase(create_Payment.fulfilled, (state, action) => {
+        state.loading = 'idle';
+        state.paymentData=action.payload
+        state.error = null;
+      })
+      .addCase(create_Payment.rejected, (state, action) => {
+        state.loading = 'idle';
+        state.error = action.payload as string;
+      })
+  },
+});
+
+export const paymentHistorySlice = createSlice({
+  name: 'paymentsHistory',
+  initialState,
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(fetchPayment.pending, state => {
+        state.loading = 'pending';
+      })
+      .addCase(fetchPayment.fulfilled, (state, action) => {
+        state.loading = 'idle';
+        // console.log("truee ",action.payload)
+        state.paymentHistory=action.payload
+        state.error = null;
+      })
+      .addCase(fetchPayment.rejected, (state, action) => {
+        state.loading = 'idle';
+        state.error = action.payload as string;
+      })
+  },
+});
+
+export const paymentStatusSlice = createSlice({
+  name: 'paymentStatus',
+  initialState,
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(fetchStatus.pending, state => {
+        state.loading = 'pending';
+      })
+      .addCase(fetchStatus.fulfilled, (state, action) => {
+        state.loading = 'idle';
+        // console.log("truee ",action.payload)
+        state.paymentStatus=action.payload
+        state.error = null;
+      })
+      .addCase(fetchStatus.rejected, (state, action) => {
+        state.loading = 'idle';
+        state.error = action.payload as string;
+      })
+  },
+});
+
+export const fleetReportSlice = createSlice({
+  name: 'fleetReport',
+  initialState,
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(fetchFleetReports.pending, state => {
+        state.loading = 'pending';
+      })
+      .addCase(fetchFleetReports.fulfilled, (state, action) => {
+        state.loading = 'idle';
+        state.fleetData = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchFleetReports.rejected, (state, action) => {
+        state.loading = 'idle';
+        state.error = action.payload as string;
+      })   
+  },
+});
+
+
+
+
 export const { reducer: resrvationDetails} = resrvationDetailSlice;
 export const { reducer: rentalDetails} = rentalDetailsSlice;
 export const {reducer :  insuranceDetails } = rentalInsuranceSlice;
 export const {reducer :  addOns } = addonsSlice;
+export const {reducer :   payments} = paymentSlice;
+export const {reducer :   paymentHistory} = paymentHistorySlice;
+export const {reducer :   paymentStatus} = paymentStatusSlice;
+export const { reducer: fleetReport} = fleetReportSlice;
+
 

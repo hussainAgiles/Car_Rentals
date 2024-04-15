@@ -12,7 +12,7 @@ const SplashScreen = () => {
     (state: RootState) => state.loginReducer,
   );
 
-  console.log(userData);
+  // console.log(userData);
   useEffect(() => {
     fetchToken();
   }, [])
