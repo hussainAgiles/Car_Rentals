@@ -2,18 +2,27 @@ import {Animated, StyleSheet, Text, View} from 'react-native';
 import React, {useEffect} from 'react';
 import Colors from '../Constants/Colors';
 import LottieView from 'lottie-react-native';
-import {useSelector} from 'react-redux';
-import {RootState} from '../Redux/Store';
 import {setClientToken} from '../API/APIClients';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSelector } from 'react-redux';
+import { RootState } from '../Redux/Store';
 
 const SplashScreen = () => {
-  const userData = useSelector((state: RootState) => state.loginReducer);
-  // useEffect(() => {
-  //   console.log('this is', userData);
-  //   if (userData) {
-  //     setClientToken(userData.userData.access_token);
-  //   }
-  // });
+  const {userData, loading} = useSelector(
+    (state: RootState) => state.loginReducer,
+  );
+
+  console.log(userData);
+  useEffect(() => {
+    fetchToken();
+  }, [])
+
+  const fetchToken = async () => {
+    const token = await AsyncStorage.getItem('access_token');
+    if(token){
+      setClientToken(token);
+    }
+  }
   return (
     <View style={styles.container}>
       <LottieView

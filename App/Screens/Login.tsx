@@ -8,6 +8,8 @@ import Toast from 'react-native-toast-message';
 import useDispatch from '../Hooks/useDispatch';
 import { login } from '../Redux/Reducers/loginReducer';
 import useAppSelector from '../Hooks/useSelector';
+import { setClientToken } from '../API/APIClients';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = ({ navigation }: any) => {
   const [email, setText] = React.useState('');
@@ -31,12 +33,17 @@ const Login = ({ navigation }: any) => {
             usertype:"CMSAdmin",
           })
         );
+        console.log(loginResponse);
         if (loginResponse.payload.status === 'S') {
+         
+          // const token = loginResponse.access_token;
+          // setClientToken(token)
+          // AsyncStorage.setItem('access_token',loginResponse.access_token)
           Toast.show({
             type: 'success',
             text1: "Login Success",
           });
-          navigation.navigate('Root');
+          // navigation.navigate('Root');
         } else {
           Toast.show({
             type: 'error',

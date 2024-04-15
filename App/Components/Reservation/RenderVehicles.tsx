@@ -1,13 +1,12 @@
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import React, { useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import React, {useState} from 'react';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
-import { ImageBase_URL } from '../../API/Constants';
+import {ImageBase_URL} from '../../API/Constants';
 import Colors from '../../Constants/Colors';
-import { RootStackParamList } from '../../Navigation/Navigation';
+import {RootStackParamList} from '../../Navigation/Navigation';
 import ImageLoader from '../Loader/ImageLoader';
-
 
 const RenderVehicles = React.memo(({item}: any) => {
   const statusColor = getStatusColor(item?.reservations_status);
@@ -16,9 +15,9 @@ const RenderVehicles = React.memo(({item}: any) => {
     ? {uri: ImageBase_URL + item.fleet_master?.vehiclemodel?.image_url}
     : require('../../Assets/car.png');
 
-  const handleRental = (id:string,status:string) => {
-    if(status === "Active"){
-      navigation.navigate('Rental', {id})
+  const handleRental = (id: string, status: string) => {
+    if (status === 'Active') {
+      navigation.navigate('Rental', {id});
     }
   };
 
@@ -31,23 +30,22 @@ const RenderVehicles = React.memo(({item}: any) => {
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => handleRental(item.slug,item.reservations_status)}>
+      onPress={() => handleRental(item.slug, item.reservations_status)}>
       <View style={styles.container}>
-        {loading && <ImageLoader />}
-        <View style={{justifyContent:'center',alignItems:'center'}}>
-        <Image
-          source={imageUrl}
-          style={styles.image}
-          resizeMode="contain"
-          onLoadStart={() => onLoading(true)}
-          onLoadEnd={() => onLoading(false)}
-        />
-         <Text style={styles.title}>
+        <View style={styles.rightContainer}>
+          {loading && <ImageLoader />}
+          <Image
+            source={imageUrl}
+            style={styles.image}
+            resizeMode="contain"
+            onLoadStart={() => onLoading(true)}
+            onLoadEnd={() => onLoading(false)}
+          />
+          <Text style={styles.regNo}>
             {item?.fleet_master?.registration_no}
           </Text>
         </View>
-       
-        <View style={styles.details}>
+        <View style={styles.leftContainer}>
           <Text style={styles.title}>
             {item?.fleet_master?.vehicle_variant}
           </Text>
@@ -100,6 +98,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: 15,
     overflow: 'hidden',
+    justifyContent: 'space-between',
     padding: 5,
   },
   image: {
@@ -108,14 +107,30 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignSelf: 'center',
   },
-  details: {
-    flex: 1,
+  leftContainer: {
+    justifyContent: 'center',
+    // alignItems: 'center',
+    // Add padding or margin if needed, to space it from the rightContainer
+  },
+  rightContainer: {
     padding: 20,
+    justifyContent: 'center',
+    alignSelf:'center',
+    alignContent:'center',
+    // Align items to the start if you want the content to align left
+    alignItems: 'center',
+  },
+  regNo: {
+    color: Colors.black,
+    fontWeight: 'bold',
+    fontSize: 15,
+    // Add additional styling if needed
   },
   title: {
     color: Colors.black,
     fontWeight: 'bold',
     fontSize: 15,
+    textAlign:'left',
   },
   statusIndicator: {
     borderRadius: 10,
