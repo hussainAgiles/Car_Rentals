@@ -22,7 +22,7 @@ import Colors from '../Constants/Colors';
 import useDispatch from '../Hooks/useDispatch';
 import useIsMounted from '../Hooks/useIsMounted';
 import useAppSelector from '../Hooks/useSelector';
-import {fetchRentalDetail} from '../Redux/Reducers/ReservationDetailsReducer';
+import {fetchPayment, fetchRentalDetail} from '../Redux/Reducers/ReservationDetailsReducer';
 import {RootState} from '../Redux/Store';
 
 const sections = ['vehicle', 'customer', 'insurance', 'payment', 'documents'];
@@ -39,6 +39,13 @@ const Rental = ({route}: any) => {
     selectedInsurance: null, // Selected insurance plan
     addOnsCost: 0, // Additional cost from add-ons
   });
+  const [paymentCompleted, setPaymentCompleted] = useState(0);
+
+ 
+
+  const {paymentHistory,} = useAppSelector(
+    (state: RootState) => state.fetchPaymentReducer,
+  );
 
   useEffect(() => {
     if (rentalDetail) {
@@ -46,6 +53,42 @@ const Rental = ({route}: any) => {
       // console.log(insuranceOptions);
     }
   }, [rentalDetail]);
+
+  useEffect(() => {
+    console.log("Fetching payment for ID:", rentalDetail?.reservation?.id);
+    // Fetch logic here
+  }, [rentalDetail?.reservation?.id]);
+  
+  useEffect(() => {
+    console.log("Updating payment completed state:", paymentHistory);
+    // Calculation and state update logic here
+  }, [paymentHistory]);
+
+  useEffect(() => {
+
+    // Then fetch new data
+    if (isMounted() && rentalDetail?.reservation?.id) {
+      console.log(rentalDetail?.reservation?.id);
+      setPaymentCompleted(0); 
+      dispatch(fetchPayment(rentalDetail.reservation.id));
+    }
+  }, [rentalDetail?.reservation?.id])
+
+  useEffect(() => {
+    // Assuming 'paymentStatus' is part of 'rentalDetail' and it's a string
+    if (paymentHistory?.reservation_payment) {
+      let totalPaid = 0; // Initialize a variable to hold the sum of all paid payments.
+      paymentHistory.reservation_payment.forEach((payment: { status: string; value: string; }) => {
+          if (payment.status === 'Paid') {
+              // Assuming payment.value is a string that needs to be converted to a number.
+              totalPaid += parseFloat(payment.value);
+          }
+      });
+      setPaymentCompleted(totalPaid); // Set the total paid amount to the state.
+  }
+  }, [paymentHistory]);
+
+ 
 
   useEffect(() => {
     if (isMounted()) {
@@ -178,8 +221,10 @@ const Rental = ({route}: any) => {
 
   return (
  
+    <View style={{flex:1}}>
+      <Header text="Rental" />
       <ScrollView style={styles.container}>
-        <Header text="Rental" />
+        
         {loading === 'pending' ? (
           <Loader />
         ) : (
@@ -208,7 +253,7 @@ const Rental = ({route}: any) => {
               </View>
             </View>
             {sections.map(section => renderAccordion(section))}
-            <ReservationSummary reservation={rentalDetail?.reservation} insuranceAddon={insuranceOptions} />
+            <ReservationSummary reservation={rentalDetail?.reservation} insuranceAddon={insuranceOptions} paymentCompleted={paymentCompleted} />
             <View style={styles.buttonRow}>
               <TouchableOpacity
                 style={[
@@ -239,6 +284,8 @@ const Rental = ({route}: any) => {
           </>
         )}
       </ScrollView>
+    </View>
+     
   );
 };
 

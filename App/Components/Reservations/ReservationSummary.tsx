@@ -2,7 +2,7 @@ import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import Colors from '../../Constants/Colors';
 
-const ReservationSummary = ({reservation, insuranceAddon}: any) => {
+const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any) => {
   // console.log(insuranceAddon);
   const calculateSubtotal = () => {
     const rentalPrice = reservation?.rental_price || 0;
@@ -15,7 +15,7 @@ const ReservationSummary = ({reservation, insuranceAddon}: any) => {
   };
 
   const subtotal = calculateSubtotal();
-  const totalDue = subtotal - (reservation?.balance_amount || 0);
+  const totalDue = subtotal - (paymentCompleted || 0);
 
   const calculateRentPeriod = (
     pickup_date: string | number | Date,
@@ -135,7 +135,7 @@ const ReservationSummary = ({reservation, insuranceAddon}: any) => {
             <Text style={styles.summaryValue}>{subtotal.toFixed(2)} AUD</Text>
 
             <Text style={styles.summaryValue}>
-              {reservation?.balance_amount.toFixed(2)} AUD
+              {paymentCompleted? paymentCompleted : 0} AUD
             </Text>
           </View>
         </View>
@@ -153,7 +153,7 @@ const ReservationSummary = ({reservation, insuranceAddon}: any) => {
         <View style={styles.dueBalanceContainer}>
           <Text style={styles.summaryTitle}>Damage excess:</Text>
           <Text style={styles.summaryValue}>
-            {reservation?.insurance_price?.toFixed(2)} AUD
+            100 AUD
           </Text>
         </View>
       </View>
