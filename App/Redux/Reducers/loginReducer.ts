@@ -15,6 +15,9 @@ export const login = createAsyncThunk(
   async (payload: loginPayload, {rejectWithValue}) => {
     try {
       const response = await handleLogin({body: payload});
+      if (response.status === 'E') { // Assuming 'E' means error in your API response
+        return rejectWithValue(response.message);
+      }
       return response;
     } catch (error) {
       return rejectWithValue(error);

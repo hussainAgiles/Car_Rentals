@@ -7,6 +7,7 @@ import {PersistGate} from 'redux-persist/integration/react';
 import Navigation from './App/Navigation/Navigation';
 import store, {persistor} from './App/Redux/Store';
 import SplashScreen from './App/Screens/SplashScreen';
+import Toast from 'react-native-toast-message';
 
 const Main = () => {
   return (
@@ -35,6 +36,7 @@ const App = () => {
           <PersistGate loading={null} persistor={persistor}>
             <PaperProvider>
               {isSplashVisible ? <SplashScreen /> : <Main />}
+              <Toast />
             </PaperProvider>
           </PersistGate>
         </Provider>
@@ -45,4 +47,3 @@ const App = () => {
 
 export default App;
 
-const styles = StyleSheet.create({});

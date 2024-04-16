@@ -1,33 +1,27 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
-  View,
   TouchableOpacity,
-  ScrollView,
-  FlatList,
+  View
 } from 'react-native';
-import {TextInput, Button} from 'react-native-paper';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import Colors from '../../Constants/Colors';
-import {useSelector} from 'react-redux';
-import useIsMounted from '../../Hooks/useIsMounted';
+import { TextInput } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { useSelector } from 'react-redux';
+import Colors from '../../Constants/Colors';
+import useDispatch from '../../Hooks/useDispatch';
+import useIsMounted from '../../Hooks/useIsMounted';
 import {
   create_Payment,
   fetchPayment,
   fetchStatus,
 } from '../../Redux/Reducers/ReservationDetailsReducer';
-import {RootState} from '../../Redux/Store';
-import {Picker} from '@react-native-picker/picker';
-import useDispatch from '../../Hooks/useDispatch';
+import { RootState } from '../../Redux/Store';
 
 const Payment = ({item}: any) => {
-  // console.log('item == ', item.reservation);
-
   const [type, setType] = useState('');
-  const [newdate, setNewDate] = useState('');
   const [method, setMethod] = useState('');
   const [value, setValue] = useState('');
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -143,48 +137,15 @@ const Payment = ({item}: any) => {
         (
           payment: {
             status: string;
-            type:
-              | string
-              | number
-              | boolean
-              | React.ReactElement<
-                  any,
-                  string | React.JSXElementConstructor<any>
-                >
-              | Iterable<React.ReactNode>
-              | React.ReactPortal
-              | null
-              | undefined;
-            date:
-              | string
-              | number
-              | boolean
-              | React.ReactElement<
-                  any,
-                  string | React.JSXElementConstructor<any>
-                >
-              | Iterable<React.ReactNode>
-              | React.ReactPortal
-              | null
-              | undefined;
-            method:
-              | string
-              | number
-              | boolean
-              | React.ReactElement<
-                  any,
-                  string | React.JSXElementConstructor<any>
-                >
-              | Iterable<React.ReactNode>
-              | null
-              | undefined;
+            type:any;
+            date:any;
+            method:any;
             value: any;
             id: any;
           },
           index: React.Key | null | undefined,
         ) => (
           <View style={styles.paymentItem} key={payment.id}>
-            <Text style={styles.paymentType}>{payment.type}</Text>
             <Text style={styles.paymentDate}>{payment.date}</Text>
             <View style={[styles.paymentMethod]}>
               <Icon
@@ -221,14 +182,14 @@ const Payment = ({item}: any) => {
       <View style={styles.formContainer}>
         <TextInput
           label="Payment type"
-          value={item?.reservation?.payment_method}
+          value={type}
           onChangeText={value => {
             setType(value);
           }}
           mode="outlined"
           style={styles.input}
           textColor={Colors.black}
-          right={<TextInput.Icon name="menu-down" />}
+          // right={<TextInput.Icon icon="menu-down" />}
         />
         <View>
           <TouchableOpacity
@@ -245,18 +206,18 @@ const Payment = ({item}: any) => {
 
         <TextInput
           label="Payment method"
-          value={item?.reservation?.payment_method}
+          value={method}
           onChangeText={value => {
             setMethod(value);
           }}
           mode="outlined"
           style={styles.input}
           textColor={Colors.black}
-          right={<TextInput.Icon name="menu-down" />}
+          // right={<TextInput.Icon icon="menu-down" />}
         />
         <TextInput
           label="Amount"
-          value={item?.reservation?.rental_price}
+          value={value}
           onChangeText={text => setValue(text)}
           mode="outlined"
           style={styles.input}
@@ -327,7 +288,7 @@ const styles = StyleSheet.create({
   paymentMethod: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
   },
   statusButton: {
     borderWidth: 0.1,

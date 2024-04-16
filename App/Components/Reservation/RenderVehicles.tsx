@@ -109,6 +109,7 @@ const styles = StyleSheet.create({
   },
   leftContainer: {
     justifyContent: 'center',
+    width:"50%",
     // alignItems: 'center',
     // Add padding or margin if needed, to space it from the rightContainer
   },
@@ -119,6 +120,7 @@ const styles = StyleSheet.create({
     alignContent:'center',
     // Align items to the start if you want the content to align left
     alignItems: 'center',
+    width:"40%",
   },
   regNo: {
     color: Colors.black,

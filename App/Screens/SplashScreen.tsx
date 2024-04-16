@@ -3,24 +3,22 @@ import React, {useEffect} from 'react';
 import Colors from '../Constants/Colors';
 import LottieView from 'lottie-react-native';
 import {setClientToken} from '../API/APIClients';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSelector } from 'react-redux';
 import { RootState } from '../Redux/Store';
 
+
 const SplashScreen = () => {
-  const {userData, loading} = useSelector(
+  const {userData} = useSelector(
     (state: RootState) => state.loginReducer,
   );
 
-  // console.log(userData);
   useEffect(() => {
     fetchToken();
   }, [])
 
   const fetchToken = async () => {
-    const token = await AsyncStorage.getItem('access_token');
-    if(token){
-      setClientToken(token);
+    if(userData){
+      setClientToken(userData.access_token);
     }
   }
   return (

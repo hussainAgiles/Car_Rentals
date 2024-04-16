@@ -7,8 +7,8 @@ import Rental from '../Screens/Rental';
 import MainNavigator from './MainNavigation';
 
 export type RootStackParamList = {
-  Root: any;
-  Login: any;
+  Root: undefined;
+  Login: undefined;
   Rental: {
     id: string;
   };
@@ -23,39 +23,35 @@ export default function Navigation() {
 }
 
 const Stack = createStackNavigator<RootStackParamList>();
+
 function RootNavigator() {
-  const userData = useSelector((state: RootState) => state.loginReducer);
-  // console.log("this is",userData);
-  // if(userData){
-  //   setClientToken(userData.userData.access_token);
-  // }
+  const { userData, error } = useSelector((state: RootState) => state.loginReducer);
+  console.log(userData);
 
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
-      <>
-        {userData.userData ? (
-          <>
-            <Stack.Screen
-              name="Root"
-              component={MainNavigator}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="Rental"
-              component={Rental}
-              options={{headerShown: false}}
-            />
-          </>
-        ) : (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {userData && !error ? (
+        // Only render these screens if there is userData and no error
+        <>
           <Stack.Screen
-            name="Login"
-            component={Login}
-            options={{headerShown: false}}
+            name="Root"
+            component={MainNavigator}
+            options={{ headerShown: false }}
           />
-        )}
-      </>
-
-      {/* <Stack.Screen name="add_reservation" component={StepperForm} options={{ headerShown: false }}/> */}
+          <Stack.Screen
+            name="Rental"
+            component={Rental}
+            options={{ headerShown: false }}
+          />
+        </>
+      ) : (
+        // Fallback to the Login screen if there's no userData or there's an error
+        <Stack.Screen
+          name="Login"
+          component={Login}
+          options={{ headerShown: false }}
+        />
+      )}
     </Stack.Navigator>
   );
 }
