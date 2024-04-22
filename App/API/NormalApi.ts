@@ -117,6 +117,121 @@ export const fetchFleetReport = async () => {
   }
 };
 
+export const fetchViolations = async (id:string) => {
+  try {
+    const response = await API.get(
+      Base_url + `fetch-violation/${id}`,  
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Voilations :', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
+
+export const createVoilation = async ({body}: {body: object}) => {
+  // console.log("Body received in api === ",body)
+  try {
+    const response =  await API.post(Base_url + 'create-violation?', body)
+    // console.log("response here ===  ",response.data)
+    return response.data;
+  } catch (error) {
+    console.error('Error creating Voilations :', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
+
+export const fetchViolationTypes = async () => {
+  // console.log("enter")
+  try {
+    const response = await API.get(
+      Base_url + `lookupdata/VIOLATIONS_TYPES`,  
+    );
+    return response.data.lookups;
+  } catch (error) {
+    console.error('Error fetching Voilation Types :', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
+
+export const deleteViolations = async (id:string) => {
+  // console.log("Api delete == ",id)
+  try {
+    const response = await API.post(
+      Base_url + `delete-violation/${id}`,  
+    );
+    console.log("Response on delete === ",response.data)
+    return response.data;
+  } catch (error) {
+    console.error('Error Deleting Voilations :', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
+
+
+export const fetchCustomers = async () => {
+  try {
+    const response = await API.get(
+      Base_url + `fetch-customers-and-counters-type`,  
+    );
+    // console.log("Normal api Violation types response ===  ",response.data)
+    return response.data.customers;
+  } catch (error) {
+    console.error('Error fetching Customers:', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
+
+
+export const createPenalties = async ({body}: {body: object}) => {
+  // console.log("Body received in api === ",body)
+  try {
+    const response =  await API.post(Base_url + 'create-penalties?', body)
+    // console.log("response here in Api ===  ",response.data)
+    return response.data;
+  } catch (error) {
+    console.error('Error creating Voilations :', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
+
+export const fetchPenaltyTypes = async () => {
+  try {
+    const response = await API.get(
+      Base_url + `lookupdata/PENALTIES_TYPES`,  
+    );
+    // console.log("enter 2")
+    // console.log("Normal api Violation types response ===  ",response.data)
+    return response.data.lookups;
+  } catch (error) {
+    console.error('Error Fetching Penalty Types :', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
+
+export const fetchPenalty = async (id:string) => {
+  try {
+    const response = await API.get(
+      Base_url + `fetch-penalties/${id}`,  
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error Fetching Penalty History :', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
+
+export const deletePenalty = async (id:string) => {
+  try {
+    const response = await API.post(
+      Base_url + `delete-penalties/${id}`,  
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error Fetching Penalty History :', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
 
 
 

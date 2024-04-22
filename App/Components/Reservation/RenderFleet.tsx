@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Dimensions,
   FlatList,
@@ -18,9 +18,26 @@ import Colors from '../../Constants/Colors';
 import {RootStackParamList} from '../../Navigation/Navigation';
 import ImageLoader from '../Loader/ImageLoader';
 
-const screenWidth = Dimensions.get('screen').width;
-
 const RenderFleet = React.memo(({item}: any) => {
+  const [screenWidth, setScreenWidth] = useState(
+    Dimensions.get('window').width,
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const onChange = ({window: {width, height}}) => {
+      if (isMounted) {
+        setScreenWidth(width);
+      }
+    };
+
+    Dimensions.addEventListener('change', onChange);
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   const statusColor = getStatusColor(item?.status);
   // const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const imageUrl = item?.vehiclemodel?.image_url
@@ -45,28 +62,106 @@ const RenderFleet = React.memo(({item}: any) => {
       style={styles.card}
       //   onPress={() => handleRental(item.slug,item.reservations_status)}
     >
-      <View style={styles.container}>
-        {loading && <ImageLoader />}
-        <View style={{justifyContent: 'center', alignItems: 'center'}}>
-          <Image
-            source={imageUrl}
-            style={styles.image}
-            resizeMode="contain"
-            onLoadStart={() => onLoading(true)}
-            onLoadEnd={() => onLoading(false)}
-          />
-          <Text style={styles.title}>{item?.registration_no}</Text>
-        </View>
-
-        <View style={styles.details}>
-          <Text style={styles.title}>{item?.vehicle_variant}</Text>
+      {screenWidth > 600 ? (
+        <View style={[styles.container]}>
           <View
-            style={[styles.statusIndicator, {backgroundColor: statusColor}]}>
-            <Text style={styles.statusText}>
-              {item.status === 'Y' ? 'Active' : 'Inactive'}
-            </Text>
+            style={{
+              justifyContent: 'center',
+              alignSelf: 'center',
+              alignContent: 'center',
+              width: '30%',
+              alignItems: 'center',
+            }}>
+            {loading && <ImageLoader />}
+            <Image
+              source={imageUrl}
+              style={styles.image}
+              resizeMode="contain"
+              onLoadStart={() => onLoading(true)}
+              onLoadEnd={() => onLoading(false)}
+            />
+            <Text style={styles.title}>{item?.registration_no}</Text>
           </View>
-          {/* <View style={styles.infoContainer}>
+
+          <View style={styles.details}>
+            <Text style={styles.title}>{item?.vehicle_variant}</Text>
+            <View
+              style={[styles.statusIndicator, {backgroundColor: statusColor}]}>
+              <Text style={styles.statusText}>
+                {item.status === 'Y' ? 'Active' : 'Inactive'}
+              </Text>
+            </View>
+            <View style={{flexDirection: 'row', marginTop: 5}}>
+              <Icon2 name={'speed'} color={Colors.black} size={24} />
+              <Text style={styles.subText}>{item?.speedometer}</Text>
+            </View>
+
+            <View>
+              <Text>Fuel Level:</Text>
+              <View style={{flexDirection: 'row'}}>
+                <Icon3 name={'fuel'} color={Colors.black} size={24} />
+                <Text style={styles.subText}>{item?.fuel_level}</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.details}>
+            <FlatList
+              data={available_locations}
+              renderItem={({item}) => (
+                <View
+                  style={{
+                    padding: 7,
+                    borderWidth: 1,
+                    borderRadius: 15,
+                    backgroundColor: Colors.blue,
+                    marginVertical: 5,
+                    marginHorizontal: 5,
+                    justifyContent: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      color: Colors.Iconwhite,
+                      fontWeight: 'bold',
+                      fontSize: 10,
+                    }}>
+                    {item}
+                  </Text>
+                </View>
+              )}
+              keyExtractor={(item, index) => index.toString()}
+              numColumns={2}
+            />
+          </View>
+        </View>
+      ) : (
+        <View style={styles.container}>
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '40%',
+            }}>
+            {loading && <ImageLoader />}
+            <Image
+              source={imageUrl}
+              style={styles.image}
+              resizeMode="contain"
+              onLoadStart={() => onLoading(true)}
+              onLoadEnd={() => onLoading(false)}
+            />
+            <Text style={styles.title}>{item?.registration_no}</Text>
+          </View>
+
+          <View style={styles.details}>
+            <Text style={styles.title}>{item?.vehicle_variant}</Text>
+            <View
+              style={[styles.statusIndicator, {backgroundColor: statusColor}]}>
+              <Text style={styles.statusText}>
+                {item.status === 'Y' ? 'Active' : 'Inactive'}
+              </Text>
+            </View>
+            {/* <View style={styles.infoContainer}>
             <InfoItem icon="user" text={item?.customers?.full_name} />
             <InfoItem
               icon="calendar"
@@ -77,45 +172,49 @@ const RenderFleet = React.memo(({item}: any) => {
           </View> */}
 
             {/* <Text>Odometer:</Text> */}
-            <View style={{flexDirection: 'row',marginTop:5}}>
+            <View style={{flexDirection: 'row', marginTop: 5}}>
               <Icon2 name={'speed'} color={Colors.black} size={24} />
-              <Text style={styles.subText}>
-                {item?.speedometer}
-              </Text>
+              <Text style={styles.subText}>{item?.speedometer}</Text>
             </View>
 
-          <View>
-            <Text>Fuel Level:</Text>
-            <View style={{flexDirection: 'row'}}>
-              <Icon3 name={'fuel'} color={Colors.black} size={24} />
-              <Text style={styles.subText}>{item?.fuel_level}</Text>
+            <View>
+              <Text>Fuel Level:</Text>
+              <View style={{flexDirection: 'row'}}>
+                <Icon3 name={'fuel'} color={Colors.black} size={24} />
+                <Text style={styles.subText}>{item?.fuel_level}</Text>
+              </View>
+            </View>
+            <View style={{width: screenWidth * 0.3}}>
+              <FlatList
+                data={available_locations}
+                renderItem={({item}) => (
+                  <View
+                    style={{
+                      padding: 7,
+                      borderWidth: 1,
+                      borderRadius: 15,
+                      backgroundColor: Colors.blue,
+                      marginVertical: 5,
+                      marginHorizontal: 5,
+                      justifyContent: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        color: Colors.Iconwhite,
+                        fontWeight: 'bold',
+                        fontSize: 9,
+                      }}>
+                      {item}
+                    </Text>
+                  </View>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+                numColumns={2}
+              />
             </View>
           </View>
-          <View style={{width:screenWidth*0.3}}>
-            <FlatList
-              data={available_locations}
-              renderItem={({item}) => (
-                <View
-                  style={{
-                    padding: 7,
-                    borderWidth: 1,
-                    borderRadius: 15,
-                    backgroundColor: Colors.black,
-                    marginVertical:5,
-                    marginHorizontal:5,
-                    justifyContent:'center'
-                  }}>
-                  <Text style={{color: Colors.Iconwhite, fontWeight: 'bold',fontSize:10}}>
-                    {item}
-                  </Text>
-                </View>
-              )}
-              keyExtractor={(item, index) => index.toString()}
-              numColumns={2}
-            />
-          </View>
         </View>
-      </View>
+      )}
     </TouchableOpacity>
   );
 });
@@ -149,16 +248,16 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     overflow: 'hidden',
     padding: 5,
+    
   },
   image: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    alignSelf: 'center',
   },
   details: {
     flex: 1,
-    padding: 20,
+    width: '25%',
   },
   title: {
     color: Colors.black,

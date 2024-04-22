@@ -60,7 +60,7 @@ const Rental = ({route}: any) => {
   }, [rentalDetail?.reservation?.id]);
   
   useEffect(() => {
-    console.log("Updating payment completed state:", paymentHistory);
+    // console.log("Updating payment completed state:", paymentHistory);
     // Calculation and state update logic here
   }, [paymentHistory]);
 
@@ -68,7 +68,7 @@ const Rental = ({route}: any) => {
 
     // Then fetch new data
     if (isMounted() && rentalDetail?.reservation?.id) {
-      console.log(rentalDetail?.reservation?.id);
+      // console.log(rentalDetail?.reservation?.id);
       setPaymentCompleted(0); 
       dispatch(fetchPayment(rentalDetail.reservation.id));
     }

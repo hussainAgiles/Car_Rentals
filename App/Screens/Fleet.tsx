@@ -30,6 +30,7 @@ const Fleet = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (text: string) => {
+    // console.log("Text",text)
     setSearchQuery(text);
   };
   const filteredFleetDetails = useMemo(() => {
@@ -37,7 +38,8 @@ const Fleet = () => {
       return fleetData;
     }
     return fleetData.filter((fleet:any) => {
-      return fleet.fleet_details?.vehicledetails?.name
+      // console.log("Fleet == ",fleet)
+      return fleet?.vehicledetails?.name
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
     });
@@ -69,6 +71,7 @@ const Fleet = () => {
           renderItem={({ item }) => <RenderFleet item={item} />}
           keyExtractor={item => item.id.toString()}
           showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
           initialNumToRender={10}
           maxToRenderPerBatch={5}
           windowSize={5}

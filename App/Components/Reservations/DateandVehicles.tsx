@@ -1,63 +1,89 @@
+import React, { useState } from 'react';
 import {
+  ScrollView,
   StyleSheet,
   Text,
-  ScrollView,
-  View,
   TouchableOpacity,
+  View
 } from 'react-native';
-import React from 'react';
-import Colors from '../../Constants/Colors';
-import {Avatar} from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Avatar } from 'react-native-paper';
 import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ImageBase_URL } from '../../API/Constants';
+import Colors from '../../Constants/Colors';
+import RenderPenalties from '../Penalties/RenderPenalties';
+import RenderViolation from '../Violations/RenderViolation';
 
-const DateandVehicles = ({item}:any) => {
-    function formatTimeDifference(value:any) {
-        const currentDate = new Date();
-        const updatedDate = new Date(value);
-      
-        // Calculate the time difference in milliseconds
-        const timeDiff = currentDate - updatedDate;
-      
-        // Convert milliseconds to hours and days
-        const hoursDiff = Math.floor(timeDiff / (1000 * 60 * 60));
-        const daysDiff = Math.floor(hoursDiff / 24);
-      
-        // Format the output based on the time difference
-        if (hoursDiff < 24) {
-          if (hoursDiff === 0) {
-            return "Updated less than an hour ago";
-          } else if (hoursDiff === 1) {
-            return "Updated 1 hr ago";
-          } else {
-            return `Updated ${hoursDiff} hrs ago`;
-          }
-        } else {
-          if (daysDiff === 1) {
-            return "Updated 1 day ago";
-          } else {
-            return `Updated ${daysDiff} days ago`;
-          }
-        }
+const DateandVehicles = ({item}: any) => {
+  function formatTimeDifference(value: any) {
+    const currentDate = new Date();
+    const updatedDate = new Date(value);
+
+    // Calculate the time difference in milliseconds
+    const timeDiff = currentDate - updatedDate;
+
+    // Convert milliseconds to hours and days
+    const hoursDiff = Math.floor(timeDiff / (1000 * 60 * 60));
+    const daysDiff = Math.floor(hoursDiff / 24);
+
+    // Format the output based on the time difference
+    if (hoursDiff < 24) {
+      if (hoursDiff === 0) {
+        return 'Updated less than an hour ago';
+      } else if (hoursDiff === 1) {
+        return 'Updated 1 hr ago';
+      } else {
+        return `Updated ${hoursDiff} hrs ago`;
       }
+    } else {
+      if (daysDiff === 1) {
+        return 'Updated 1 day ago';
+      } else {
+        return `Updated ${daysDiff} days ago`;
+      }
+    }
+  }
+
+  const [renderViolation, setRenderViolation] = useState(false);
+  const [renderPenalties, setRenderPenalties] = useState(false);
+
+  const showAddViolation = () => {
+    setRenderViolation(!renderViolation);
+  };
+
+  const showAddPenalty = () => {
+    setRenderPenalties(!renderPenalties);
+  };
 
   return (
     <ScrollView style={styles.Container}>
       <View style={styles.vehicleDetails}>
         <View style={styles.carInfo}>
-          <Avatar.Image size={60} source={{uri : ImageBase_URL + item?.reservation?.fleet_master?.vehiclemodel?.image_url }} />
+          <Avatar.Image
+            size={60}
+            source={{
+              uri:
+                ImageBase_URL +
+                item?.reservation?.fleet_master?.vehiclemodel?.image_url,
+            }}
+          />
           <View style={styles.carText}>
-            <Text style={{fontWeight:'bold',color:Colors.black}}>{item?.reservation?.fleet_master?.vehicle_variant}</Text>
-            <Text>{item?.reservation?.fleet_master?.vehicle_type}</Text>
+            <Text style={{fontWeight: 'bold', color: Colors.black}}>
+              {item?.reservation?.fleet_master?.vehicle_variant}
+            </Text>
+            <Text style={{color: Colors.black}}>
+              {item?.reservation?.fleet_master?.vehicle_type}
+            </Text>
           </View>
         </View>
         <View style={[styles.carInfo, {justifyContent: 'space-between'}]}>
           <View style={styles.carInfo}>
             <Icon name={'location-on'} color={Colors.black} size={28} />
             <View style={styles.carText}>
-              <Text>Current Location</Text>
-              <Text>{item?.reservation?.pickup_location?.name}</Text>
+              <Text style={{color: Colors.black}}>Current Location</Text>
+              <Text style={{color: Colors.black}}>
+                {item?.reservation?.pickup_location?.name}
+              </Text>
             </View>
           </View>
           <View style={styles.carInfo}>
@@ -67,8 +93,10 @@ const DateandVehicles = ({item}:any) => {
               size={28}
             />
             <View style={styles.carText}>
-              <Text>Manually Updated</Text>
-              <Text>{formatTimeDifference(item?.reservation?.updated_at)}</Text>
+              <Text style={{color: Colors.black}}>Manually Updated</Text>
+              <Text style={{color: Colors.black}}>
+                {formatTimeDifference(item?.reservation?.updated_at)}
+              </Text>
             </View>
           </View>
         </View>
@@ -122,11 +150,13 @@ const DateandVehicles = ({item}:any) => {
               styles.checksView,
               {borderColor: Colors.red, borderWidth: 1},
             ]}>
-            <TouchableOpacity style={styles.category}>
+            <TouchableOpacity
+              style={styles.category}
+              onPress={showAddViolation}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Icon name={'error'} color={Colors.red} size={24} />
                 <Text style={[styles.checksText, {color: Colors.red}]}>
-                  Violations
+                  Violations 
                 </Text>
               </View>
               <Icon name={'add-circle-outline'} color={Colors.red} size={24} />
@@ -138,15 +168,15 @@ const DateandVehicles = ({item}:any) => {
               styles.checksView,
               {borderColor: Colors.purple, borderWidth: 1},
             ]}>
-            <TouchableOpacity style={styles.category}>
+            <TouchableOpacity style={styles.category} onPress={showAddPenalty}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Icon
                   name={'monetization-on'}
                   color={Colors.purple}
                   size={24}
                 />
-                <Text style={[styles.checksText, {color: Colors.purple}]}>
-                  Penalties
+                <Text style={[styles.checksText, {color: Colors.red}]}>
+                  Penalties 
                 </Text>
               </View>
               <Icon
@@ -157,6 +187,7 @@ const DateandVehicles = ({item}:any) => {
             </TouchableOpacity>
           </View>
         </View>
+        {/* limit, fuel , speedometer , fuel percentage */}
         <View>
           <View>
             <Text>Mileage limit:</Text>
@@ -171,19 +202,29 @@ const DateandVehicles = ({item}:any) => {
               <Text>Odometer:</Text>
               <View style={{flexDirection: 'row'}}>
                 <Icon name={'speed'} color={Colors.black} size={24} />
-                <Text style={styles.subText}>{item?.reservation?.fleet_master?.speedometer}</Text>
+                <Text style={styles.subText}>
+                  {item?.reservation?.fleet_master?.speedometer}
+                </Text>
               </View>
             </View>
             <View>
               <Text>Fuel Level:</Text>
               <View style={{flexDirection: 'row'}}>
                 <Icon2 name={'fuel'} color={Colors.black} size={24} />
-                <Text style={styles.subText}>{item?.reservation?.fleet_master?.fuel_level}</Text>
+                <Text style={styles.subText}>
+                  {item?.reservation?.fleet_master?.fuel_level}
+                </Text>
               </View>
             </View>
           </View>
         </View>
       </View>
+      {renderViolation && (
+        <RenderViolation reservation={item}/>
+      )}
+      {renderPenalties && (
+          <RenderPenalties reservation={item}/>
+      )}
     </ScrollView>
   );
 };
@@ -213,7 +254,7 @@ const styles = StyleSheet.create({
   },
   vehicleDetails: {
     backgroundColor: '#f0f0f0',
-    padding:10,
+    padding: 10,
   },
   carInfo: {
     flexDirection: 'row',
@@ -245,5 +286,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: Colors.black,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
   },
 });

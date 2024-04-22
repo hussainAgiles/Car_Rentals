@@ -1,14 +1,39 @@
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import React, {useState} from 'react';
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import {ImageBase_URL} from '../../API/Constants';
 import Colors from '../../Constants/Colors';
 import {RootStackParamList} from '../../Navigation/Navigation';
 import ImageLoader from '../Loader/ImageLoader';
 
+// const width = Dimensions.get('screen').width;
+// const height = Dimensions.get('screen').height;
+
 const RenderVehicles = React.memo(({item}: any) => {
+  const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+  useEffect(() => {
+    let isMounted = true;
+
+    const onChange = ({ window: { width, height } }) => {
+      if (isMounted) {
+        setScreenWidth(width);
+      }
+    };
+    Dimensions.addEventListener('change', onChange);
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const statusColor = getStatusColor(item?.reservations_status);
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const imageUrl = item?.fleet_master?.vehiclemodel?.image_url
@@ -31,30 +56,34 @@ const RenderVehicles = React.memo(({item}: any) => {
     <TouchableOpacity
       style={styles.card}
       onPress={() => handleRental(item.slug, item.reservations_status)}>
-      <View style={styles.container}>
-        <View style={styles.rightContainer}>
-          {loading && <ImageLoader />}
-          <Image
-            source={imageUrl}
-            style={styles.image}
-            resizeMode="contain"
-            onLoadStart={() => onLoading(true)}
-            onLoadEnd={() => onLoading(false)}
-          />
-          <Text style={styles.regNo}>
-            {item?.fleet_master?.registration_no}
-          </Text>
-        </View>
-        <View style={styles.leftContainer}>
-          <Text style={styles.title}>
-            {item?.fleet_master?.vehicle_variant}
-          </Text>
-          <View
-            style={[styles.statusIndicator, {backgroundColor: statusColor}]}>
-            <Text style={styles.statusText}>{item.reservations_status}</Text>
+      {screenWidth > 600 ? (
+        <View style={styles.container} key={item?.fleet_master?.id}>
+          <View style={styles.rightContainer}>
+            {loading && <ImageLoader />}
+            <Image
+              source={imageUrl}
+              style={styles.image}
+              resizeMode="contain"
+              onLoadStart={() => onLoading(true)}
+              onLoadEnd={() => onLoading(false)}
+            />
+            <Text style={styles.regNo}>
+              {item?.fleet_master?.registration_no}
+            </Text>
           </View>
-          <View style={styles.infoContainer}>
-            <InfoItem icon="user" text={item?.customers?.full_name} />
+          <View style={[styles.leftContainer, {width: '30%'}]}>
+            <Text style={styles.title}>
+              {item?.fleet_master?.vehicle_variant}
+            </Text>
+            <View
+              style={[styles.statusIndicator, {backgroundColor: statusColor}]}>
+              <Text style={styles.statusText}>{item.reservations_status}</Text>
+            </View>
+            <View style={styles.infoContainer}>
+              <InfoItem icon="user" text={item?.customers?.full_name} />
+            </View>
+          </View>
+          <View style={[styles.leftContainer, {width: '30%'}]}>
             <InfoItem
               icon="calendar"
               text={`${item.pickup_date} - ${item.dropoff_date}`}
@@ -63,7 +92,44 @@ const RenderVehicles = React.memo(({item}: any) => {
             <InfoItem icon="location" text={item?.drop_off_location?.name} />
           </View>
         </View>
-      </View>
+      ) : (
+        <View style={styles.container}>
+          <View style={styles.rightContainer}>
+            {loading && <ImageLoader />}
+            <Image
+              source={imageUrl}
+              style={styles.image}
+              resizeMode="contain"
+              onLoadStart={() => onLoading(true)}
+              onLoadEnd={() => onLoading(false)}
+            />
+            <Text style={styles.regNo}>
+              {item?.fleet_master?.registration_no}
+            </Text>
+          </View>
+          <View style={[styles.leftContainer, {width: '55%'}]}>
+            <Text style={styles.title}>
+              {item?.fleet_master?.vehicle_variant}
+            </Text>
+            <View
+              style={[styles.statusIndicator, {backgroundColor: statusColor}]}>
+              <Text style={styles.statusText}>{item.reservations_status}</Text>
+            </View>
+            <View style={styles.infoContainer}>
+              <InfoItem icon="user" text={item?.customers?.full_name} />
+              <InfoItem
+                icon="calendar"
+                text={`${item.pickup_date} - ${item.dropoff_date}`}
+              />
+              <InfoItem
+                icon="location-pin"
+                text={item?.pickup_location?.name}
+              />
+              <InfoItem icon="location" text={item?.drop_off_location?.name} />
+            </View>
+          </View>
+        </View>
+      )}
     </TouchableOpacity>
   );
 });
@@ -108,19 +174,19 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   leftContainer: {
+    flexDirection: 'column',
     justifyContent: 'center',
-    width:"50%",
     // alignItems: 'center',
     // Add padding or margin if needed, to space it from the rightContainer
   },
   rightContainer: {
-    padding: 20,
+    // padding: 20,
     justifyContent: 'center',
-    alignSelf:'center',
-    alignContent:'center',
+    alignSelf: 'center',
+    alignContent: 'center',
     // Align items to the start if you want the content to align left
     alignItems: 'center',
-    width:"40%",
+    width: '30%',
   },
   regNo: {
     color: Colors.black,
@@ -132,7 +198,7 @@ const styles = StyleSheet.create({
     color: Colors.black,
     fontWeight: 'bold',
     fontSize: 15,
-    textAlign:'left',
+    textAlign: 'left',
   },
   statusIndicator: {
     borderRadius: 10,

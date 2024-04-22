@@ -1,4 +1,4 @@
-import {Image, StyleSheet, Text, View} from 'react-native';
+import {Image, ScrollView, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import Colors from '../Constants/Colors';
 import {ActivityIndicator, TextInput} from 'react-native-paper';
@@ -55,7 +55,7 @@ const Login = ({ navigation }: any) => {
       }
   }
   return (
-    <View style={styles.Container}>
+    <ScrollView style={styles.Container}>
       <View style={styles.imageContainer}>
         <Animatable.Image   animation={'fadeInLeft'} source={require('../Assets/car.png')} style={styles.logo} />
       </View>
@@ -108,7 +108,7 @@ const Login = ({ navigation }: any) => {
         <Text style={{color:Colors.Iconwhite,fontSize:15}}>LOGIN</Text>}
        
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState,useMemo } from 'react';
 import {
+  Dimensions,
   FlatList,
   StyleSheet,
   Text,
@@ -44,16 +45,31 @@ const Reservations = () => {
         .includes(searchQuery.toLowerCase());
     });
   }, [data, searchQuery]);
+
+  const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+  useEffect(() => {
+    let isMounted = true;
+
+    const onChange = ({ window: { width, height } }) => {
+      if (isMounted) {
+        setScreenWidth(width);
+      }
+    };
+    Dimensions.addEventListener('change', onChange);
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   
   
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
+      <View style={[styles.headerContainer,screenWidth>600 ?{marginBottom: 10}:{marginBottom: 20}]}>
         <Text style={styles.headerText}>Car Rentals</Text>
-        <TouchableOpacity style={styles.addButton}>
+        {/* <TouchableOpacity style={styles.addButton}>
           <Text style={styles.buttonText}>Add Reservation</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       <View style={styles.searchInputContainer}>
@@ -68,7 +84,7 @@ const Reservations = () => {
 
       <View style={styles.reserved}>
         <Text style={styles.reservedText}>Reserved</Text>
-        <Text style={styles.viewAllText}>View All</Text>
+        {/* <Text style={styles.viewAllText}>View All</Text> */}
       </View>
 
       {loading === 'pending' ? (
@@ -79,6 +95,7 @@ const Reservations = () => {
           renderItem={({item}) => <RenderVehicles item={item} />}
           keyExtractor={item => item.id.toString()}
           showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
           initialNumToRender={10} // Adjust numbers based on your list size and performance
           maxToRenderPerBatch={5}
           windowSize={5} 
@@ -102,7 +119,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
   },
   headerText: {
     color: Colors.black,

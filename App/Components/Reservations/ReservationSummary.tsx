@@ -127,7 +127,7 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
 
         <View style={styles.summary}>
           <View>
-            <Text style={styles.summaryTitle}>Subtotal</Text>
+            <Text style={styles.summaryTitle}>Subtotal:</Text>
             <Text style={styles.summaryTitle}>Paid:</Text>
           </View>
 

@@ -26,7 +26,7 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
   const { userData, error } = useSelector((state: RootState) => state.loginReducer);
-  console.log(userData);
+  // console.log(userData);
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
