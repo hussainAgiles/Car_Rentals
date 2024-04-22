@@ -104,7 +104,6 @@ const ReservationTable = () => {
 
   const handleCheckboxPress = (recordId) => {
     // Do whatever you want with the recordId here
-    console.log("Checkbox pressed for record ID:", recordId);
     setChecked(!checked);
     // You can also set it to some state if you need to use it elsewhere
   };

@@ -3,15 +3,17 @@ import {View, Text, StyleSheet} from 'react-native';
 import Colors from '../../Constants/Colors';
 
 const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any) => {
+  
   // console.log(insuranceAddon);
   const calculateSubtotal = () => {
-    const rentalPrice = reservation?.rental_price || 0;
+    const rentalPrice = reservation?.vehicle_price || 0;
     const addonTotalPrice = reservation?.addon_total_price || 0;
     const insurancePrice = insuranceAddon?.insuranceId ? parseFloat(insuranceAddon.insuranceId) : 0;
     const addonsPrice = insuranceAddon?.addonsId ? parseFloat(insuranceAddon.addonsId) : 0;
+    const vatAmount = (reservation?.vat / 100);
+    const total = Number(rentalPrice) + Number(addonTotalPrice) + Number(insurancePrice) + Number(addonsPrice) + Number(reservation?.vmc);
+    return total + (total * vatAmount);
 
-    const vatAmount = (rentalPrice + addonTotalPrice) * (reservation?.vat / 100);
-    return rentalPrice + addonTotalPrice + vatAmount + insurancePrice + addonsPrice + reservation?.vmc;
   };
 
   const subtotal = calculateSubtotal();
@@ -50,7 +52,7 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
         }}>
         Summary
       </Text>
-      <View style={{borderRadius: 6,backgroundColor:Colors.Iconwhite,elevation:3,}}>
+      <View style={{borderRadius: 6,backgroundColor:Colors.Iconwhite,elevation:3,padding:5}}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Total</Text>
         </View>
@@ -63,13 +65,13 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
           }}>
           <Text style={styles.title}>Total Rent period</Text>
           <Text style={styles.title}>
-            {totalDays} {totalDays >= 1 ? 'Day' : 'Days'}
+            {totalDays} {totalDays <= 1 ? 'Day' : 'Days'}
           </Text>
         </View>
         <View style={styles.section}>
           <View>
             <Text style={styles.title}>Economy Manual</Text>
-            <Text style={styles.subtitle}>Toyota Yaris</Text>
+            <Text style={styles.subtitle}>{reservation?.fleet_master?.vehicledetails?.name}</Text>
           </View>
           <Text style={styles.price}>
             {reservation?.vehicle_price.toFixed(2)} AUD

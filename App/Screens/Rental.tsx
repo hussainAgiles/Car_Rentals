@@ -125,78 +125,79 @@ const Rental = ({route}: any) => {
   };
   
 
-  const renderAccordion = (section: any) => {
-    const Component = {
-      vehicle: DateandVehicles,
-      customer: Customers,
-      insurance: Insurance,
-      payment: Payment,
-      documents: Documents,
-    }[section];
-    const componentProps = {
-      item: rentalDetail,
-      ...(section === 'insurance' && { onInsuranceUpdate: handleInsuranceUpdate })
+  const renderAccordion = (section, key) => {
+  const Component = {
+    vehicle: DateandVehicles,
+    customer: Customers,
+    insurance: Insurance,
+    payment: Payment,
+    documents: Documents,
+  }[section];
+
+  const componentProps = {
+    item: rentalDetail,
+    ...(section === 'insurance' && { onInsuranceUpdate: handleInsuranceUpdate })
   };
 
-
-    return (
-      <>
-        <View key={section} style={styles.subHeadingView}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Checkbox
-              status={checkedItems[section] ? 'checked' : 'unchecked'}
-              onPress={() => handleCheck(section)}
-              uncheckedColor="black"
-              color="green"
-            />
-            <TouchableOpacity
-              onPress={() =>
-                setCurrentOpenSection(
-                  section === currentOpenSection ? '' : section,
-                )
-              }>
-              <Text style={styles.headingText}>
-                {section.charAt(0).toUpperCase() + section.slice(1)}
-              </Text>
-            </TouchableOpacity>
-          </View>
+  return (
+    <React.Fragment key={key}>
+      <View style={styles.subHeadingView}>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <Checkbox
+            status={checkedItems[section] ? 'checked' : 'unchecked'}
+            onPress={() => handleCheck(section)}
+            uncheckedColor="black"
+            color="green"
+          />
           <TouchableOpacity
             onPress={() =>
               setCurrentOpenSection(
                 section === currentOpenSection ? '' : section,
               )
             }>
-            <View style={{alignItems: 'center', alignSelf: 'center'}}>
-              <Icon
-                name={
-                  currentOpenSection === section
-                    ? 'keyboard-arrow-up'
-                    : 'keyboard-arrow-down'
-                }
-                size={30}
-                color={Colors.black}
-              />
-            </View>
+            <Text style={styles.headingText}>
+              {section.charAt(0).toUpperCase() + section.slice(1)}
+            </Text>
           </TouchableOpacity>
         </View>
-        {currentOpenSection === section && <Component {...componentProps}  />}
-        {currentOpenSection === section && (
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => handleCheck(section)}>
-              <Text style={styles.buttonText}>Check</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => handleNextStep(section)}>
-              <Text style={styles.buttonText}>Next Step</Text>
-            </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() =>
+            setCurrentOpenSection(
+              section === currentOpenSection ? '' : section,
+            )
+          }>
+          <View style={{alignItems: 'center', alignSelf: 'center'}}>
+            <Icon
+              name={
+                currentOpenSection === section
+                  ? 'keyboard-arrow-up'
+                  : 'keyboard-arrow-down'
+              }
+              size={30}
+              color={Colors.black}
+            />
           </View>
-        )}
-      </>
-    );
-  };
+        </TouchableOpacity>
+      </View>
+      {currentOpenSection === section && <Component {...componentProps} />}
+      {currentOpenSection === section && (
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => handleCheck(section)}>
+            <Text style={styles.buttonText}>Check</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => handleNextStep(section)}>
+            <Text style={styles.buttonText}>Next Step</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </React.Fragment>
+  );
+};
+
 
   const allItemsChecked = () => {
     return Object.values(checkedItems).every(status => status === true);
@@ -218,6 +219,8 @@ const Rental = ({route}: any) => {
   const statusColor = getStatusColor(
     rentalDetail?.reservation?.reservations_status,
   );
+
+  const isRented = rentalDetail?.reservation?.reservations_status === 'Rented';
 
   return (
  
@@ -252,7 +255,7 @@ const Rental = ({route}: any) => {
                 </Text>
               </View>
             </View>
-            {sections.map(section => renderAccordion(section))}
+            {sections.map(section => renderAccordion(section,section))}
             <ReservationSummary reservation={rentalDetail?.reservation} insuranceAddon={insuranceOptions} paymentCompleted={paymentCompleted} />
             <View style={styles.buttonRow}>
               <TouchableOpacity
@@ -265,7 +268,7 @@ const Rental = ({route}: any) => {
                   },
                 ]}
                 disabled={!allItemsChecked()}>
-                <Text style={styles.buttonText}>Rental</Text>
+                 <Text style={styles.buttonText}>{isRented ? "Return" : "Rental"}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity

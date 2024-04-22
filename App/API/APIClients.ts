@@ -25,7 +25,7 @@ let API = axios.create({
 });
 
 // Set JSON Web Token in Client to be included in all calls
-export const setClientToken = token => {
+export const setClientToken = (token: any) => {
   API.interceptors.request.use(function (config) {
     config.headers.Authorization = `Bearer ${token}`;
     return config;

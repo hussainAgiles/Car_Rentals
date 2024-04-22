@@ -18,7 +18,7 @@ export const orange = '#FF9800'
 export const background = '#f9f9fc'
 export const purple = '#673AB7'
 export const red ='#E53935'
-export const lightBg = "#f9f9fc"
+export const lightBg = "#f3f7fd"
 export const blue = '#90CAF9'
 
 export default {

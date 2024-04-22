@@ -1,15 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { TextInput } from 'react-native-paper';
+import {TextInput} from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 import Colors from '../../Constants/Colors';
 import useDispatch from '../../Hooks/useDispatch';
 import useIsMounted from '../../Hooks/useIsMounted';
@@ -18,7 +13,8 @@ import {
   fetchPayment,
   fetchStatus,
 } from '../../Redux/Reducers/ReservationDetailsReducer';
-import { RootState } from '../../Redux/Store';
+import {RootState} from '../../Redux/Store';
+import Loader from '../Loader/Loader';
 
 const Payment = ({item}: any) => {
   const [type, setType] = useState('');
@@ -62,6 +58,10 @@ const Payment = ({item}: any) => {
           type: 'success',
           text1: 'Payment Added',
         });
+        setValue('');
+        setMethod('');
+        setType('');
+        setSelectedDate(new Date());
       } else {
         Toast.show({
           type: 'error',
@@ -103,7 +103,6 @@ const Payment = ({item}: any) => {
   //   paymentHistory?.reservation_payment?.status,
   // );
 
-  
   useEffect(() => {
     if (isMounted()) {
       dispatch(fetchPayment(item?.reservation?.id));
@@ -131,36 +130,54 @@ const Payment = ({item}: any) => {
     setShowOptions(false); // Hide options after selecting
   };
 
+  const formatPaymentMethod = (method:string) => {
+    const maxChar = 5;
+    return method.length > maxChar ? method.substring(0, maxChar) + '...' : method;
+  };
+
   return (
     <View style={styles.container}>
       {paymentHistory?.reservation_payment?.map(
         (
           payment: {
             status: string;
-            type:any;
-            date:any;
-            method:any;
+            type: any;
+            date: any;
+            method: any;
             value: any;
             id: any;
           },
           index: React.Key | null | undefined,
         ) => (
           <View style={styles.paymentItem} key={payment.id}>
+            <View style={{width:70}}>
             <Text style={styles.paymentDate}>{payment.date}</Text>
-            <View style={[styles.paymentMethod]}>
-              <Icon
-                name={payment.method === 'Card' ? 'credit-card' : 'money'}
-                size={20}
-                color="#000"
-              />
-              <Text style={styles.paymentDate}>{payment.method}</Text>
             </View>
+            <View style={[styles.paymentMethod,{width:70}]}>
+              <View style={styles.iconContainer}>
+                <Icon
+                  name={payment.method === 'Card' ? 'credit-card' : 'money'}
+                  size={20}
+                  color="#000"
+                />
+              </View>
+              <Text
+                style={styles.paymentMethodText}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {payment.method}
+              </Text>
+            </View>
+
             <Text style={styles.amount}>{`${payment.value} €`}</Text>
-            <View style={{width:80}}>
+            <View style={{width: 80}}>
               {/* <Text>Select Status:</Text> */}
               <TouchableOpacity
                 onPress={() => toggleOptions(payment.id)}
-                style={[styles.selectedOption,{backgroundColor: getStatusColor(payment.status)}]}>
+                style={[
+                  styles.selectedOption,
+                  {backgroundColor: getStatusColor(payment.status)},
+                ]}>
                 <Text style={{color: Colors.Iconwhite}}>{payment.status}</Text>
               </TouchableOpacity>
               {selectedRow === payment.id && showOptions === true && (
@@ -169,8 +186,14 @@ const Payment = ({item}: any) => {
                     <TouchableOpacity
                       key={index}
                       onPress={() => handleSelectStatus(status, payment.id)}
-                      style={{padding: 10, backgroundColor: getStatusColor(status)}}>
-                      <Text style={{color: Colors.Iconwhite,textAlign:'center'}}>{status}</Text>
+                      style={{
+                        padding: 10,
+                        backgroundColor: getStatusColor(status),
+                      }}>
+                      <Text
+                        style={{color: Colors.Iconwhite, textAlign: 'center'}}>
+                        {status}
+                      </Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -179,6 +202,12 @@ const Payment = ({item}: any) => {
           </View>
         ),
       )}
+
+      {/* {loading === "pending" ?  
+      <Loader />
+      :
+      
+     } */}
       <View style={styles.formContainer}>
         <TextInput
           label="Payment type"
@@ -284,11 +313,25 @@ const styles = StyleSheet.create({
   paymentDate: {
     fontSize: 14,
     color: '#666',
+    marginLeft: 7,
+    flexShrink: 1,
   },
   paymentMethod: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+  },
+  iconContainer: {
+    width: 25, // Adjust width as necessary for your icon size
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    marginRight:7
+  },
+  paymentMethodText: {
+    fontSize: 14,
+    color: '#666',
+   textAlign:'left',
+    flexShrink: 1, // Allows text to shrink and avoid pushing the icon
   },
   statusButton: {
     borderWidth: 0.1,
@@ -316,7 +359,7 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     paddingHorizontal: 20,
-    paddingTop:10
+    paddingTop: 10,
   },
   input: {
     marginBottom: 10,
@@ -362,7 +405,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-  }, 
+  },
   optionsContainer: {
     marginTop: 10,
     backgroundColor: 'white',

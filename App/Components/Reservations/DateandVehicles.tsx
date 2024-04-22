@@ -1,20 +1,32 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
-import { Avatar } from 'react-native-paper';
+import {Avatar} from 'react-native-paper';
 import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { ImageBase_URL } from '../../API/Constants';
+import {ImageBase_URL} from '../../API/Constants';
 import Colors from '../../Constants/Colors';
 import RenderPenalties from '../Penalties/RenderPenalties';
 import RenderViolation from '../Violations/RenderViolation';
+import TabViews from '../Damages/TabView';
 
 const DateandVehicles = ({item}: any) => {
+  const ContentTypes = {
+    NONE: 'NONE',
+    TABS: 'TABS',
+    PENALTIES: 'PENALTIES',
+    VIOLATIONS: 'VIOLATIONS',
+  };
+
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [activeContent, setActiveContent] = useState(ContentTypes.NONE);
+
   function formatTimeDifference(value: any) {
     const currentDate = new Date();
     const updatedDate = new Date(value);
@@ -55,6 +67,12 @@ const DateandVehicles = ({item}: any) => {
     setRenderPenalties(!renderPenalties);
   };
 
+  function showContent(contentType: string) {
+    setActiveContent(
+      activeContent === contentType ? ContentTypes.NONE : contentType,
+    );
+  }
+
   return (
     <ScrollView style={styles.Container}>
       <View style={styles.vehicleDetails}>
@@ -74,6 +92,7 @@ const DateandVehicles = ({item}: any) => {
             <Text style={{color: Colors.black}}>
               {item?.reservation?.fleet_master?.vehicle_type}
             </Text>
+            <Text>{item?.reservation?.fleet_master?.vehicle_type}</Text>
           </View>
         </View>
         <View style={[styles.carInfo, {justifyContent: 'space-between'}]}>
@@ -130,18 +149,16 @@ const DateandVehicles = ({item}: any) => {
               styles.checksView,
               {borderColor: Colors.green, borderWidth: 1},
             ]}>
-            <TouchableOpacity style={styles.category}>
+            <TouchableOpacity
+              style={styles.category}
+              onPress={() => showContent(ContentTypes.TABS)}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Icon name={'build'} color={Colors.green} size={24} />
+                <Icon name="build" color={Colors.green} size={24} />
                 <Text style={[styles.checksText, {color: Colors.green}]}>
                   Damages
                 </Text>
               </View>
-              <Icon
-                name={'add-circle-outline'}
-                color={Colors.green}
-                size={24}
-              />
+              <Icon name="add-circle-outline" color={Colors.green} size={24} />
             </TouchableOpacity>
           </View>
           {/* Violations */}
@@ -152,11 +169,11 @@ const DateandVehicles = ({item}: any) => {
             ]}>
             <TouchableOpacity
               style={styles.category}
-              onPress={showAddViolation}>
+              onPress={() => showContent(ContentTypes.PENALTIES)}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Icon name={'error'} color={Colors.red} size={24} />
                 <Text style={[styles.checksText, {color: Colors.red}]}>
-                  Violations 
+                  Violations
                 </Text>
               </View>
               <Icon name={'add-circle-outline'} color={Colors.red} size={24} />
@@ -168,15 +185,17 @@ const DateandVehicles = ({item}: any) => {
               styles.checksView,
               {borderColor: Colors.purple, borderWidth: 1},
             ]}>
-            <TouchableOpacity style={styles.category} onPress={showAddPenalty}>
+            <TouchableOpacity
+              style={styles.category}
+              onPress={() => showContent(ContentTypes.VIOLATIONS)}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Icon
                   name={'monetization-on'}
                   color={Colors.purple}
                   size={24}
                 />
-                <Text style={[styles.checksText, {color: Colors.red}]}>
-                  Penalties 
+                <Text style={[styles.checksText, {color: Colors.purple}]}>
+                  Penalties
                 </Text>
               </View>
               <Icon
@@ -219,11 +238,12 @@ const DateandVehicles = ({item}: any) => {
           </View>
         </View>
       </View>
-      {renderViolation && (
-        <RenderViolation reservation={item}/>
+      {activeContent === ContentTypes.TABS && <TabViews item={item} />}
+      {activeContent === ContentTypes.PENALTIES && (
+        <RenderPenalties reservation={item} />
       )}
-      {renderPenalties && (
-          <RenderPenalties reservation={item}/>
+      {activeContent === ContentTypes.VIOLATIONS && (
+        <RenderViolation reservation={item} />
       )}
     </ScrollView>
   );
@@ -283,7 +303,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   subText: {
-    fontSize: 20,
+    fontSize: Platform.OS === 'ios' ? 15 : 20,
     fontWeight: 'bold',
     color: Colors.black,
   },
@@ -292,5 +312,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     // backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    padding: 20,
+    height: 250,
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+  },
+  sceneContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

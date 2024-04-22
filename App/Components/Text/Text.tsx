@@ -37,7 +37,6 @@ const getTextStyle = ({
   color: Colors[`text-${color}`] ?? Colors.text,
   fontSize: size,
   lineHeight: getLineHeight(size),
-  fontFamily: `lato-${weight}`,
   textAlign: align,
   textDecorationLine: strike ? 'line-through' : underline ? 'underline' : undefined,
 });
