@@ -26,6 +26,7 @@ import {
   fetchSVG,
 } from '../../Redux/Reducers/ReservationDetailsReducer';
 import DamageList from './DamageList';
+import mime from 'mime';
 
 const Exterior = ({item}: any) => {
   const dispatch = useDispatch();
@@ -43,6 +44,7 @@ const Exterior = ({item}: any) => {
   const [image, setImage] = useState('');
   const [image_url, setImageUrl] = useState('');
   const [refreshCounter, setRefreshCounter] = useState(0);
+  const [extension,setExtension] = useState('')
 
 // Use this function to trigger a refresh
 const triggerRefresh = () => {
@@ -121,10 +123,14 @@ const triggerRefresh = () => {
             ImageCropPicker.openCamera({
               mediaType: 'photo',
               cropping: true, // Enable cropping
+              includeBase64:true,
               compressImageQuality: 0.5,
             })
               .then(image => {
-                setImage(image.path); // `path` is used instead of `uri`
+                console.log("image");
+                setImage(image.data); 
+                setExtension(image.mime)
+                // setImage(image.path); // `path` is used instead of `uri`
               })
               .catch(e => {
                 if (e.code !== 'E_PICKER_CANCELLED') {
@@ -138,11 +144,14 @@ const triggerRefresh = () => {
           onPress: () => {
             ImageCropPicker.openPicker({
               mediaType: 'photo',
-              cropping: true, // Enable cropping
+              cropping: true,
+              includeBase64:true, // Enable cropping
               compressImageQuality: 0.5,
             })
               .then(image => {
-                setImage(image.path); // `path` is used instead of `uri`
+                console.log("image",image);
+                setImage(image.data);
+                setExtension(image.path) // `path` is used instead of `uri`
               })
               .catch(e => {
                 if (e.code !== 'E_PICKER_CANCELLED') {
@@ -168,11 +177,22 @@ const triggerRefresh = () => {
       damage_level: damageSeverity,
       vehicle_id: item?.reservation?.fleet_master?.vehicledetails?.id,
       client_id: item?.reservation?.customers?.id,
-      image_url: image,
+      image_url: "image",
       reservation_id: item?.reservation?.fleet_id,
       data_id: data_id,
+      device:"mobile",
+      imagedata:{
+        image:image,
+        folder:"damage",
+        filename:"damage",
+        width:"320",
+        height:"200"
+    },
+
+  
       ...(editId ? {id: editId} : {}),
     };
+    console.log("this is the object",object);
     const response = dispatch(createDamagee(object));
     resetModalState();
     setRefreshData(!refreshData);
