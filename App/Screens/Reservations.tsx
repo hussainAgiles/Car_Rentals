@@ -14,7 +14,7 @@ import Loader from '../Components/Loader/Loader';
 import RenderVehicles from '../Components/Reservation/RenderVehicles';
 import Colors from '../Constants/Colors';
 import useIsMounted from '../Hooks/useIsMounted';
-import { fetchReservation } from '../Redux/Reducers/ReservationDetailsReducer';
+import { fetchReservation, fetchingCurrency } from '../Redux/Reducers/ReservationDetailsReducer';
 import { AppDispatch, RootState } from '../Redux/Store';
 
 const Reservations = () => {
@@ -25,6 +25,8 @@ const Reservations = () => {
       dispatch(fetchReservation());
     }
   }, []);
+
+ 
 
   const {data, loading} = useSelector(
     (state: RootState) => state.reservationDetailReducer,
@@ -92,7 +94,7 @@ const Reservations = () => {
       ) : (
         <FlatList
           data={filteredCarDetails}
-          renderItem={({item}) => <RenderVehicles item={item} />}
+          renderItem={({item}) => <RenderVehicles item={item}/>}
           keyExtractor={item => item.id.toString()}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}

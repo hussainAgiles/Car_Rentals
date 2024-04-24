@@ -1,7 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
-import {TextInput} from 'react-native-paper';
+import {Portal, TextInput, Modal,} from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useSelector} from 'react-redux';
@@ -21,6 +27,7 @@ const RenderPenalties = ({reservation}: any) => {
   const [type, setType] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   // error state
   const [typeError, setTypeError] = useState('');
@@ -99,7 +106,8 @@ const RenderPenalties = ({reservation}: any) => {
           setType('');
           setPrice('');
           setDescription('');
-          // setRenderPenalties(false);
+          setIsModalVisible(false);
+          dispatch(fetchingPenalties(reservation?.reservation?.id));
         } else {
           Toast.show({
             type: 'error',
@@ -160,10 +168,10 @@ const RenderPenalties = ({reservation}: any) => {
   return (
     <View>
       <View style={styles.tableHeader}>
-        <Text style={[styles.headerText, {flex: 0.30}]}>Type</Text>
-        <Text style={[styles.headerText, {flex: 0.30}]}>Description</Text>
+        <Text style={[styles.headerText, {flex: 0.3}]}>Type</Text>
+        <Text style={[styles.headerText, {flex: 0.3}]}>Description</Text>
         <Text style={[styles.headerText, {flex: 0.25}]}>Price</Text>
-        <Text style={[styles.headerText, {flex: 0.10}]}>Action</Text>
+        <Text style={[styles.headerText, {flex: 0.1}]}>Action</Text>
       </View>
       <View style={styles.modalView}>
         {penaltiesHistory?.penalties?.map(
@@ -187,68 +195,78 @@ const RenderPenalties = ({reservation}: any) => {
               <Text
                 style={{
                   color: Colors.black,
-                  flex: 0.23
+                  flex: 0.23,
                 }}>{`${penalty_data.price} AUD`}</Text>
               {/* <View> */}
-                <TouchableOpacity
-                  onPress={() => handleDeletePenalty(penalty_data.id)} 
-                  style={{flex: 0.13, alignItems: 'center'}}>
-                  <Icon name="delete" size={20} color={Colors.red} />
-                </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => handleDeletePenalty(penalty_data.id)}
+                style={{flex: 0.13, alignItems: 'center'}}>
+                <Icon name="delete" size={20} color={Colors.red} />
+              </TouchableOpacity>
               {/* </View> */}
             </View>
           ),
         )}
 
-        <View
-          style={{
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-          }}>
-          {/* <Text
-              style={{color: Colors.black, fontWeight: 'bold', fontSize: 18}}>
-              Add Penalty
-            </Text> */}
+        <TouchableOpacity
+          onPress={() => setIsModalVisible(true)}
+          style={[styles.button,{margin:20}]}>
+          <Text
+            style={{
+              color: Colors.Iconwhite,
+              fontWeight: 'bold',
+              textAlign: 'center',
+            }}>
+            Add Penalty
+          </Text>
+        </TouchableOpacity>
 
-          <View style={styles.formContainer}>
+        <Portal>
+          <Modal
+            visible={isModalVisible}
+            contentContainerStyle={styles.modalContainer}>
+            <View style={{justifyContent:'center',alignItems:'center',paddingBottom:15}}>
+              <Text style={{fontSize:18,fontWeight:'bold',color:Colors.black}}>Add Penalty</Text>
+            </View>
             {penaltyTypesData && penaltyTypesData?.length > 0 && (
-              <Dropdown
-                style={styles.dropdown}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
-                data={penaltyTypesData}
-                search
-                maxHeight={200}
-                labelField="longname"
-                valueField="id"
-                placeholder="Penalty Type"
-                searchPlaceholder="Search..."
-                value={penaltyTypesData?.longname}
-                itemTextStyle={styles.itemStyle}
-                onChange={item => {
-                  setType(item?.longname);
-                }}
-                onFocus={() => setTypeFocused(true)}
-                onBlur={() => setTypeFocused(false)}
+                <Dropdown
+                  style={styles.dropdown}
+                  placeholderStyle={styles.placeholderStyle}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  inputSearchStyle={styles.inputSearchStyle}
+                  data={penaltyTypesData}
+                  search
+                  maxHeight={200}
+                  labelField="longname"
+                  valueField="id"
+                  placeholder="Penalty Type"
+                  searchPlaceholder="Search..."
+                  value={penaltyTypesData?.longname}
+                  itemTextStyle={styles.itemStyle}
+                  onChange={item => {
+                    setType(item?.longname);
+                  }}
+                  onFocus={() => setTypeFocused(true)}
+                  onBlur={() => setTypeFocused(false)}
+                />
+              )}
+              {!typeFocused && typeError ? (
+                <Text style={styles.errorText}>{typeError}</Text>
+              ) : null}
+
+              <TextInput
+                label="Penalty Description"
+                mode="outlined"
+                value={description}
+                style={styles.input}
+                textColor={Colors.black}
+                onChangeText={text => setDescription(text)}
+                onFocus={() => setDescriptionFocused(true)}
+                onBlur={() => setDescriptionFocused(false)}
               />
-            )}
-            {!typeFocused && typeError ? (
-              <Text style={styles.errorText}>{typeError}</Text>
-            ) : null}
-            <TextInput
-              label="Penalty Description"
-              mode="outlined"
-              value={description}
-              style={styles.input}
-              textColor={Colors.black}
-              onChangeText={text => setDescription(text)}
-              onFocus={() => setDescriptionFocused(true)}
-              onBlur={() => setDescriptionFocused(false)}
-            />
-            {!descriptionFocused && descriptionError ? (
-              <Text style={styles.errorText}>{descriptionError}</Text>
-            ) : null}
+              {!descriptionFocused && descriptionError ? (
+                <Text style={styles.errorText}>{descriptionError}</Text>
+              ) : null}
             <TextInput
               label="Price in AUD"
               mode="outlined"
@@ -263,15 +281,21 @@ const RenderPenalties = ({reservation}: any) => {
             {!priceFocused && priceError ? (
               <Text style={styles.errorText}>{priceError}</Text>
             ) : null}
-          </View>
-          <View style={styles.buttonContainer}>
+            <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={handlePenalty}>
               <Text style={{color: Colors.Iconwhite, fontWeight: 'bold'}}>
-                Add Penalty
+                Submit
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={()=>setIsModalVisible(false)}>
+              <Text style={{color: Colors.Iconwhite, fontWeight: 'bold'}}>
+                Cancel
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
+          </Modal>
+        </Portal>
+
       </View>
     </View>
   );
@@ -296,7 +320,7 @@ const styles = StyleSheet.create({
     // backgroundColor: 'white',
     // elevation: 5,
     // width: '100%',
-    paddingVertical: 15,
+    paddingVertical: 5,
   },
   paymentItem: {
     flexDirection: 'row',
@@ -345,7 +369,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     marginTop: 10,
   },
   button: {
@@ -356,5 +380,14 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: 'red',
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    margin: 20,
+    padding: 15, // Semi-transparent background
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 10,
   },
 });

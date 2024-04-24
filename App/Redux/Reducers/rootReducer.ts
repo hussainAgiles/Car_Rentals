@@ -1,6 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import persistedLoginSlice from './loginReducer';
-import { addOns, fleetReport, fleetViolationTypes, fleetViolation, insuranceDetails, paymentHistory, paymentStatus, payments, rentalDetails, resrvationDetails, fleetCustomers, fleetViolationCreate, fleetPenaltyTypes, fleetPenaltyCreation, fleetPenaltyHistory, fleetDeleteViolation, fleetDeletePenalties,  } from './ReservationDetailsReducer';
+import { addOns, fleetReport, fleetViolationTypes, fleetViolation, insuranceDetails, paymentHistory, paymentStatus, payments, rentalDetails, resrvationDetails, fleetCustomers, fleetViolationCreate, fleetPenaltyTypes, fleetPenaltyCreation, fleetPenaltyHistory, fleetDeleteViolation, fleetDeletePenalties, fleetCurrencySlice, fleetFetchCurrency,  } from './ReservationDetailsReducer';
 
 
 const rootReducer = combineReducers({
@@ -23,6 +23,7 @@ const rootReducer = combineReducers({
   fleetPenaltyHistoryReducer:fleetPenaltyHistory,
   fleetDeleteViolationReducer:fleetDeleteViolation,
   fleetDeletePenaltyReducer:fleetDeletePenalties,
+  fleetFetchDefaultCurrencyReducer : fleetFetchCurrency
 });
 
 export default rootReducer;

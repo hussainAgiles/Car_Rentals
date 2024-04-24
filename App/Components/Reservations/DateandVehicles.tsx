@@ -48,12 +48,19 @@ const DateandVehicles = ({item}: any) => {
   const [renderPenalties, setRenderPenalties] = useState(false);
 
   const showAddViolation = () => {
+    if (renderPenalties) {
+      setRenderPenalties(false);
+  }
     setRenderViolation(!renderViolation);
   };
 
   const showAddPenalty = () => {
+    if (renderViolation) {
+      setRenderViolation(false);
+  }
     setRenderPenalties(!renderPenalties);
   };
+  
 
   return (
     <ScrollView style={styles.Container}>
@@ -188,16 +195,16 @@ const DateandVehicles = ({item}: any) => {
           </View>
         </View>
         {/* limit, fuel , speedometer , fuel percentage */}
-        <View>
+        <View style={{justifyContent:'space-between'}}>
           <View>
             <Text>Mileage limit:</Text>
             <Text style={styles.subText}>Unlimited Km / Day</Text>
           </View>
-          <View>
+          <View style={{marginTop: 10}}>
             <Text>Fuel Policy:</Text>
             <Text style={styles.subText}>Full to Full</Text>
           </View>
-          <View style={{marginTop: 20}}>
+          <View style={{marginTop: 10}}>
             <View>
               <Text>Odometer:</Text>
               <View style={{flexDirection: 'row'}}>
@@ -207,7 +214,7 @@ const DateandVehicles = ({item}: any) => {
                 </Text>
               </View>
             </View>
-            <View>
+            <View style={{marginTop: 10}}>
               <Text>Fuel Level:</Text>
               <View style={{flexDirection: 'row'}}>
                 <Icon2 name={'fuel'} color={Colors.black} size={24} />

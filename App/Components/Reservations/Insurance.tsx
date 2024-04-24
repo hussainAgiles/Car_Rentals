@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import Colors from '../../Constants/Colors';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
 import useDispatch from '../../Hooks/useDispatch';
 import useIsMounted from '../../Hooks/useIsMounted';
 import {
@@ -18,7 +19,7 @@ import useAppSelector from '../../Hooks/useSelector';
 import {RootState} from '../../Redux/Store';
 import Loader from '../Loader/Loader';
 import ImageLoader from '../Loader/ImageLoader';
-import {ActivityIndicator} from 'react-native-paper';
+import {ActivityIndicator, Checkbox} from 'react-native-paper';
 
 interface InsuranceProps {
   item: any; // You can specify a more specific type based on your usage
@@ -31,7 +32,11 @@ const Insurance = ({item,onInsuranceUpdate}: InsuranceProps) => {
   const [selectedInsurance, setSelectedInsurance] = useState<number | null>(
     null,
   );
-  const [selectedAddons, setSelectedAddons] = useState<number | null>(null);
+  const [selectedAddons, setSelectedAddons] = useState<number | null>(
+    null,
+  );
+
+  const [totalPrice,setTotalprice] = useState([])
 
   useEffect(() => {
     if (isMounted()) {
@@ -98,10 +103,24 @@ const Insurance = ({item,onInsuranceUpdate}: InsuranceProps) => {
     onInsuranceUpdate(id, selectedAddons); // Pass current selection up
   };
   
-  const handleSelectAddons = (id: number) => {
-    setSelectedAddons(id);
-    onInsuranceUpdate(selectedInsurance, id); // Pass current selection up
+  const handleSelectAddons = (price: number) => {
+    const isSelected = totalPrice.includes(price);
+    const newTotalPrice = isSelected
+      ? totalPrice.filter(addonPrice => addonPrice !== price)
+      : [...totalPrice, price];
+    // Update the totalPrice state with the new array
+    setTotalprice(newTotalPrice);
+  
+    // Calculate the total addons price
+    const totalAddons = newTotalPrice.reduce((total, addonPrice) => total + addonPrice, 0);
+  //  console.log("totalAdd",totalAddons)
+    // Update the selectedAddons state
+    setSelectedAddons(totalAddons);
+  
+    // Pass the updated total addons price to the parent component
+    onInsuranceUpdate(selectedInsurance, totalAddons);
   };
+  
 
   return (
     <View style={styles.container}>
@@ -131,30 +150,26 @@ const Insurance = ({item,onInsuranceUpdate}: InsuranceProps) => {
             />
             <Text style={styles.radioText}>{insurance.insurance_name}</Text>
           </TouchableOpacity>
+          
         ))}
       </ScrollView>
       <Text style={{fontWeight: 'bold', color: Colors.black, fontSize: 20,marginTop:20}}>
         Add ons
       </Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View style={{flexDirection:'row',justifyContent:'flex-start',alignItems:'flex-start',marginLeft:-5}}>
         {addOns.vehicleaddons.map((addons: any) => (
-          <TouchableOpacity
-            key={addons.id}
-            style={styles.radioContainer}
-            onPress={() => handleSelectAddons(addons.price)}>
-            <Icon
-              name={
-                selectedAddons === addons.price
-                  ? 'radio-button-checked'
-                  : 'radio-button-unchecked'
-              }
-              size={24}
-              color={Colors.primary}
-            />
-           
-            <Text style={styles.radioText}>{addons?.addonmaster?.name}</Text>
-          </TouchableOpacity>
+          // <Text>{addons.price}</Text>
+          <Checkbox.Item
+          key={addons?.id}
+          color={Colors.primary}
+          label={addons?.addonmaster.name}
+          status={totalPrice?.includes(addons?.price) ? 'checked' : 'unchecked'}
+          onPress={() => handleSelectAddons(addons.price)}
+        />
         ))}
+        </View>
+      
       </ScrollView>
     </View>
   );

@@ -160,7 +160,7 @@ export const deleteViolations = async (id:string) => {
     const response = await API.post(
       Base_url + `delete-violation/${id}`,  
     );
-    console.log("Response on delete === ",response.data)
+    // console.log("Response on delete === ",response.data)
     return response.data;
   } catch (error) {
     console.error('Error Deleting Voilations :', error);
@@ -229,6 +229,19 @@ export const deletePenalty = async (id:string) => {
     return response.data;
   } catch (error) {
     console.error('Error Fetching Penalty History :', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
+
+export const fetchDefaultCurrency = async () => {
+  try {
+    const response = await API.get(
+      Base_url + `fetch_default_currency`,  
+    );
+    // console.log("Fetching Currency",response.data)
+    return response.data.parameter_value;
+  } catch (error) {
+    console.error('Error Fetching Currency:', error);
     throw error; // Rethrow the error to be caught by the calling code
   }
 };

@@ -22,8 +22,9 @@ import Colors from '../Constants/Colors';
 import useDispatch from '../Hooks/useDispatch';
 import useIsMounted from '../Hooks/useIsMounted';
 import useAppSelector from '../Hooks/useSelector';
-import {fetchPayment, fetchRentalDetail} from '../Redux/Reducers/ReservationDetailsReducer';
+import {fetchPayment, fetchRentalDetail, fetchingCurrency} from '../Redux/Reducers/ReservationDetailsReducer';
 import {RootState} from '../Redux/Store';
+import { useSelector } from 'react-redux';
 
 const sections = ['vehicle', 'customer', 'insurance', 'payment', 'documents'];
 
@@ -88,7 +89,6 @@ const Rental = ({route}: any) => {
   }
   }, [paymentHistory]);
 
- 
 
   useEffect(() => {
     if (isMounted()) {
@@ -105,11 +105,11 @@ const Rental = ({route}: any) => {
   });
   const [currentOpenSection, setCurrentOpenSection] = useState('');
 
-  const handleCheck = section => {
+  const handleCheck = (section: string | number) => {
     setCheckedItems(prev => ({...prev, [section]: !prev[section]}));
   };
 
-  const handleNextStep = currentSection => {
+  const handleNextStep = (currentSection: string) => {
     const currentIndex = sections.indexOf(currentSection);
     const nextSection = sections[currentIndex + 1];
     setCurrentOpenSection(nextSection);

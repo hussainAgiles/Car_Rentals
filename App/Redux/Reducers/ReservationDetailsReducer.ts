@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import {fetchInsurance, fetchRentalDetails, fetchResrvationDetails, handleAddons, createPayment, fetchPayments, updatePayment, fetchFleetReport,fetchViolations, fetchViolationTypes, fetchCustomers, createVoilation, fetchPenaltyTypes, createPenalties, fetchPenalty, deleteViolations, deletePenalty} from '../../API/NormalApi';
+import {fetchInsurance, fetchRentalDetails, fetchResrvationDetails, handleAddons, createPayment, fetchPayments, updatePayment, fetchFleetReport,fetchViolations, fetchViolationTypes, fetchCustomers, createVoilation, fetchPenaltyTypes, createPenalties, fetchPenalty, deleteViolations, deletePenalty, fetchDefaultCurrency} from '../../API/NormalApi';
 
 export const fetchReservation = createAsyncThunk(
   'home/reservedVehicles',
@@ -255,6 +255,19 @@ export const delete_Penalties = createAsyncThunk(
   },
 );
 
+export const fetchingCurrency = createAsyncThunk(
+  'home/fetchCurrency',
+  async () => {
+    try {
+      const response = await fetchDefaultCurrency();
+      // console.log("Currency response in reducers action == ",response)
+      return response;
+    } catch (error) {
+      return error;
+    }
+  }
+);
+
 
 
 type InitialStateType = {
@@ -275,7 +288,8 @@ type InitialStateType = {
   customerLoading:any;
   penaltyTypesData:any;
   penaltyData:any;
-  penaltiesHistory:any
+  penaltiesHistory:any;
+  defaultCurrency:any;
 };
 
 const initialState: InitialStateType = {
@@ -296,7 +310,9 @@ const initialState: InitialStateType = {
   violationData:null,
   penaltyTypesData:null,
   penaltyData:null,
-  penaltiesHistory:null
+  penaltiesHistory:null,
+  defaultCurrency:null
+
 };
 
 export const resrvationDetailSlice = createSlice({
@@ -667,6 +683,28 @@ export const fleetViolationDeleteSlice = createSlice({
 });
 
 
+export const fleetCurrencySlice = createSlice({
+  name: 'fetchCurrency',
+  initialState,
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(fetchingCurrency.pending, state => {
+        state.loading = 'pending';
+      })
+      .addCase(fetchingCurrency.fulfilled, (state, action) => {
+        state.loading = 'idle';
+        state.defaultCurrency= action.payload;
+        state.error = null;
+      })
+      .addCase(fetchingCurrency.rejected, (state, action) => {
+        state.loading = 'idle';
+        state.error = action.payload as string;
+      })   
+  },
+});
+
+
 
 
 
@@ -687,4 +725,4 @@ export const { reducer: fleetPenaltyCreation} = fleetPenaltyCreationSlice;
 export const { reducer: fleetPenaltyHistory} = fleetPenaltyHistorySlice;
 export const { reducer: fleetDeleteViolation} = fleetViolationDeleteSlice;
 export const { reducer: fleetDeletePenalties} = fleetPenaltyDeleteSlice;
-
+export const { reducer: fleetFetchCurrency} = fleetCurrencySlice;

@@ -1,9 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import Colors from '../../Constants/Colors';
+import useDispatch from '../../Hooks/useDispatch';
+import useIsMounted from '../../Hooks/useIsMounted';
+import { fetchingCurrency } from '../../Redux/Reducers/ReservationDetailsReducer';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../Redux/Store';
 
 const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any) => {
   // console.log(insuranceAddon);
+
+  const dispatch = useDispatch();
+  const isMounted = useIsMounted();
+
+  const{defaultCurrency} = useSelector(
+    (state: RootState) => state.fleetFetchDefaultCurrencyReducer,
+  )
+
+  useEffect(() => {
+    if (isMounted()) {
+      dispatch(fetchingCurrency());
+    }
+  }, []);
   const calculateSubtotal = () => {
     const rentalPrice = reservation?.rental_price || 0;
     const addonTotalPrice = reservation?.addon_total_price || 0;
@@ -40,7 +58,7 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
 
   return (
     <View style={styles.container}>
-      <Text
+      {/* <Text
         style={{
           fontSize: 20,
           marginBottom: 20,
@@ -49,10 +67,10 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
           textAlign:'center'
         }}>
         Summary
-      </Text>
-      <View style={{borderRadius: 6,backgroundColor:Colors.Iconwhite,elevation:3,}}>
+      </Text> */}
+      <View style={{borderRadius: 6,backgroundColor:Colors.Iconwhite,elevation:3}}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Total</Text>
+          <Text style={styles.headerTitle}>Summary</Text>
         </View>
         <View
           style={{
@@ -72,7 +90,7 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
             <Text style={styles.subtitle}>Toyota Yaris</Text>
           </View>
           <Text style={styles.price}>
-            {reservation?.vehicle_price.toFixed(2)} AUD
+            {reservation?.vehicle_price.toFixed(2)} {defaultCurrency?.parameter_value}
           </Text>
         </View>
 
@@ -83,7 +101,7 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
               <Text style={styles.subtitle}>Insurance Price</Text>
             </View>
             <Text style={styles.price}>
-              {insuranceAddon?.insuranceId?.toFixed(2)} AUD
+              {insuranceAddon?.insuranceId?.toFixed(2)} {defaultCurrency?.parameter_value}
             </Text>
           </View>
         )}
@@ -97,7 +115,7 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
             <Text style={styles.price}>
               {Number(reservation?.addon_total_price?.toFixed(2)) +
                 Number(insuranceAddon.addonsId)}{' '}
-              AUD
+              {defaultCurrency?.parameter_value}
             </Text>
           </View>
         ) : (
@@ -107,7 +125,7 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
               <Text style={styles.subtitle}>Addon Price</Text>
             </View>
             <Text style={styles.price}>
-              {Number(reservation?.addon_total_price?.toFixed(2))} AUD
+              {Number(reservation?.addon_total_price?.toFixed(2))} {defaultCurrency?.parameter_value}
             </Text>
           </View>
         )}
@@ -132,29 +150,29 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
           </View>
 
           <View>
-            <Text style={styles.summaryValue}>{subtotal.toFixed(2)} AUD</Text>
+            <Text style={styles.summaryValue}>{subtotal.toFixed(2)} {defaultCurrency?.parameter_value}</Text>
 
             <Text style={styles.summaryValue}>
-              {paymentCompleted? paymentCompleted : 0} AUD
+              {paymentCompleted? paymentCompleted : 0} {defaultCurrency?.parameter_value}
             </Text>
           </View>
         </View>
 
         <View style={styles.dueBalanceContainer}>
-          <Text style={styles.dueBalanceTitle}>Due balance:</Text>
-          <Text style={styles.dueBalanceValue}>{totalDue.toFixed(2)} AUD</Text>
-        </View>
-        <View style={styles.dueBalanceContainer}>
           <Text style={styles.summaryTitle}>Security deposit</Text>
           <Text style={styles.summaryValue}>
-            {reservation?.security_deposit?.toFixed(2)} AUD
+            {reservation?.security_deposit?.toFixed(2)} {defaultCurrency?.parameter_value}
           </Text>
         </View>
         <View style={styles.dueBalanceContainer}>
           <Text style={styles.summaryTitle}>Damage excess:</Text>
           <Text style={styles.summaryValue}>
-            100 AUD
+            100 {defaultCurrency?.parameter_value}
           </Text>
+        </View>
+        <View style={styles.dueBalanceContainer}>
+          <Text style={styles.dueBalanceTitle}>Due balance:</Text>
+          <Text style={styles.dueBalanceValue}>{totalDue.toFixed(2)} {defaultCurrency?.parameter_value}</Text>
         </View>
       </View>
     </View>
@@ -169,7 +187,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#4a90e2', // Blue color similar to the header in the image
     padding: 8,
@@ -193,7 +211,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0faff', // Light blue background for sections
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
-    paddingVertical: 12,
+    paddingVertical: 12
   },
   sectionTitle: {
     fontWeight: 'bold',

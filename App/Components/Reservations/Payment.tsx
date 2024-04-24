@@ -19,6 +19,7 @@ import {
   fetchStatus,
 } from '../../Redux/Reducers/ReservationDetailsReducer';
 import { RootState } from '../../Redux/Store';
+import moment from 'moment';
 
 const Payment = ({item}: any) => {
   const [type, setType] = useState('');
@@ -28,7 +29,7 @@ const Payment = ({item}: any) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [date, setDate] = useState('');
   const [status, setSelectedStatus] = useState('Not paid');
-  const statusOptions = ['Paid', 'Pending', 'Failed', 'Cancel'];
+  const statusOptions = ['Paid', 'Pending'];
 
   const handleDateConfirm = (newdate: Date) => {
     // console.log("Date === ",date)
@@ -97,7 +98,9 @@ const Payment = ({item}: any) => {
     (state: RootState) => state.fetchPaymentReducer,
   );
 
-  // console.log(paymentHistory)
+  const{defaultCurrency} = useSelector(
+    (state: RootState) => state.fleetFetchDefaultCurrencyReducer,
+  )
 
   // const statusColor = getStatusColor(
   //   paymentHistory?.reservation_payment?.status,
@@ -146,17 +149,18 @@ const Payment = ({item}: any) => {
           index: React.Key | null | undefined,
         ) => (
           <View style={styles.paymentItem} key={payment.id}>
-            <Text style={styles.paymentDate}>{payment.date}</Text>
+            <Text style={styles.paymentDate}>{moment(payment.date).format('DD-MM-YYYY')}</Text>
             <View style={[styles.paymentMethod]}>
               <Icon
                 name={payment.method === 'Card' ? 'credit-card' : 'money'}
                 size={20}
                 color="#000"
+                style={styles.icon}
               />
-              <Text style={styles.paymentDate}>{payment.method}</Text>
+              <Text style={[styles.paymentDate,{ marginLeft: 8 }]}>{payment.method}</Text>
             </View>
-            <Text style={styles.amount}>{`${payment.value} €`}</Text>
-            <View style={{width:80}}>
+            <Text style={styles.amount}>{`${payment.value} ${defaultCurrency.parameter_value}`}</Text>
+            <View style={{width:70}}>
               {/* <Text>Select Status:</Text> */}
               <TouchableOpacity
                 onPress={() => toggleOptions(payment.id)}
@@ -195,13 +199,15 @@ const Payment = ({item}: any) => {
           <TouchableOpacity
             style={[
               styles.input,
-              {borderWidth: 0.5, borderRadius: 3, justifyContent: 'center'},
+              {borderWidth: 0.5, borderRadius: 3, justifyContent: 'space-between',flexDirection:'row',alignItems:'center',paddingHorizontal:15},
             ]}
             onPress={() => setDatePickerVisibility(true)}>
-            <Text style={{color: Colors.black, marginLeft: 15}}>
+            <Text style={{color: Colors.black}}>
               {selectedDate ? selectedDate.toDateString() : 'Select Date'}
             </Text>
+            <Icon name='calendar' size={20} color={Colors.black}/>
           </TouchableOpacity>
+          
         </View>
 
         <TextInput
@@ -284,11 +290,13 @@ const styles = StyleSheet.create({
   paymentDate: {
     fontSize: 14,
     color: '#666',
+    width:70
   },
   paymentMethod: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    width:'10%'
   },
   statusButton: {
     borderWidth: 0.1,
@@ -313,6 +321,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     color: '#333',
+    width:'25%',
+    textAlign:'right'
   },
   formContainer: {
     paddingHorizontal: 20,
@@ -327,7 +337,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   icon: {
-    marginRight: 8,
+    marginRight: 0,
   },
   actionButton: {
     marginVertical: 10,

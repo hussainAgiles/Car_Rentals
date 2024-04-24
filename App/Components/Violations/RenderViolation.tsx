@@ -1,4 +1,12 @@
-import {StyleSheet, Text, View, TouchableOpacity, Alert} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Colors from '../../Constants/Colors';
 import {useSelector} from 'react-redux';
@@ -18,8 +26,9 @@ import Toast from 'react-native-toast-message';
 import {Dropdown} from 'react-native-element-dropdown';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import moment from 'moment';
-import {TextInput} from 'react-native-paper';
+import {TextInput, Modal, Portal} from 'react-native-paper';
 import Loader from '../Loader/Loader';
+import ViolationFormModal from './ViolationFormModal';
 
 const RenderViolation = ({reservation}: any) => {
   // console.log('Id related to reservation', reservation.reservation?.id);
@@ -31,6 +40,7 @@ const RenderViolation = ({reservation}: any) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [date, setDate] = useState('');
   const [customer_id, setCustomer] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   // Voilation related state
   const [type, setType] = useState('');
@@ -43,7 +53,6 @@ const RenderViolation = ({reservation}: any) => {
   const [dateError, setDateError] = useState('');
   const [amountError, setAmountError] = useState('');
   const [descriptionError, setDescriptionError] = useState('');
-
 
   // focused
 
@@ -106,7 +115,7 @@ const RenderViolation = ({reservation}: any) => {
                 });
               }
             } catch (error) {
-              console.log('render Violation === ', error);
+              // console.log('render Violation === ', error);
               Toast.show({
                 type: 'error',
                 text1: 'Something went wrong',
@@ -120,7 +129,7 @@ const RenderViolation = ({reservation}: any) => {
   };
 
   const handleDateConfirm = (newdate: Date) => {
-    console.log("Date === ",newdate)
+    // console.log('Date === ', newdate);
     setSelectedDate(newdate);
     setDatePickerVisibility(false);
 
@@ -132,7 +141,6 @@ const RenderViolation = ({reservation}: any) => {
   const handleVoilations = async () => {
     const reservation_id = reservation.reservation.id;
     let isValid = true;
-
     if (!customer_id) {
       setCustomerError('Customer is required.');
       isValid = false;
@@ -187,7 +195,9 @@ const RenderViolation = ({reservation}: any) => {
           setAmount('');
           setDescription('');
           setCustomer('');
-          setDate('')
+          setDate('');
+          setIsModalVisible(false);
+          dispatch(fetchingViolations(reservation?.reservation?.id));
         } else {
           Toast.show({
             type: 'error',
@@ -203,27 +213,24 @@ const RenderViolation = ({reservation}: any) => {
     }
   };
 
-  
-
   return (
     <View>
       {violation?.violations.length > 0 ? (
-         <View style={styles.tableHeader}>
-         <View style={{flex: 1, flexDirection: 'row'}}>
-           <Text style={[styles.headerText, {flex: 0.25}]}>Name</Text>
-           <Text style={[styles.headerText, {flex: 0.25}]}>Date</Text>
-           <Text style={[styles.headerText, {flex: 0.15}]}>Amount</Text>
-           <Text style={[styles.headerText, {flex: 0.22}]}>Description</Text>
-           <Text style={[styles.headerText, {flex: 0.1}]}>Action</Text>
-         </View>
-       </View>
-      ):(
-        <View style={{justifyContent:'center',alignItems:'center'}}>
-          <Text style={{fontSize:18,color:Colors.grey}}>No Data Found</Text>
+        <View style={styles.tableHeader}>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            <Text style={[styles.headerText, {flex: 0.25}]}>Name</Text>
+            <Text style={[styles.headerText, {flex: 0.25}]}>Date</Text>
+            <Text style={[styles.headerText, {flex: 0.15}]}>Amount</Text>
+            <Text style={[styles.headerText, {flex: 0.22}]}>Description</Text>
+            <Text style={[styles.headerText, {flex: 0.1}]}>Action</Text>
+          </View>
+        </View>
+      ) : (
+        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+          <Text style={{fontSize: 18, color: Colors.grey}}>No Data Found</Text>
         </View>
       )}
       <View style={styles.modalView}>
-        
         {violation?.violations?.map(
           (
             violation_data: {
@@ -263,103 +270,155 @@ const RenderViolation = ({reservation}: any) => {
             </View>
           ),
         )}
-        {/* <View style={{justifyContent: 'space-between'}}> */}
-        <View style={styles.formContainer}>
-          {customersData && customersData.length > 0 && (
-            <Dropdown
-              style={[styles.dropdown, {flex: 1}]}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              data={customersData}
-              search
-              maxHeight={200}
-              labelField="full_name"
-              valueField="id"
-              placeholder="Select Customer"
-              searchPlaceholder="Search..."
-              value={customersData?.id}
-              itemTextStyle={styles.itemStyle}
-              onChange={item => setCustomer(item?.id)}
-              onFocus={() => setCustomerFocused(true)}
-              onBlur={() => setCustomerFocused(false)}
+
+        <TouchableOpacity
+          onPress={() => setIsModalVisible(true)}
+          style={[styles.button]}>
+          <Text
+            style={{
+              color: Colors.Iconwhite,
+              fontWeight: 'bold',
+              textAlign: 'center',
+            }}>
+            Add Violations
+          </Text>
+        </TouchableOpacity>
+
+        <Portal>
+          <Modal
+            visible={isModalVisible}
+            contentContainerStyle={styles.modalContainer}>
+            <View style={{justifyContent:'center',alignItems:'center'}}>
+              <Text style={{fontSize:18,fontWeight:'bold',color:Colors.black}}>Add Violations</Text>
+            </View>
+            {customersData && customersData.length > 0 && (
+              <Dropdown
+                style={[styles.dropdown]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                data={customersData}
+                search
+                maxHeight={200}
+                labelField="full_name"
+                valueField="id"
+                placeholder="Select Customer"
+                searchPlaceholder="Search..."
+                value={customersData?.id}
+                itemTextStyle={styles.itemStyle}
+                onChange={item => setCustomer(item?.id)}
+                onFocus={() => setCustomerFocused(true)}
+                onBlur={() => setCustomerFocused(false)}
+              />
+            )}
+            {!customerFocused && customerError ? (
+              <Text style={styles.errorText}>{customerError}</Text>
+            ) : null}
+
+            {violationTypes && violationTypes.length > 0 && (
+              <Dropdown
+                style={[styles.dropdown]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                data={violationTypes}
+                search
+                maxHeight={300}
+                labelField="longname"
+                valueField="id"
+                placeholder="Select Violation"
+                searchPlaceholder="Search..."
+                value={violationTypes?.id}
+                itemTextStyle={styles.itemStyle}
+                onChange={item => setType(item?.longname)}
+                onFocus={() => setTypeFocused(true)}
+                onBlur={() => setTypeFocused(false)}
+              />
+            )}
+            {!typeFocused && typeError ? (
+              <Text style={styles.errorText}>{typeError}</Text>
+            ) : null}
+
+            <View>
+              <TouchableOpacity
+                style={[
+                  styles.input,
+                  {
+                    borderWidth: 0.7,
+                    borderRadius: 3,
+                    justifyContent: 'space-between',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingHorizontal: 15,
+                  },
+                ]}
+                onPress={() => setDatePickerVisibility(true)}>
+                <Text style={{color: Colors.black}}>
+                  {selectedDate ? selectedDate.toDateString() : 'Select Date'}
+                </Text>
+                <Icon name="calendar-month" size={20} color={Colors.black} />
+              </TouchableOpacity>
+              {dateError ? (
+                <Text style={styles.errorText}>{dateError}</Text>
+              ) : null}
+            </View>
+
+            <TextInput
+              label="Amount"
+              mode="outlined"
+              value={amount}
+              style={[styles.input]}
+              textColor={Colors.black}
+              onChangeText={text => setAmount(text)}
+              keyboardType="numeric"
+              onFocus={() => setAmountFocused(true)}
+              onBlur={() => setAmountFocused(false)}
             />
-          )}
-          {!customerFocused && customerError ? <Text style={styles.errorText}>{customerError}</Text> : null}
-          {violationTypes && violationTypes.length > 0 && (
-            <Dropdown
-              style={[styles.dropdown, {flex: 1}]}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              data={violationTypes}
-              search
-              maxHeight={300}
-              labelField="longname"
-              valueField="id"
-              placeholder="Select Violation"
-              searchPlaceholder="Search..."
-              value={violationTypes?.id}
-              itemTextStyle={styles.itemStyle}
-              onChange={item => setType(item?.longname)}
-              onFocus={() => setTypeFocused(true)}
-              onBlur={() => setTypeFocused(false)}
-            />
-          )}
-          {!typeFocused && typeError ? <Text style={styles.errorText}>{typeError}</Text> : null}
-          <View style={{flex: 1}}>
-            <TouchableOpacity
-              style={[
-                styles.input,
-                {
-                  borderWidth: 0.7,
-                  borderRadius: 3,
-                  justifyContent: 'space-between',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingHorizontal: 15,
-                },
-              ]}
-              onPress={() => setDatePickerVisibility(true)}>
-              <Text style={{color: Colors.black}}>
-                {selectedDate ? selectedDate.toDateString() : 'Select Date'}
-              </Text>
-              <Icon name="calendar-month" size={20} color={Colors.black} />
-            </TouchableOpacity>
-            {dateError ? <Text style={styles.errorText}>{dateError}</Text> : null}
-          </View>
-          <TextInput
-            label="Amount"
-            mode="outlined"
-            value={amount}
-            style={[styles.input, {flex: 1}]}
-            textColor={Colors.black}
-            onChangeText={text => setAmount(text)}
-            keyboardType="numeric"
-            onFocus={() => setAmountFocused(true)}
-            onBlur={() => setAmountFocused(false)}
-          />
-          {!amountFocused && amountError ? <Text style={styles.errorText}>{amountError}</Text> : null}
-          <TextInput
-            label="Comments"
-            mode="outlined"
-            value={description}
-            style={[styles.input, {flex: 1}]}
-            textColor={Colors.black}
-            onChangeText={text => setDescription(text)}
-            onFocus={() => setDescriptionFocused(true)}
+            {!amountFocused && amountError ? (
+              <Text style={styles.errorText}>{amountError}</Text>
+            ) : null}
+            <TextInput
+              label="Comments"
+              mode="outlined"
+              value={description}
+              style={[styles.input]}
+              textColor={Colors.black}
+              onChangeText={text => setDescription(text)}
+              onFocus={() => setDescriptionFocused(true)}
               onBlur={() => setDescriptionFocused(false)}
-          />
-           {!descriptionFocused && descriptionError ? <Text style={styles.errorText}>{descriptionError}</Text> : null}
-        </View>
-        <View style={[styles.buttonContainer]}>
-          <TouchableOpacity style={styles.button} onPress={handleVoilations}>
-            <Text style={{color: Colors.Iconwhite, fontWeight: 'bold'}}>
-              Add Violations
-            </Text>
-          </TouchableOpacity>
-        </View>
-        {/* </View> */}
+            />
+            {!descriptionFocused && descriptionError ? (
+              <Text style={styles.errorText}>{descriptionError}</Text>
+            ) : null}
+
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <View style={[styles.buttonContainer]}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={handleVoilations}>
+                  <Text style={{color: Colors.Iconwhite, fontWeight: 'bold'}}>
+                    Submit
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={[styles.buttonContainer]}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => setIsModalVisible(false)}>
+                  <Text style={{color: Colors.Iconwhite, fontWeight: 'bold'}}>
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        </Portal>
+
       </View>
       {/* Date Time Picker Modal */}
       <DateTimePickerModal
@@ -389,9 +448,6 @@ const styles = StyleSheet.create({
     // textAlign: 'center',
   },
   modalView: {
-    // backgroundColor: 'white',
-    // elevation: 5,
-    // width: '100%',
     paddingVertical: 10,
   },
   paymentItem: {
@@ -453,5 +509,23 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: 'red',
+  },
+  // modalContainer: {
+  //   flex: 1,
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+  // },
+  modalContainer: {
+    backgroundColor: 'white',
+    margin: 20,
+    padding: 15,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '90%',
+    height: '55%', // Adjust the width as needed
   },
 });
