@@ -26,6 +26,7 @@ import {
   fetchSVG,
 } from '../../Redux/Reducers/ReservationDetailsReducer';
 import DamageList from './DamageList';
+import mime from 'mime';
 
 const Exterior = ({item}: any) => {
   const dispatch = useDispatch();
@@ -43,6 +44,7 @@ const Exterior = ({item}: any) => {
   const [image, setImage] = useState('');
   const [image_url, setImageUrl] = useState('');
   const [refreshCounter, setRefreshCounter] = useState(0);
+  const [extension,setExtension] = useState('')
   const [extension,setExtension] = useState('')
   const [mimetype,setMimeType] = useState('')
 
@@ -124,9 +126,14 @@ const triggerRefresh = () => {
               mediaType: 'photo',
               cropping: true, // Enable cropping
               includeBase64:true,
+              includeBase64:true,
               compressImageQuality: 0.5,
             })
               .then(image => {
+                console.log("image");
+                setImage(image.data); 
+                setExtension(image.mime)
+                // setImage(image.path); // `path` is used instead of `uri`
                 console.log("image");
                 setImage(image.data); 
                 setExtension(image.mime)
@@ -145,13 +152,16 @@ const triggerRefresh = () => {
             ImageCropPicker.openPicker({
               mediaType: 'photo',
               cropping: true,
+              includeBase64:true,
               includeBase64:true, // Enable cropping
               compressImageQuality: 0.5,
             })
               .then(image => {
                 console.log("image",image);
+                console.log("image",image);
                 setImage(image.data);
-                setExtension(image.path); // `path` is used instead of `uri`
+                setExtension(image.data);
+                setExtension(image.path) // `path` is used instead of `uri`
                 setMimeType(image.mime)
               })
               .catch(e => {
@@ -181,6 +191,16 @@ const triggerRefresh = () => {
       image_url: "image",
       reservation_id: item?.reservation?.fleet_id,
       data_id: data_id,
+      device:"mobile",
+      imagedata:{
+        image:image,
+        folder:"damage",
+        filename:"damage",
+        width:"320",
+        height:"200"
+    },
+
+  
       device:"mobile",
       imagedata:{
         image:image,
