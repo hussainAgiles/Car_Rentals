@@ -183,6 +183,7 @@ const Payment = ({item}: any) => {
           </View>
         ),
       )}
+
       <View style={styles.formContainer}>
         <TextInput
           label="Payment type"

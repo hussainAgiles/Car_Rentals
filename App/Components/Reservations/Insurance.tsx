@@ -1,25 +1,26 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import Colors from '../../Constants/Colors';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
+import Colors from '../../Constants/Colors';
 import useDispatch from '../../Hooks/useDispatch';
 import useIsMounted from '../../Hooks/useIsMounted';
+import useAppSelector from '../../Hooks/useSelector';
 import {
   fetchAddons,
   fetchInsuranceDetails,
 } from '../../Redux/Reducers/ReservationDetailsReducer';
-import useAppSelector from '../../Hooks/useSelector';
 import {RootState} from '../../Redux/Store';
 import Loader from '../Loader/Loader';
 import ImageLoader from '../Loader/ImageLoader';
 import {ActivityIndicator, Checkbox} from 'react-native-paper';
+
 
 interface InsuranceProps {
   item: any; // You can specify a more specific type based on your usage
@@ -27,6 +28,7 @@ interface InsuranceProps {
 }
 
 const Insurance = ({item,onInsuranceUpdate}: InsuranceProps) => {
+ 
   const dispatch = useDispatch();
   const isMounted = useIsMounted();
   const [selectedInsurance, setSelectedInsurance] = useState<number | null>(
@@ -55,6 +57,21 @@ const Insurance = ({item,onInsuranceUpdate}: InsuranceProps) => {
   const {insuranceDetail, loading} = useAppSelector(
     (state: RootState) => state.rentailInsuranceReducer,
   );
+
+    // This useEffect sets the default selected insurance after fetching details
+    useEffect(() => {
+      if (insuranceDetail?.insurance_details && item?.reservation?.insurance) {
+        const matchedInsurance = insuranceDetail.insurance_details.find((insurance: { insurance_name: any; }) =>
+          insurance.insurance_name === item.reservation.insurance
+        );
+        if (matchedInsurance) {
+          setSelectedInsurance(matchedInsurance.price_by_day);
+          onInsuranceUpdate(matchedInsurance.price_by_day, selectedInsurance);
+        }
+      }
+    }, [insuranceDetail, item]);
+
+  
   const {addOns} = useAppSelector(
     (state: RootState) => state.addOnsReducer,
   );
@@ -100,7 +117,7 @@ const Insurance = ({item,onInsuranceUpdate}: InsuranceProps) => {
 
   const handleSelectInsurance = (id: number) => {
     setSelectedInsurance(id);
-    onInsuranceUpdate(id, selectedAddons); // Pass current selection up
+    onInsuranceUpdate(id, selectedInsurance); // Pass current selection up
   };
   
   const handleSelectAddons = (price: number) => {
@@ -159,7 +176,6 @@ const Insurance = ({item,onInsuranceUpdate}: InsuranceProps) => {
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={{flexDirection:'row',justifyContent:'flex-start',alignItems:'flex-start',marginLeft:-5}}>
         {addOns.vehicleaddons.map((addons: any) => (
-          // <Text>{addons.price}</Text>
           <Checkbox.Item
           key={addons?.id}
           color={Colors.primary}

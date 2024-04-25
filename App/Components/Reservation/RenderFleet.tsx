@@ -49,14 +49,6 @@ const RenderFleet = React.memo(({item}: any) => {
     setLoading(value);
   };
 
-  const available_locations = [
-    'PAPHOS AIRPORT',
-    'PAPHOS MAIN OFFICE',
-    'LARNACA AIRPORT',
-    'LARNACA MAIN OFFICE',
-    'PROTARAS OFFICE',
-  ];
-
   return (
     <TouchableOpacity
       style={styles.card}
@@ -105,32 +97,34 @@ const RenderFleet = React.memo(({item}: any) => {
             </View>
           </View>
 
-          <View style={styles.details}>
+          <View style={styles.locationDetails}>
             <FlatList
-              data={available_locations}
+              data={item?.locations}
               renderItem={({item}) => (
                 <View
                   style={{
                     padding: 7,
-                    borderWidth: 1,
+                    // borderWidth: 1,
                     borderRadius: 15,
-                    backgroundColor: Colors.blue,
-                    marginVertical: 5,
-                    marginHorizontal: 5,
-                    justifyContent: 'center',
+                    // backgroundColor: Colors.primary,
+                    margin: 5,
+                    flexDirection: 'row',
+                    // flexWrap:'wrap',
+                    alignItems:'center'
                   }}>
+                  <Icon2 name="location-pin" size={12} color={Colors.Iconwhite} />
                   <Text
                     style={{
-                      color: Colors.Iconwhite,
+                      color: Colors.primary,
                       fontWeight: 'bold',
-                      fontSize: 10,
+                      fontSize: 15,
                     }}>
-                    {item}
+                    {item?.vehicle_counter?.name}
                   </Text>
                 </View>
               )}
               keyExtractor={(item, index) => index.toString()}
-              numColumns={2}
+              // numColumns={2}
             />
           </View>
         </View>
@@ -178,7 +172,7 @@ const RenderFleet = React.memo(({item}: any) => {
             </View>
 
             <View>
-              <Text>Fuel Level:</Text>
+              {/* <Text>Fuel Level:</Text> */}
               <View style={{flexDirection: 'row'}}>
                 <Icon3 name={'fuel'} color={Colors.black} size={24} />
                 <Text style={styles.subText}>{item?.fuel_level}</Text>
@@ -186,25 +180,28 @@ const RenderFleet = React.memo(({item}: any) => {
             </View>
             <View style={{width: screenWidth * 0.3}}>
               <FlatList
-                data={available_locations}
+                data={item?.locations}
                 renderItem={({item}) => (
                   <View
                     style={{
                       padding: 7,
                       borderWidth: 1,
                       borderRadius: 15,
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Colors.primary,
                       marginVertical: 5,
                       marginHorizontal: 5,
                       justifyContent: 'center',
+                      flexDirection:'row',
+                      alignItems:'center'
                     }}>
+                    <Icon2 name="location-pin" size={12} color={Colors.Iconwhite}/>
                     <Text
                       style={{
                         color: Colors.Iconwhite,
                         fontWeight: 'bold',
-                        fontSize: 9,
+                        fontSize: 12,
                       }}>
-                      {item}
+                      {item?.vehicle_counter?.name}
                     </Text>
                   </View>
                 )}
@@ -248,7 +245,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     overflow: 'hidden',
     padding: 5,
-    
   },
   image: {
     width: 100,
@@ -257,7 +253,11 @@ const styles = StyleSheet.create({
   },
   details: {
     flex: 1,
-    width: '25%',
+    width: '20%',
+  },
+  locationDetails: {
+    width: '50%',
+    display: 'flex',
   },
   title: {
     color: Colors.black,

@@ -125,6 +125,17 @@ export const fetchViolations = async (id:string) => {
     return response.data;
   } catch (error) {
     console.error('Error fetching Voilations :', error);
+  }
+}
+export const fetchInvoiceReport = async ({slug}: {slug: string}) => {
+ 
+  try {
+    const response = await API.get(
+      Base_url + `generate_pdf?slug=${slug}`, 
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Fleet reports :', error);
     throw error; // Rethrow the error to be caught by the calling code
   }
 };
@@ -164,6 +175,21 @@ export const deleteViolations = async (id:string) => {
     return response.data;
   } catch (error) {
     console.error('Error Deleting Voilations :', error);
+  }
+}
+
+export const fetchSvg = async (reservation_id: string) => {
+  let body = {
+    reservation_id:reservation_id
+  }
+  try {
+    const response = await API.post(
+      Base_url + 'fetch-updated-mobile-svg-layout', body
+    );
+   
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Payment Status :', error);
     throw error; // Rethrow the error to be caught by the calling code
   }
 };
@@ -217,6 +243,19 @@ export const fetchPenalty = async (id:string) => {
     return response.data;
   } catch (error) {
     console.error('Error Fetching Penalty History :', error);
+  }
+}
+
+
+export const fetchCustomer = async () => {
+  
+  try {
+    const response = await API.get(
+      Base_url + 'fetch-customers-and-counters-type', 
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Payment Status :', error);
     throw error; // Rethrow the error to be caught by the calling code
   }
 };
@@ -232,6 +271,33 @@ export const deletePenalty = async (id:string) => {
     throw error; // Rethrow the error to be caught by the calling code
   }
 };
+export const createDamage = async ({body}: {body: object}) => {
+  try {
+    const response = await API.post(
+      Base_url + 'create-damage', body
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Payment Status :', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
+
+export const deleteDamage = async (id: string) => {
+
+  try {
+    const response = await API.post(
+      Base_url + 'delete-damage/'+ id
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Payment Status :', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
+
+
+
 
 export const fetchDefaultCurrency = async () => {
   try {

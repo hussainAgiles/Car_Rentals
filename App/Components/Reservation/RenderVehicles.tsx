@@ -41,9 +41,7 @@ const RenderVehicles = React.memo(({item}: any) => {
     : require('../../Assets/car.png');
 
   const handleRental = (id: string, status: string) => {
-    if (status === 'Reserved') {
       navigation.navigate('Rental', {id});
-    }
   };
 
   const [loading, setLoading] = useState(false);

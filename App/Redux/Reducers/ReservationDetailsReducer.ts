@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import {fetchInsurance, fetchRentalDetails, fetchResrvationDetails, handleAddons, createPayment, fetchPayments, updatePayment, fetchFleetReport,fetchViolations, fetchViolationTypes, fetchCustomers, createVoilation, fetchPenaltyTypes, createPenalties, fetchPenalty, deleteViolations, deletePenalty, fetchDefaultCurrency} from '../../API/NormalApi';
+import { createDamage, createPayment, createPenalties, createVoilation, deleteDamage, deletePenalty, deleteViolations, fetchCustomers, fetchDefaultCurrency, fetchFleetReport, fetchInsurance, fetchInvoiceReport, fetchPayments, fetchPenalty, fetchPenaltyTypes, fetchRentalDetails, fetchResrvationDetails, fetchSvg, fetchViolationTypes, fetchViolations, handleAddons, updatePayment } from '../../API/NormalApi';
 
 export const fetchReservation = createAsyncThunk(
   'home/reservedVehicles',
@@ -66,7 +66,6 @@ interface paymentPayload {
   value:string;
   reservation_id:string;
   customer_id:string;
-  
 }
 
 export const create_Payment = createAsyncThunk(
@@ -119,12 +118,55 @@ export const fetchStatus = createAsyncThunk(
   },
 );
 
+export const fetchInvoice = createAsyncThunk(
+  'home/fetchInvoice',
+  async (slug:any, {rejectWithValue}) => {
+    console.log("id received",slug);
+    try {
+      const response = fetchInvoiceReport({slug:slug});
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
+
+
+
+export const fetchSVG = createAsyncThunk(
+  'home/fetchSvg',
+  async (reservation_id: string, {rejectWithValue}) => {
+    try {
+      const response = fetchSvg(reservation_id);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
+
+// export const fetchCustomers = createAsyncThunk(
+//   'home/fetchCustomers',
+//   async (body: string, {rejectWithValue}) => {
+//     try {
+//       const response = fetchCustomer();
+//       return response;
+//     } catch (error) {
+//       return rejectWithValue(error);
+//     }
+//   },
+// );
+
+
 export const fetchingViolations = createAsyncThunk(
   'home/fetchViolation',
   async (id:string, { rejectWithValue }) => {
     // console.log("id in === ",id)
     try {
-      const response = await fetchViolations(id);
+      const response = await fetchViolations(id)
+;
       // console.log("Voilations response == ",response)
       return response;
     } catch (error) {
@@ -184,7 +226,8 @@ export const delete_Violation = createAsyncThunk(
   'home/deleteViolation',
   async (id:string, {rejectWithValue}) => {
     try {
-      const response = await deleteViolations(id);
+      const response = await deleteViolations(id)
+;
       // console.log("response dlete == ",response)
       return response;
     } catch (error) {
@@ -233,7 +276,8 @@ export const fetchingPenalties = createAsyncThunk(
   'home/fetchPenalties',
   async (id:string, { rejectWithValue }) => {
     try {
-      const response = await fetchPenalty(id);
+      const response = await fetchPenalty(id)
+;
       // console.log("Voilations response == ",response)
       return response;
     } catch (error) {
@@ -247,7 +291,8 @@ export const delete_Penalties = createAsyncThunk(
   'home/deletePenalty',
   async (id:string, {rejectWithValue}) => {
     try {
-      const response =await deletePenalty(id);
+      const response =await deletePenalty(id)
+;
       return response;
     } catch (error) {
       return rejectWithValue(error);
@@ -267,6 +312,49 @@ export const fetchingCurrency = createAsyncThunk(
     }
   }
 );
+
+
+interface createDamagePayload {
+
+  type:string;
+  title:string;
+  description:string;
+  damage_level:string;
+  vehicle_id:string;
+  client_id:string;
+  image_url:string;
+  reservation_id:string;
+  data_id:string
+}
+
+export const createDamagee = createAsyncThunk(
+  'home/createDamage',
+  async (payload: createDamagePayload, {rejectWithValue}) => {
+    // console.log("payload received",payload);
+    try {
+      const response = await createDamage({body: payload});
+      // console.log("Response fetch status reducers",response)
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
+
+export const deleteDamagee = createAsyncThunk(
+  'home/deleteDamage',
+  async (id: string, {rejectWithValue}) => {
+    try {
+      const response = deleteDamage(id)
+;
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
 
 
 
@@ -290,6 +378,10 @@ type InitialStateType = {
   penaltyData:any;
   penaltiesHistory:any;
   defaultCurrency:any;
+  invoice:any;
+  svg:any;
+  customers:any;
+  damage:any
 };
 
 const initialState: InitialStateType = {
@@ -311,8 +403,11 @@ const initialState: InitialStateType = {
   penaltyTypesData:null,
   penaltyData:null,
   penaltiesHistory:null,
-  defaultCurrency:null
-
+  defaultCurrency:null,
+  invoice:null,
+  svg:null,
+  customers:null,
+  damage:null
 };
 
 export const resrvationDetailSlice = createSlice({
@@ -488,6 +583,113 @@ export const fleetReportSlice = createSlice({
         state.loading = 'idle';
         state.error = action.payload as string;
       })   
+  },
+});
+
+
+export const invoiceReportSlice = createSlice({
+  name: 'invoiceReport',
+  initialState,
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(fetchInvoice.pending, state => {
+        state.loading = 'pending';
+      })
+      .addCase(fetchInvoice.fulfilled, (state, action) => {
+        state.loading = 'idle';
+        state.invoice = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchInvoice.rejected, (state, action) => {
+        state.loading = 'idle';
+        state.error = action.payload as string;
+      })
+  },
+});
+export const svgSlice = createSlice({
+  name: 'svg',
+  initialState,
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(fetchSVG.pending, state => {
+        state.loading = 'pending';
+      })
+      .addCase(fetchSVG.fulfilled, (state, action) => {
+        state.loading = 'idle';
+        state.svg = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchSVG.rejected, (state, action) => {
+        state.loading = 'idle';
+        state.error = action.payload as string;
+      })
+  },
+});
+
+
+export const customersSlice = createSlice({
+  name: 'customers',
+  initialState,
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(Customers.pending, state => {
+        state.customerLoading = 'pending';
+      })
+      .addCase(Customers.fulfilled, (state, action) => {
+        state.customerLoading = 'idle';
+        state.customersData = action.payload;
+        state.error = null;
+      })
+      .addCase(Customers.rejected, (state, action) => {
+        state.customerLoading = 'idle';
+        state.error = action.payload as string;
+      })
+  },
+});
+
+
+export const createDamageSlice = createSlice({
+  name: 'createDamage',
+  initialState,
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(createDamagee.pending, state => {
+        state.loading = 'pending';
+      })
+      .addCase(createDamagee.fulfilled, (state, action) => {
+        state.loading = 'idle';
+        state.damage = action.payload;
+        state.error = null;
+      })
+      .addCase(createDamagee.rejected, (state, action) => {
+        state.loading = 'idle';
+        state.error = action.payload as string;
+      })
+  },
+});
+
+
+export const deleteDamageSlice = createSlice({
+  name: 'deleteDamage',
+  initialState,
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(deleteDamagee.pending, state => {
+        state.loading = 'pending';
+      })
+      .addCase(deleteDamagee.fulfilled, (state,) => {
+        state.loading = 'idle';
+        state.error = null;
+      })
+      .addCase(deleteDamagee.rejected, (state, action) => {
+        state.loading = 'idle';
+        state.error = action.payload as string;
+      })
   },
 });
 
@@ -726,3 +928,10 @@ export const { reducer: fleetPenaltyHistory} = fleetPenaltyHistorySlice;
 export const { reducer: fleetDeleteViolation} = fleetViolationDeleteSlice;
 export const { reducer: fleetDeletePenalties} = fleetPenaltyDeleteSlice;
 export const { reducer: fleetFetchCurrency} = fleetCurrencySlice;
+export const { reducer: invoiceReport} = invoiceReportSlice;
+export const { reducer: svg} = svgSlice;
+export const { reducer: customers} = customersSlice;
+export const { reducer: damage} = createDamageSlice;
+export const { reducer: deleteDamageReducer} = deleteDamageSlice;
+
+

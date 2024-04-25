@@ -52,7 +52,7 @@ const Reservations = () => {
   useEffect(() => {
     let isMounted = true;
 
-    const onChange = ({ window: { width, height } }) => {
+    const onChange = ({ window: { width, height } }:any) => {
       if (isMounted) {
         setScreenWidth(width);
       }

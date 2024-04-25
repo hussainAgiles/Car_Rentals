@@ -17,14 +17,12 @@ const Title = ({ level = 1, style, children, align = 'auto', ...rest }: TextProp
 
 const commonStyles: TextStyle = {
   fontSize: 16,
-  fontFamily: 'lato-bold',
   color: Colors.heading,
 };
 
 const styles = StyleSheet.create({
   1: {
     ...commonStyles,
-    fontFamily: 'lora-semi-bold',
     fontSize: 30,
     lineHeight: 38,
     marginBottom: 8,
