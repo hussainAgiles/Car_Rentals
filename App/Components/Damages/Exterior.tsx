@@ -45,7 +45,6 @@ const Exterior = ({item}: any) => {
   const [image_url, setImageUrl] = useState('');
   const [refreshCounter, setRefreshCounter] = useState(0);
   const [extension,setExtension] = useState('')
-  const [extension,setExtension] = useState('')
   const [mimetype,setMimeType] = useState('')
 
 // Use this function to trigger a refresh
@@ -126,14 +125,9 @@ const triggerRefresh = () => {
               mediaType: 'photo',
               cropping: true, // Enable cropping
               includeBase64:true,
-              includeBase64:true,
               compressImageQuality: 0.5,
             })
               .then(image => {
-                console.log("image");
-                setImage(image.data); 
-                setExtension(image.mime)
-                // setImage(image.path); // `path` is used instead of `uri`
                 console.log("image");
                 setImage(image.data); 
                 setExtension(image.mime)
@@ -152,15 +146,12 @@ const triggerRefresh = () => {
             ImageCropPicker.openPicker({
               mediaType: 'photo',
               cropping: true,
-              includeBase64:true,
               includeBase64:true, // Enable cropping
               compressImageQuality: 0.5,
             })
               .then(image => {
                 console.log("image",image);
-                console.log("image",image);
                 setImage(image.data);
-                setExtension(image.data);
                 setExtension(image.path) // `path` is used instead of `uri`
                 setMimeType(image.mime)
               })
@@ -198,17 +189,6 @@ const triggerRefresh = () => {
         filename:"damage",
         width:"320",
         height:"200"
-    },
-
-  
-      device:"mobile",
-      imagedata:{
-        image:image,
-        folder:"damage",
-        filename:"damage",
-        width:"320",
-        height:"200",
-        extension:mimetype
     },
       ...(editId ? {id: editId} : {}),
     };
