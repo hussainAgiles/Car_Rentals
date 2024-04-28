@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Alert,
   Image,
@@ -8,14 +8,14 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
+import {Dropdown} from 'react-native-element-dropdown';
 import ImageCropPicker from 'react-native-image-crop-picker';
-import { Button, Modal, Portal, RadioButton } from 'react-native-paper';
-import { Ellipse, Path, Svg } from 'react-native-svg';
+import {Button, Modal, Portal, RadioButton} from 'react-native-paper';
+import {Ellipse, Path, Svg} from 'react-native-svg';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { ImageBase_URL } from '../../API/Constants';
+import {ImageBase_URL} from '../../API/Constants';
 import Colors from '../../Constants/Colors';
 import useDispatch from '../../Hooks/useDispatch';
 import useAppSelector from '../../Hooks/useSelector';
@@ -27,6 +27,7 @@ import {
 } from '../../Redux/Reducers/ReservationDetailsReducer';
 import DamageList from './DamageList';
 import mime from 'mime';
+import {debounce} from 'lodash';
 
 const Exterior = ({item}: any) => {
   const dispatch = useDispatch();
@@ -44,23 +45,32 @@ const Exterior = ({item}: any) => {
   const [image, setImage] = useState('');
   const [image_url, setImageUrl] = useState('');
   const [refreshCounter, setRefreshCounter] = useState(0);
-  const [extension,setExtension] = useState('')
-  const [mimetype,setMimeType] = useState('')
+  const [extension, setExtension] = useState('');
+  const [mimetype, setMimeType] = useState('');
+  const [selectedDataId, setSelectedDataId] = useState('');
 
-// Use this function to trigger a refresh
-const triggerRefresh = () => {
-  setRefreshCounter(prev => prev + 1);
-};
+  // Use this function to trigger a refresh
+  const triggerRefresh = () => {
+    setRefreshCounter(prev => prev + 1);
+  };
 
   useEffect(() => {
-    dispatch(fetchSVG(item?.reservation?.fleet_master?.id));
-    dispatch(Customers());
-  }, [editId, refreshCounter,svg?.car_exterior_array,refreshData]);
+    const loadData = () => {
+      dispatch(fetchSVG(item?.reservation?.fleet_master?.id));
+      dispatch(Customers());
+    };
+
+    const debouncedLoadData = debounce(loadData, 300);
+    debouncedLoadData();
+
+    return () => debouncedLoadData.cancel();
+  }, [editId, refreshCounter, refreshData]);
 
   const openModal = (id: string) => {
     setData_id(id);
     setValue(item?.reservation?.customers?.id);
     setModalVisible(true);
+    setSelectedDataId(id);
   };
   const closeModal = () => {
     setModalVisible(false);
@@ -73,8 +83,10 @@ const triggerRefresh = () => {
     setDamageDescription('');
     setDamageSeverity('low');
     setImage('');
+    setExtension('');
     setImageUrl('');
     setValue('');
+    setSelectedDataId('');
   };
 
   interface Customer {
@@ -82,13 +94,11 @@ const triggerRefresh = () => {
     id: string;
   }
 
-  const customerDropdownData: { label: string; value: string }[] = customersData?.map(
-    (customer: Customer) => ({
+  const customerDropdownData: {label: string; value: string}[] =
+    customersData?.map((customer: Customer) => ({
       label: customer.full_name,
       value: customer.id,
-    })
-  ) || [];
-  
+    })) || [];
 
   const selectImage = async () => {
     if (Platform.OS === 'android') {
@@ -124,13 +134,19 @@ const triggerRefresh = () => {
             ImageCropPicker.openCamera({
               mediaType: 'photo',
               cropping: true, // Enable cropping
-              includeBase64:true,
+              includeBase64: true,
               compressImageQuality: 0.5,
             })
               .then(image => {
-                console.log("image");
-                setImage(image.data); 
-                setExtension(image.mime)
+                // console.log("image");
+                if (image.data) {
+                  setImage(image.data);
+                } else {
+                  setImage('');
+                  // Handle null or undefined case
+                }
+                setExtension(image.path);
+                setMimeType(image.mime);
                 // setImage(image.path); // `path` is used instead of `uri`
               })
               .catch(e => {
@@ -146,14 +162,19 @@ const triggerRefresh = () => {
             ImageCropPicker.openPicker({
               mediaType: 'photo',
               cropping: true,
-              includeBase64:true, // Enable cropping
+              includeBase64: true, // Enable cropping
               compressImageQuality: 0.5,
             })
               .then(image => {
-                console.log("image",image);
-                setImage(image.data);
-                setExtension(image.path) // `path` is used instead of `uri`
-                setMimeType(image.mime)
+                // console.log("image",image);
+                if (image.data) {
+                  setImage(image.data);
+                } else {
+                  setImage('');
+                  // Handle null or undefined case
+                }
+                setExtension(image.path); // `path` is used instead of `uri`
+                setMimeType(image.mime);
               })
               .catch(e => {
                 if (e.code !== 'E_PICKER_CANCELLED') {
@@ -179,23 +200,25 @@ const triggerRefresh = () => {
       damage_level: damageSeverity,
       vehicle_id: item?.reservation?.fleet_master?.vehicledetails?.id,
       client_id: item?.reservation?.customers?.id,
-      image_url: "image",
+      image_url: 'image',
       reservation_id: item?.reservation?.fleet_id,
       data_id: data_id,
-      device:"mobile",
-      imagedata:{
-        image:image,
-        folder:"damage",
-        filename:"damage",
-        width:"320",
-        height:"200"
-    },
+      device: 'mobile',
+      imagedata: {
+        image: image,
+        folder: 'damage',
+        filename: 'damage',
+        width: '320',
+        height: '200',
+        extension: mimetype,
+      },
       ...(editId ? {id: editId} : {}),
     };
-    console.log("this is the object",object);
+    // console.log("this is the object",object);
     const response = dispatch(createDamagee(object));
     resetModalState();
     setRefreshData(!refreshData);
+    setExtension('');
     setModalVisible(false);
     triggerRefresh();
   };
@@ -212,6 +235,7 @@ const triggerRefresh = () => {
     setValue(editData.client_id);
     setIsFocus(false);
     setImage('');
+    setExtension('');
     setData_id(editData.reservation_id);
     setEditId(editData.id);
     setModalVisible(true);
@@ -247,6 +271,7 @@ const triggerRefresh = () => {
       <View style={{justifyContent: 'center', alignItems: 'center'}}>
         <Svg height="380" width="238.4" viewBox="0 0 498.4 623">
           {svg?.car_exterior_array?.map((part: any, index: string) => {
+            const isSelected = part.data_id === selectedDataId; // Check if the part is selected
             const Element =
               part.type === 'path'
                 ? Path
@@ -258,6 +283,10 @@ const triggerRefresh = () => {
                 key={`${part.type}_${index}`}
                 {...part}
                 onPress={() => openModal(part.data_id)}
+                strokeMiterlimit={part.strokeMiterlimit}
+                strokeWidth={part.strokeWidth}
+                stroke={part.stroke || '#000'}
+                fill={isSelected ? 'orange' : part.fill || 'none'} // Change fill color if selected
               />
             ) : null;
           })}
@@ -332,7 +361,8 @@ const triggerRefresh = () => {
             onFocus={() => setIsFocus(true)}
             onBlur={() => setIsFocus(false)}
             onChange={item => {
-              if (item) { // Check if item is not null
+              if (item) {
+                // Check if item is not null
                 setValue(item.value);
               } // set to item.value to store the selected customer's ID
               setIsFocus(false);
@@ -377,9 +407,9 @@ const triggerRefresh = () => {
             </TouchableOpacity>
 
             <View style={{flexDirection: 'row'}}>
-              {image && (
+              {extension && (
                 <Image
-                  source={{uri: image}}
+                  source={{uri: extension}}
                   style={{width: 80, height: 80, marginLeft: 20}}
                 />
               )}
@@ -421,17 +451,29 @@ const triggerRefresh = () => {
         </Modal>
       </Portal>
 
+      <Text
+        style={{
+          textAlign: 'center',
+          fontWeight: 'bold',
+          color: Colors.black,
+          marginBottom: 10,
+        }}>
+        Damage Report
+      </Text>
       <View
         style={{
           flexDirection: 'row',
           justifyContent: 'space-between',
-          paddingLeft: 40,
-          paddingRight: 40,
+          paddingHorizontal: 40,
+          borderWidth: 0.5,
+          borderColor: Colors.primary,
+          backgroundColor:Colors.primary
         }}>
-        <Text style={{fontWeight: 'bold', color: Colors.black}}>
+        <Text style={{fontWeight: 'bold', color: Colors.Iconwhite}}>
           Vehicle Part
         </Text>
-        <Text style={{fontWeight: 'bold', color: Colors.black}}>Condition</Text>
+        <View style={styles.divider}></View>
+        <Text style={{fontWeight: 'bold', color: Colors.Iconwhite,}}>Condition</Text>
       </View>
       <View>
         <DamageList damages={svg?.damages_details} handleEdit={handleEdit} />
@@ -448,6 +490,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.Iconwhite,
     // justifyContent: 'center',
     // alignItems: 'center',
+  },
+  divider: {
+    width: 2, // Width of the divider
+    backgroundColor: Colors.Iconwhite, // Color of the divider
   },
   modalContainer: {
     backgroundColor: 'white',

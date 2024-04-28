@@ -333,7 +333,7 @@ export const createDamagee = createAsyncThunk(
     // console.log("payload received",payload);
     try {
       const response = await createDamage({body: payload});
-      // console.log("Response fetch status reducers",response)
+      
       return response;
     } catch (error) {
       return rejectWithValue(error);
@@ -382,6 +382,7 @@ type InitialStateType = {
   svg:any;
   customers:any;
   damage:any
+  dmgError:any
 };
 
 const initialState: InitialStateType = {
@@ -407,7 +408,8 @@ const initialState: InitialStateType = {
   invoice:null,
   svg:null,
   customers:null,
-  damage:null
+  damage:null,
+  dmgError:null
 };
 
 export const resrvationDetailSlice = createSlice({
@@ -666,8 +668,9 @@ export const createDamageSlice = createSlice({
         state.error = null;
       })
       .addCase(createDamagee.rejected, (state, action) => {
+        console.log("hsdsksdjd",action)
         state.loading = 'idle';
-        state.error = action.payload as string;
+        state.dmgError = action.payload as string;
       })
   },
 });

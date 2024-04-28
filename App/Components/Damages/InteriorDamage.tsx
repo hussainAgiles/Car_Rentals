@@ -27,22 +27,28 @@ import {
   fetchSVG,
 } from '../../Redux/Reducers/ReservationDetailsReducer';
 import DamageList from './DamageList';
+import { debounce } from 'lodash';
 
-const Interior = ({item}: any) => {
+const Interior = ({ item }: any) => {
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshData, setRefreshData] = useState(false);
-  const {svg} = useAppSelector(state => state.fetchSvgReducer);
+  const { svg,dmgError } = useAppSelector(state => state.fetchSvgReducer);
   const [editId, setEditId] = useState('');
   const [damageTitle, setDamageTitle] = useState('');
   const [damageDescription, setDamageDescription] = useState('');
   const [damageSeverity, setDamageSeverity] = useState('low');
-  const {customersData} = useAppSelector(state => state.fetchCustomers);
+  const { customersData } = useAppSelector(state => state.fetchCustomers);
   const [value, setValue] = useState('');
   const [isFocus, setIsFocus] = useState(false);
   const [image, setImage] = useState('');
   const [data_id, setData_id] = useState('');
   const [refreshCounter, setRefreshCounter] = useState(0);
+  const [extension, setExtension] = useState('')
+  const [mimetype, setMimeType] = useState('')
+  const [selectedDataId, setSelectedDataId] = useState('');
+
+  console.log(dmgError);
 
   // Use this function to trigger a refresh
   const triggerRefresh = () => {
@@ -51,15 +57,23 @@ const Interior = ({item}: any) => {
 
   const [image_url, setImageUrl] = useState('');
   useEffect(() => {
-    dispatch(fetchSVG(item?.reservation?.fleet_master?.id));
-    dispatch(Customers());
-  }, [refreshCounter,editId,refreshData,svg?.car_interior_array]);
- 
+    const loadData = () => {
+      dispatch(fetchSVG(item?.reservation?.fleet_master?.id));
+      dispatch(Customers());
+    };
+
+    const debouncedLoadData = debounce(loadData, 300);
+    debouncedLoadData();
+
+    return () => debouncedLoadData.cancel();
+  }, [refreshCounter, editId, refreshData]);
+
 
   // Example customers
 
   const openModal = (id: string) => {
     setData_id(id);
+    setSelectedDataId(id);
     setValue(item?.reservation?.customers?.id);
     setModalVisible(true);
   };
@@ -74,8 +88,10 @@ const Interior = ({item}: any) => {
     setDamageDescription('');
     setDamageSeverity('low');
     setImage('');
+    setExtension('');
     setImageUrl('');
     setValue('');
+    setSelectedDataId('');
   };
   interface Customer {
     full_name: string;
@@ -122,11 +138,19 @@ const Interior = ({item}: any) => {
           onPress: () => {
             ImageCropPicker.openCamera({
               mediaType: 'photo',
+              includeBase64: true,
               cropping: true, // Enable cropping
               compressImageQuality: 0.5,
             })
               .then(image => {
-                setImage(image.path); // `path` is used instead of `uri`
+                if (image.data) {
+                  setImage(image.data);
+                } else {
+                  setImage('')
+                  // Handle null or undefined case
+                }
+                setExtension(image.path)
+                setMimeType(image.mime)// `path` is used instead of `uri`
               })
               .catch(e => {
                 if (e.code !== 'E_PICKER_CANCELLED') {
@@ -140,11 +164,19 @@ const Interior = ({item}: any) => {
           onPress: () => {
             ImageCropPicker.openPicker({
               mediaType: 'photo',
+              includeBase64: true,
               cropping: true, // Enable cropping
               compressImageQuality: 0.5,
             })
               .then(image => {
-                setImage(image.path); // `path` is used instead of `uri`
+                if (image.data) {
+                  setImage(image.data);
+                } else {
+                  setImage('')
+                  // Handle null or undefined case
+                }
+                setExtension(image.path)
+                setMimeType(image.mime) // `path` is used instead of `uri`
               })
               .catch(e => {
                 if (e.code !== 'E_PICKER_CANCELLED') {
@@ -158,7 +190,7 @@ const Interior = ({item}: any) => {
           style: 'cancel',
         },
       ],
-      {cancelable: true},
+      { cancelable: true },
     );
   };
 
@@ -173,9 +205,23 @@ const Interior = ({item}: any) => {
       image_url: image,
       reservation_id: item?.reservation?.fleet_id,
       data_id: data_id,
-      ...(editId ? {id: editId} : {}),
+      device: "mobile",
+      imagedata: {
+        image: image,
+        folder: "damage",
+        filename: "damage",
+        width: "320",
+        height: "200",
+        extension: mimetype
+      },
+      ...(editId ? { id: editId } : {}),
     };
-    const response = dispatch(createDamagee(object));
+    try {
+      const response = dispatch(createDamagee(object));
+      console.log(dmgError);
+    } catch (error) {
+      console.log("Response fetch error reducers",error || 'An error occurred')
+    }
     resetModalState();
     setRefreshData(!refreshData);
     setModalVisible(false);
@@ -184,7 +230,7 @@ const Interior = ({item}: any) => {
 
   const handleEdit = (id: string) => {
     const editData = svg.damages_details.find(
-      (item: {id: string}) => item.id === id,
+      (item: { id: string }) => item.id === id,
     );
     setDamageTitle(editData.title);
     setDamageSeverity(editData.damage_level);
@@ -192,6 +238,8 @@ const Interior = ({item}: any) => {
     setImageUrl(editData.image_url);
     setValue(editData.client_id);
     setIsFocus(false);
+    setImage('');
+    setExtension('');
     setData_id(editData.reservation_id);
     setEditId(editData.id);
     setModalVisible(true);
@@ -211,7 +259,7 @@ const Interior = ({item}: any) => {
           onPress: () => handleDeleteDamage(),
         },
       ],
-      {cancelable: false},
+      { cancelable: false },
     );
   };
 
@@ -222,10 +270,10 @@ const Interior = ({item}: any) => {
     setRefreshData(!refreshData); // To refresh the list
   };
 
-  const renderElement = (element:any, index:string) => {
-   
-    const { type, d, strokeMiterlimit, strokeWidth, stroke, fill, cx, cy, rx, ry,data_id } = element;
+  const renderElement = (element: any, index: string) => {
 
+    const { type, d, strokeMiterlimit, strokeWidth, stroke, fill, cx, cy, rx, ry, data_id } = element;
+    const isSelected = data_id === selectedDataId;
     switch (type) {
       case 'Path':
         return (
@@ -236,8 +284,8 @@ const Interior = ({item}: any) => {
             onPress={() => openModal(data_id)}
             strokeMiterlimit={strokeMiterlimit}
             strokeWidth={strokeWidth}
-            stroke={stroke || '#000'} // Default stroke color if none provided
-            fill={fill || 'none'}     // Default fill if none provided
+            stroke={stroke || '#000'}
+            fill={isSelected ? 'orange' : fill || 'none'}  // Default stroke color if none provided    // Default fill if none provided
           />
         );
       case 'Ellipse':
@@ -253,8 +301,8 @@ const Interior = ({item}: any) => {
             strokeMiterlimit={strokeMiterlimit}
             strokeWidth={strokeWidth}
             stroke={stroke || '#000'} // Default stroke color
-            fill={fill || 'none'}  
-               // Default fill
+            fill={isSelected ? 'orange' : fill || 'none'} 
+          // Default fill
           />
         );
       default:
@@ -265,13 +313,13 @@ const Interior = ({item}: any) => {
   const groups = [];
   let currentGroup: (number & any[]) | (false & any[]) | (true & any[]) | (React.ReactElement<any, string | React.JSXElementConstructor<any>> & any[]) | (Iterable<React.ReactNode> & any[]) | (React.JSX.Element | null)[] = [];
 
-  svg?.car_interior_array.forEach((element:any, index:string) => {
+  svg?.car_interior_array.forEach((element: any, index: string) => {
     if (element.type === 'G-1' || element.type === 'G-2') {
       if (currentGroup.length > 0) {
         groups.push(<G key={`group-${groups.length}`}>{currentGroup}</G>);
         currentGroup = [];
       }
-      
+
     } else {
       currentGroup.push(renderElement(element, index));
     }
@@ -284,10 +332,10 @@ const Interior = ({item}: any) => {
 
   return (
     <View style={styles.container}>
-      <View style={{justifyContent: 'center', alignItems: 'center'}}>
-      <Svg height="380" width="238.4" viewBox="0 0 380 474.8">
-      {groups}
-    </Svg>
+      <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+        <Svg height="380" width="238.4" viewBox="0 0 380 474.8">
+          {groups}
+        </Svg>
       </View>
 
       <Portal>
@@ -304,7 +352,7 @@ const Interior = ({item}: any) => {
               paddingBottom: 10,
             }}>
             <Text
-              style={{fontSize: 20, fontWeight: 'bold', color: Colors.black}}>
+              style={{ fontSize: 20, fontWeight: 'bold', color: Colors.black }}>
               Add new damage
             </Text>
             <TouchableOpacity onPress={closeModal}>
@@ -324,7 +372,7 @@ const Interior = ({item}: any) => {
             multiline
             style={styles.input}
           />
-          <Text style={{fontSize: 20, fontWeight: 'bold', color: Colors.black}}>
+          <Text style={{ fontSize: 20, fontWeight: 'bold', color: Colors.black }}>
             Choose damage level:
           </Text>
           <RadioButton.Group
@@ -342,7 +390,7 @@ const Interior = ({item}: any) => {
             </View>
           </RadioButton.Group>
           <Dropdown
-            style={[styles.dropdown, isFocus && {borderColor: 'blue'}]}
+            style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
             placeholderStyle={styles.placeholderStyle}
             selectedTextStyle={styles.selectedTextStyle}
             inputSearchStyle={styles.inputSearchStyle}
@@ -358,10 +406,10 @@ const Interior = ({item}: any) => {
             onFocus={() => setIsFocus(true)}
             onBlur={() => setIsFocus(false)}
             onChange={item => {
-              if(item){
+              if (item) {
                 setValue(item.value);
               }
-               // set to item.value to store the selected customer's ID
+              // set to item.value to store the selected customer's ID
               setIsFocus(false);
             }}
             renderLeftIcon={() => (
@@ -403,16 +451,16 @@ const Interior = ({item}: any) => {
               <Text>Drop the photos</Text>
             </TouchableOpacity>
 
-            <View style={{flexDirection: 'row'}}>
-              {image && (
+            <View style={{ flexDirection: 'row' }}>
+              {extension && (
                 <Image
-                  source={{uri: image}}
-                  style={{width: 80, height: 80, marginLeft: 20}}
+                  source={{ uri: extension }}
+                  style={{ width: 80, height: 80, marginLeft: 20 }}
                 />
               )}
               {image_url && (
                 <Image
-                  source={{uri: ImageBase_URL + image_url}}
+                  source={{ uri: ImageBase_URL + image_url }}
                   style={{
                     width: 80,
                     height: 80,
@@ -434,7 +482,7 @@ const Interior = ({item}: any) => {
                 mode="contained"
                 buttonColor={Colors.red}
                 onPress={handleConfirmDelete}
-                style={{marginRight: 10}}>
+                style={{ marginRight: 10 }}>
                 Remove
               </Button>
             )}
@@ -455,13 +503,13 @@ const Interior = ({item}: any) => {
           paddingLeft: 40,
           paddingRight: 40,
         }}>
-        <Text style={{fontWeight: 'bold', color: Colors.black}}>
+        <Text style={{ fontWeight: 'bold', color: Colors.black }}>
           Vehicle Part
         </Text>
-        <Text style={{fontWeight: 'bold', color: Colors.black}}>Condition</Text>
+        <Text style={{ fontWeight: 'bold', color: Colors.black }}>Condition</Text>
       </View>
       <View>
-      <DamageList damages={svg?.damages_details} handleEdit={handleEdit} />
+        <DamageList damages={svg?.damages_details} handleEdit={handleEdit} />
       </View>
     </View>
   );

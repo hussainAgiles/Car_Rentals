@@ -276,7 +276,9 @@ export const createDamage = async ({body}: {body: object}) => {
     const response = await API.post(
       Base_url + 'create-damage', body
     );
+    console.log("responsedata",response.data)
     return response.data;
+
   } catch (error) {
     console.error('Error fetching Payment Status :', error);
     throw error; // Rethrow the error to be caught by the calling code
