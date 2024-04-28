@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState,useEffect} from 'react';
 import {
   Platform,
   ScrollView,
@@ -15,6 +15,11 @@ import Colors from '../../Constants/Colors';
 import RenderPenalties from '../Penalties/RenderPenalties';
 import RenderViolation from '../Violations/RenderViolation';
 import TabViews from '../Damages/TabView';
+import useAppSelector from '../../Hooks/useSelector';
+import { RootState } from '../../Redux/Store';
+import useDispatch from '../../Hooks/useDispatch';
+import useIsMounted from '../../Hooks/useIsMounted';
+import { fetchSVG, fetchingPenalties, fetchingViolations } from '../../Redux/Reducers/ReservationDetailsReducer';
 
 const DateandVehicles = ({item}: any) => {
   const ContentTypes = {
@@ -24,8 +29,27 @@ const DateandVehicles = ({item}: any) => {
     VIOLATIONS: 'VIOLATIONS',
   };
 
-  const [isModalVisible, setModalVisible] = useState(false);
   const [activeContent, setActiveContent] = useState(ContentTypes.NONE);
+  const {penaltiesHistory} = useAppSelector(
+    (state: RootState) => state.fleetPenaltyHistoryReducer,
+  );
+  const {violation} = useAppSelector(
+    (state: RootState) => state.fleetVoilationReducer,
+  );
+  const {svg} = useAppSelector(state => state.fetchSvgReducer);
+  const dispatch = useDispatch();
+  const isMounted = useIsMounted();
+
+  console.log(violation);
+  console.log(penaltiesHistory);
+
+  useEffect(() => {
+    if (isMounted()) {
+      dispatch(fetchingPenalties(item?.reservation?.reservation?.id));
+      dispatch(fetchingViolations(item?.reservation?.reservation?.id));
+      dispatch(fetchSVG(item?.reservation?.fleet_master?.id));
+    }
+  }, []);
 
   function formatTimeDifference(value: any) {
     const currentDate = new Date();
@@ -55,25 +79,7 @@ const DateandVehicles = ({item}: any) => {
       }
     }
   }
-
-  const [renderViolation, setRenderViolation] = useState(false);
-  const [renderPenalties, setRenderPenalties] = useState(false);
-
-  // const showAddViolation = () => {
-  //   if (renderPenalties) {
-  //     setRenderPenalties(false);
-  // }
-  //   setRenderViolation(!renderViolation);
-  // };
-
-  // const showAddPenalty = () => {
-  //   if (renderViolation) {
-  //     setRenderViolation(false);
-  // }
-  //   setRenderPenalties(!renderPenalties);
-  // };
   
-
   function showContent(contentType: string) {
     setActiveContent(
       activeContent === contentType ? ContentTypes.NONE : contentType,
@@ -134,18 +140,18 @@ const DateandVehicles = ({item}: any) => {
           <View
             style={[
               styles.checksView,
-              {borderColor: Colors.orange, borderWidth: 1},
+              {backgroundColor:"#efdebd"},
             ]}>
             <TouchableOpacity style={styles.category}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Icon name={'check'} color={Colors.orange} size={24} />
-                <Text style={[styles.checksText, {color: Colors.orange}]}>
-                  Checks
+                <Icon name={'check'} color={"#6f6249"} size={24} />
+                <Text style={[styles.checksText, {color: "#6f6249"}]}>
+                 0 Checks
                 </Text>
               </View>
               <Icon
                 name={'add-circle-outline'}
-                color={Colors.orange}
+                color={"#6f6249"}
                 size={24}
               />
             </TouchableOpacity>
@@ -154,7 +160,7 @@ const DateandVehicles = ({item}: any) => {
           <View
             style={[
               styles.checksView,
-              {borderColor: Colors.green, borderWidth: 1},
+              {backgroundColor:"#ebfbf4"},
             ]}>
             <TouchableOpacity
               style={styles.category}
@@ -162,35 +168,35 @@ const DateandVehicles = ({item}: any) => {
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Icon name="build" color={Colors.green} size={24} />
                 <Text style={[styles.checksText, {color: Colors.green}]}>
-                  Damages
+                 {svg?.damages_details.length} Damages
                 </Text>
               </View>
-              <Icon name="add-circle-outline" color={Colors.green} size={24} />
+              <Icon name={activeContent === ContentTypes.TABS ?"remove-circle-outline" : "add-circle-outline"} color={Colors.green} size={24} />
             </TouchableOpacity>
           </View>
           {/* Violations */}
           <View
             style={[
               styles.checksView,
-              {borderColor: Colors.red, borderWidth: 1},
+              {backgroundColor:'#f5eac1'},
             ]}>
             <TouchableOpacity
               style={styles.category}
               onPress={() => showContent(ContentTypes.VIOLATIONS)}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Icon name={'error'} color={Colors.red} size={24} />
-                <Text style={[styles.checksText, {color: Colors.red}]}>
-                  Violations
+                <Icon name={'error'} color={"#B99200"} size={24} />
+                <Text style={[styles.checksText, {color: "#B99200"}]}>
+                 {violation?.violations?.length} Violations
                 </Text>
               </View>
-              <Icon name={'add-circle-outline'} color={Colors.red} size={24} />
+              <Icon name={activeContent === ContentTypes.VIOLATIONS ?"remove-circle-outline" : "add-circle-outline"} color={"#B99200"} size={24} />
             </TouchableOpacity>
           </View>
           {/* Penalties */}
           <View
             style={[
               styles.checksView,
-              {borderColor: Colors.purple, borderWidth: 1},
+              {backgroundColor:"#ffc3c3"},
             ]}>
             <TouchableOpacity
               style={styles.category}
@@ -198,16 +204,16 @@ const DateandVehicles = ({item}: any) => {
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Icon
                   name={'monetization-on'}
-                  color={Colors.purple}
+                  color={"#8C4C4C"}
                   size={24}
                 />
-                <Text style={[styles.checksText, {color: Colors.purple}]}>
-                  Penalties
+                <Text style={[styles.checksText, {color: "#8C4C4C"}]}>
+                 {penaltiesHistory?.penalties.length} Penalties
                 </Text>
               </View>
               <Icon
-                name={'add-circle-outline'}
-                color={Colors.purple}
+                name={activeContent === ContentTypes.PENALTIES ?"remove-circle-outline" : "add-circle-outline"}
+                color={"#8C4C4C"}
                 size={24}
               />
             </TouchableOpacity>
@@ -217,11 +223,11 @@ const DateandVehicles = ({item}: any) => {
         <View style={{justifyContent:'space-between'}}>
           <View>
             <Text>Mileage limit:</Text>
-            <Text style={styles.subText}>Unlimited Km / Day</Text>
+            <Text style={styles.subText}>{item?.reservation?.priceperday?.mileage} Km / DAILY</Text>
           </View>
           <View style={{marginTop: 10}}>
             <Text>Fuel Policy:</Text>
-            <Text style={styles.subText}>Full to Full</Text>
+            <Text style={styles.subText}>Fuel Limit : {item?.reservation?.fleet_master?.fuel_level}</Text>
           </View>
           <View style={{marginTop: 10}}>
             <View>

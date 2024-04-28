@@ -103,7 +103,10 @@ const Interior = ({item}: any) => {
                         compressImageQuality: 0.5,
                     })
                     .then(image => {
-                        setImage(image.path); // `path` is used instead of `uri`
+                      if(image){
+                        setImage(image.path);
+                      }
+                         // `path` is used instead of `uri`
                     })
                     .catch(e => {
                         if (e.code !== 'E_PICKER_CANCELLED') {

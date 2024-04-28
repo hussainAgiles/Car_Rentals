@@ -163,11 +163,11 @@ export const fetchSVG = createAsyncThunk(
 export const fetchingViolations = createAsyncThunk(
   'home/fetchViolation',
   async (id:string, { rejectWithValue }) => {
-    // console.log("id in === ",id)
+    console.log("id in === ",id)
     try {
       const response = await fetchViolations(id)
 ;
-      // console.log("Voilations response == ",response)
+      console.log("Voilations response == ",response)
       return response;
     } catch (error) {
       return rejectWithValue(error);

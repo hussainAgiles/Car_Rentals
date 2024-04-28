@@ -1,19 +1,21 @@
+import moment from 'moment';
+import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   StyleSheet,
   Text,
-  View,
   TouchableOpacity,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
+  View
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import { Dropdown } from 'react-native-element-dropdown';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { Modal, Portal, TextInput } from 'react-native-paper';
+import Toast from 'react-native-toast-message';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useSelector } from 'react-redux';
 import Colors from '../../Constants/Colors';
-import {useSelector} from 'react-redux';
 import useDispatch from '../../Hooks/useDispatch';
 import useIsMounted from '../../Hooks/useIsMounted';
-import {RootState} from '../../Redux/Store';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import {
   Customers,
   VioltaionTypes,
@@ -21,14 +23,8 @@ import {
   delete_Violation,
   fetchingViolations,
 } from '../../Redux/Reducers/ReservationDetailsReducer';
-import {deleteViolations} from '../../API/NormalApi';
-import Toast from 'react-native-toast-message';
-import {Dropdown} from 'react-native-element-dropdown';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import moment from 'moment';
-import {TextInput, Modal, Portal} from 'react-native-paper';
-import Loader from '../Loader/Loader';
-import ViolationFormModal from './ViolationFormModal';
+import { RootState } from '../../Redux/Store';
+
 
 const RenderViolation = ({reservation}: any) => {
   // console.log('Id related to reservation', reservation.reservation?.id);
@@ -59,7 +55,6 @@ const RenderViolation = ({reservation}: any) => {
   const [customerFocused, setCustomerFocused] = useState(false);
   const [typeFocused, setTypeFocused] = useState(false);
   const [descriptionFocused, setDescriptionFocused] = useState(false);
-  const [dateFocused, setDateFocused] = useState(false);
   const [amountFocused, setAmountFocused] = useState(false);
 
   const {violation} = useSelector(
