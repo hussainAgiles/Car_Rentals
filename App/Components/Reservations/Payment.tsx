@@ -151,12 +151,6 @@ const Payment = ({item}: any) => {
           <View style={styles.paymentItem} key={payment.id}>
             <Text style={styles.paymentDate}>{moment(payment.date).format('DD-MM-YYYY')}</Text>
             <View style={[styles.paymentMethod]}>
-              <Icon
-                name={payment.method === 'Card' ? 'credit-card' : 'money'}
-                size={20}
-                color="#000"
-                style={styles.icon}
-              />
               <Text style={[styles.paymentDate,{ marginLeft: 8 }]}>{payment.method}</Text>
             </View>
             <Text style={styles.amount}>{`${payment.value} ${defaultCurrency.parameter_value}`}</Text>
@@ -200,7 +194,7 @@ const Payment = ({item}: any) => {
           <TouchableOpacity
             style={[
               styles.input,
-              {borderWidth: 0.5, borderRadius: 3, justifyContent: 'space-between',flexDirection:'row',alignItems:'center',paddingHorizontal:15},
+              { borderRadius: 3, borderWidth:1, justifyContent: 'space-between',flexDirection:'row',alignItems:'center',paddingHorizontal:15},
             ]}
             onPress={() => setDatePickerVisibility(true)}>
             <Text style={{color: Colors.black}}>
@@ -291,7 +285,6 @@ const styles = StyleSheet.create({
   paymentDate: {
     fontSize: 14,
     color: '#666',
-    width:70
   },
   paymentMethod: {
     flexDirection: 'row',
@@ -368,8 +361,6 @@ const styles = StyleSheet.create({
   },
   selectedOption: {
     padding: 5,
-    borderWidth: 1,
-    borderColor: 'gray',
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
@@ -386,6 +377,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 10,
+    width:80,
   },
   option: {
     padding: 10,

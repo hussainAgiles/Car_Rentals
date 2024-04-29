@@ -10,16 +10,7 @@ import useAppSelector from '../../Hooks/useSelector';
 import { RootState } from '../../Redux/Store';
 
 const Documents = ({item}:any) => {
-  // You will have to manage state and handle selections, this is just static for layout.
   const dispatch = useDispatch();
-  // const invoice = useAppSelector( (state: RootState) => state.invoiceReportReducer,)
-  // console.log(invoice);
-
-  //  useEffect(()=>{
-  //    if(invoice){
-  //     Linking.openURL(invoice.invoice.toString());
-  //    }
-  //  },[invoice])
 
   const handleDownload = () => {
     dispatch(fetchInvoice(item?.reservation?.slug))

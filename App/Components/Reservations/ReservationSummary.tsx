@@ -80,6 +80,7 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
             justifyContent: 'space-between',
             marginBottom: 5,
             marginTop: 5,
+            padding:10
           }}>
           <Text style={styles.title}>Total Rent period</Text>
           <Text style={styles.title}>
@@ -167,12 +168,6 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
           </Text>
         </View>
         <View style={styles.dueBalanceContainer}>
-          <Text style={styles.summaryTitle}>Damage excess:</Text>
-          <Text style={styles.summaryValue}>
-            100 {defaultCurrency?.parameter_value}
-          </Text>
-        </View>
-        <View style={styles.dueBalanceContainer}>
           <Text style={styles.dueBalanceTitle}>Due balance:</Text>
           <Text style={styles.dueBalanceValue}>{totalDue.toFixed(2)} {defaultCurrency?.parameter_value}</Text>
         </View>
@@ -213,7 +208,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0faff', // Light blue background for sections
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
-    paddingVertical: 12
+    paddingVertical: 12,
+    padding:10
   },
   sectionTitle: {
     fontWeight: 'bold',
@@ -244,6 +240,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 12,
+    padding:10
   },
   summaryTitle: {
     color: Colors.black,
@@ -264,6 +261,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
+    padding:10
   },
   dueBalanceTitle: {
     color: '#ff9500', // An orange color for the due balance
