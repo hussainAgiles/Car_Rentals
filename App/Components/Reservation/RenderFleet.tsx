@@ -104,9 +104,9 @@ const RenderFleet = React.memo(({item}: any) => {
                 <View
                   style={{
                     padding: 7,
-                    // borderWidth: 1,
+                    borderWidth: 1,
                     borderRadius: 15,
-                    // backgroundColor: Colors.primary,
+                    backgroundColor: Colors.primary,
                     margin: 5,
                     flexDirection: 'row',
                     // flexWrap:'wrap',
@@ -115,7 +115,7 @@ const RenderFleet = React.memo(({item}: any) => {
                   <Icon2 name="location-pin" size={12} color={Colors.Iconwhite} />
                   <Text
                     style={{
-                      color: Colors.primary,
+                      color: Colors.Iconwhite,
                       fontWeight: 'bold',
                       fontSize: 15,
                     }}>
@@ -155,24 +155,15 @@ const RenderFleet = React.memo(({item}: any) => {
                 {item.status === 'Y' ? 'Active' : 'Inactive'}
               </Text>
             </View>
-            {/* <View style={styles.infoContainer}>
-            <InfoItem icon="user" text={item?.customers?.full_name} />
-            <InfoItem
-              icon="calendar"
-              text={`${item.pickup_date} - ${item.dropoff_date}`}
-            />
-            <InfoItem icon="location-pin" text={item?.pickup_location?.name} />
-            <InfoItem icon="location" text={item?.drop_off_location?.name} />
-          </View> */}
-
-            {/* <Text>Odometer:</Text> */}
+            
+            <Text >Odometer:</Text>
             <View style={{flexDirection: 'row', marginTop: 5}}>
               <Icon2 name={'speed'} color={Colors.black} size={24} />
               <Text style={styles.subText}>{item?.speedometer}</Text>
             </View>
 
             <View>
-              {/* <Text>Fuel Level:</Text> */}
+              <Text>Fuel Level:</Text>
               <View style={{flexDirection: 'row'}}>
                 <Icon3 name={'fuel'} color={Colors.black} size={24} />
                 <Text style={styles.subText}>{item?.fuel_level}</Text>

@@ -1,5 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import { addOns, customers, damage, deleteDamageReducer, fleetCustomers, fleetDeletePenalties, fleetDeleteViolation, fleetFetchCurrency, fleetPenaltyCreation, fleetPenaltyHistory, fleetPenaltyTypes, fleetReport, fleetViolation, fleetViolationCreate, fleetViolationTypes, insuranceDetails, invoiceReport, paymentHistory, paymentStatus, payments, rentalDetails, resrvationDetails, svg, } from './ReservationDetailsReducer';
+import { addOns,customers, damage, deleteDamageReducer, fleetCustomers, fleetDeletePenalties, fleetDeleteViolation, fleetFetchCurrency, fleetPenaltyCreation, fleetPenaltyHistory, fleetPenaltyTypes, fleetReport, fleetViolation, fleetViolationCreate, fleetViolationTypes, insuranceDetails,maintenanceReport, paymentHistory, paymentStatus, payments, rentalDetails, resrvationDetails, svg, } from './ReservationDetailsReducer';
 import persistedLoginSlice from './loginReducer';
 
 
@@ -24,11 +24,13 @@ const rootReducer = combineReducers({
   fleetDeleteViolationReducer:fleetDeleteViolation,
   fleetDeletePenaltyReducer:fleetDeletePenalties,
   fleetFetchDefaultCurrencyReducer : fleetFetchCurrency,
-  invoiceReportReducer: invoiceReport,
+  // invoiceReportReducer: invoiceReport,
   fetchSvgReducer: svg,
   fetchCustomers:customers,
   createDamage:damage,
-  deleteDamageReducer:deleteDamageReducer
+  deleteDamageReducer:deleteDamageReducer,
+  // agreemnetReportReducer:agreementReport,
+  maintenanceReportReducer:maintenanceReport
 });
 
 export default rootReducer;

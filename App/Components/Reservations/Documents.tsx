@@ -1,19 +1,31 @@
-import React, { useEffect } from 'react';
-import { Linking, StyleSheet, Text, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { TextInput } from 'react-native-paper'; // These are assumed components
+import React, {useEffect, useState} from 'react';
+import {Linking, StyleSheet, Text, View} from 'react-native';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import {Modal, Portal, TextInput} from 'react-native-paper'; // These are assumed components
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Colors from '../../Constants/Colors';
 import useDispatch from '../../Hooks/useDispatch';
-import { fetchInvoice } from '../../Redux/Reducers/ReservationDetailsReducer';
 import useAppSelector from '../../Hooks/useSelector';
-import { RootState } from '../../Redux/Store';
+import {RootState} from '../../Redux/Store';
+import {WebView} from 'react-native-webview';
+import Loader from '../Loader/Loader';
 
-const Documents = ({item}:any) => {
+const Documents = ({item}: any) => {
   // You will have to manage state and handle selections, this is just static for layout.
   const dispatch = useDispatch();
   // const invoice = useAppSelector( (state: RootState) => state.invoiceReportReducer,)
   // console.log(invoice);
+
+  // console.log('Item ====', item?.reservation?.slug);
+
+  // const agreementUrl = useAppSelector(
+  //   (state: RootState) => state.agreemnetReportReducer,
+  // );
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [invoiceUrl, setInvoiveUrl] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  //  console.log("Url found",agreementUrl)
 
   //  useEffect(()=>{
   //    if(invoice){
@@ -21,10 +33,31 @@ const Documents = ({item}:any) => {
   //    }
   //  },[invoice])
 
-  const handleDownload = () => {
-    dispatch(fetchInvoice(item?.reservation?.slug))
-  }
-  
+  useEffect(() => {
+    if (invoiceUrl !== '') {
+      setIsModalVisible(true);
+    }
+  }, [invoiceUrl]);
+
+  const handleDownload = async () => {
+    setIsModalVisible(true);
+    setInvoiveUrl(
+      `https://agilefleets.online/#/perfoma-invoice?invoiceslug=${item?.reservation?.slug}`,
+    );
+  };
+
+  // console.log('Url == ', invoiceUrl);
+  const handleAgreementDownload = () => {
+    setIsModalVisible(true);
+    setInvoiveUrl(
+      `https://agilefleets.online/#/agreement-invoice?invoiceslug=${item?.reservation?.slug}`,
+    );
+  };
+
+  const handleLoadEnd = () => {
+    setIsLoading(false);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.dropdownContainer}></View>
@@ -47,7 +80,7 @@ const Documents = ({item}:any) => {
         <View style={styles.card}>
           <Icon name="insert-drive-file" color={Colors.black} size={20} />
           <Text>Agreement</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleAgreementDownload}>
             <Icon
               name="download"
               color={Colors.primary}
@@ -63,6 +96,24 @@ const Documents = ({item}:any) => {
       <View style={styles.notesContainer}>
         <TextInput label="Notes" multiline={true} />
       </View>
+
+      <Portal>
+        <Modal
+          visible={isModalVisible}
+          contentContainerStyle={styles.modalContainer}>
+          <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+            <Icon
+              name="close"
+              size={25}
+              onPress={() => {
+                setIsModalVisible(false);
+              }}
+            />
+          </View>
+          {isLoading && <Loader/>}
+          <WebView source={{uri: invoiceUrl}} onLoadEnd={handleLoadEnd} />
+        </Modal>
+      </Portal>
     </View>
   );
 };
@@ -106,5 +157,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     height: 100, // Set a fixed height for the notes TextInput
+  },
+  modalContainer: {
+    backgroundColor: 'white',
+    margin: 20,
+    padding: 15,
+    flex: 1, // Semi-transparent background
   },
 });

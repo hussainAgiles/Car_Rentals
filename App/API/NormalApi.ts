@@ -127,18 +127,31 @@ export const fetchViolations = async (id:string) => {
     console.error('Error fetching Voilations :', error);
   }
 }
-export const fetchInvoiceReport = async ({slug}: {slug: string}) => {
+// export const fetchInvoiceReport = async ({slug}: {slug: string}) => {
+//  console.log("Slug === ",slug)
+//   try {
+//     const response = await API.get(
+//       Base_url + `perfoma-invoice?invoiceslug=${slug}`, 
+//     );
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error fetching Fleet reports :', error);
+//     throw error; // Rethrow the error to be caught by the calling code
+//   }
+// };
+
+// export const fetchAgreementReport = async ({slug}: {slug: string}) => {
  
-  try {
-    const response = await API.get(
-      Base_url + `generate_pdf?slug=${slug}`, 
-    );
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching Fleet reports :', error);
-    throw error; // Rethrow the error to be caught by the calling code
-  }
-};
+//   try {
+//     const response = await API.get(
+//       Base_url + `fetch-agreement-details/${slug}`, 
+//     );
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error fetching Fleet Agreement :', error);
+//     throw error; // Rethrow the error to be caught by the calling code
+//   }
+// };
 
 export const createVoilation = async ({body}: {body: object}) => {
   // console.log("Body received in api === ",body)
@@ -271,6 +284,7 @@ export const deletePenalty = async (id:string) => {
     throw error; // Rethrow the error to be caught by the calling code
   }
 };
+
 export const createDamage = async ({body}: {body: object}) => {
   try {
     const response = await API.post(
@@ -298,9 +312,6 @@ export const deleteDamage = async (id: string) => {
   }
 };
 
-
-
-
 export const fetchDefaultCurrency = async () => {
   try {
     const response = await API.get(
@@ -314,5 +325,17 @@ export const fetchDefaultCurrency = async () => {
   }
 };
 
+export const fetchMaintenanceReport = async () => {
+  try {
+    const response = await API.get(
+      Base_url + `fetch-services`,  
+    );
+    // console.log("Fetching maintenance",response.data)
+    return response.data;
+  } catch (error) {
+    console.error('Error Fetching Maintenance Report:', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
 
 

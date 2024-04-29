@@ -5,15 +5,27 @@ import LottieView from 'lottie-react-native';
 import {setClientToken} from '../API/APIClients';
 import { useSelector } from 'react-redux';
 import { RootState } from '../Redux/Store';
+import useDispatch from '../Hooks/useDispatch';
+import { fetchingCurrency } from '../Redux/Reducers/ReservationDetailsReducer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const SplashScreen = () => {
+
   const {userData} = useSelector(
     (state: RootState) => state.loginReducer,
   );
 
+  const {defaultCurrency} = useSelector(
+    (state: RootState) => state.fleetFetchDefaultCurrencyReducer,
+  );
+
+  const dispatch = useDispatch();
+
   useEffect(() => {
     fetchToken();
+    dispatch(fetchingCurrency())
+    AsyncStorage.setItem('currency',defaultCurrency.parameter_value);
   }, [])
 
   const fetchToken = async () => {
@@ -21,6 +33,7 @@ const SplashScreen = () => {
       setClientToken(userData.access_token);
     }
   }
+
   return (
     <View style={styles.container}>
       <LottieView
