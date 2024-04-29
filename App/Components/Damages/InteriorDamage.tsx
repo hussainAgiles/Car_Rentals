@@ -47,8 +47,7 @@ const Interior = ({ item }: any) => {
   const [extension, setExtension] = useState('')
   const [mimetype, setMimeType] = useState('')
   const [selectedDataId, setSelectedDataId] = useState('');
-
-  console.log(dmgError);
+  const [interiorDmg,setInteriorDmg] = useState([])
 
   // Use this function to trigger a refresh
   const triggerRefresh = () => {
@@ -60,8 +59,9 @@ const Interior = ({ item }: any) => {
     const loadData = () => {
       dispatch(fetchSVG(item?.reservation?.fleet_master?.id));
       dispatch(Customers());
+      fetchingExteriorDmg()
     };
-
+    
     const debouncedLoadData = debounce(loadData, 300);
     debouncedLoadData();
 
@@ -69,13 +69,28 @@ const Interior = ({ item }: any) => {
   }, [refreshCounter, editId, refreshData]);
 
 
+  const fetchingExteriorDmg = () => {
+    let interior = [];
+    for(let i=0;i<svg?.damages_details.length;i++){
+        if(svg?.damages_details[i].type === "Interior"){
+          interior.push(svg?.damages_details[i])
+        }
+    }
+    setInteriorDmg(interior)
+  }
+
   // Example customers
 
   const openModal = (id: string) => {
-    setData_id(id);
-    setSelectedDataId(id);
-    setValue(item?.reservation?.customers?.id);
-    setModalVisible(true);
+    if (selectedDataId === id) {
+      // If part is already selected, open modal
+      setData_id(id);
+      setValue(item?.reservation?.customers?.id);
+      setModalVisible(true);
+    } else {
+      // Otherwise, mark the part as selected
+      setSelectedDataId(id);
+    }
   };
   const closeModal = () => {
     setModalVisible(false);
@@ -285,7 +300,7 @@ const Interior = ({ item }: any) => {
             strokeMiterlimit={strokeMiterlimit}
             strokeWidth={strokeWidth}
             stroke={stroke || '#000'}
-            fill={isSelected ? 'orange' : fill || 'none'}  // Default stroke color if none provided    // Default fill if none provided
+            fill={isSelected ? Colors.primary : fill || 'none'}  // Default stroke color if none provided    // Default fill if none provided
           />
         );
       case 'Ellipse':
@@ -301,7 +316,7 @@ const Interior = ({ item }: any) => {
             strokeMiterlimit={strokeMiterlimit}
             strokeWidth={strokeWidth}
             stroke={stroke || '#000'} // Default stroke color
-            fill={isSelected ? 'orange' : fill || 'none'} 
+            fill={isSelected ? Colors.primary : fill || 'none'} 
           // Default fill
           />
         );
@@ -500,16 +515,19 @@ const Interior = ({ item }: any) => {
         style={{
           flexDirection: 'row',
           justifyContent: 'space-between',
-          paddingLeft: 40,
-          paddingRight: 40,
+          paddingHorizontal: 40,
+          borderWidth: 0.5,
+          borderColor: Colors.primary,
+          backgroundColor:Colors.primary
         }}>
-        <Text style={{ fontWeight: 'bold', color: Colors.black }}>
+        <Text style={{fontWeight: 'bold', color: Colors.Iconwhite}}>
           Vehicle Part
         </Text>
-        <Text style={{ fontWeight: 'bold', color: Colors.black }}>Condition</Text>
+        <View style={styles.divider}></View>
+        <Text style={{fontWeight: 'bold', color: Colors.Iconwhite,}}>Condition</Text>
       </View>
       <View>
-        <DamageList damages={svg?.damages_details} handleEdit={handleEdit} />
+        <DamageList damages={interiorDmg} handleEdit={handleEdit} />
       </View>
     </View>
   );
@@ -523,6 +541,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.Iconwhite,
     // justifyContent: 'center',
     // alignItems: 'center',
+  },
+  divider: {
+    width: 2, // Width of the divider
+    backgroundColor: Colors.Iconwhite, // Color of the divider
   },
   modalContainer: {
     backgroundColor: 'white',

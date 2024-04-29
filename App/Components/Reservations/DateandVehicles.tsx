@@ -39,14 +39,10 @@ const DateandVehicles = ({item}: any) => {
   const {svg} = useAppSelector(state => state.fetchSvgReducer);
   const dispatch = useDispatch();
   const isMounted = useIsMounted();
-
-  console.log(violation);
-  console.log(penaltiesHistory);
-
   useEffect(() => {
     if (isMounted()) {
-      dispatch(fetchingPenalties(item?.reservation?.reservation?.id));
-      dispatch(fetchingViolations(item?.reservation?.reservation?.id));
+      dispatch(fetchingPenalties(item?.reservation?.id));
+      dispatch(fetchingViolations(item?.reservation?.id));
       dispatch(fetchSVG(item?.reservation?.fleet_master?.id));
     }
   }, []);
@@ -102,10 +98,16 @@ const DateandVehicles = ({item}: any) => {
             <Text style={{fontWeight: 'bold', color: Colors.black}}>
               {item?.reservation?.fleet_master?.vehicle_variant}
             </Text>
-            <Text style={{color: Colors.black}}>
-              {item?.reservation?.fleet_master?.vehicle_type}
+            <View style={{backgroundColor:Colors.primary,width:"100%",padding:5,borderRadius:5}}>
+            <Text style={{color: Colors.Iconwhite,fontSize:12,fontWeight:'bold'}}>
+            Reg No : {item?.reservation?.fleet_master?.registration_no}
             </Text>
-            <Text>{item?.reservation?.fleet_master?.vehicle_type}</Text>
+            </View>
+            <View style={{flexDirection:'row'}}>
+            <Text style={{fontSize:12,color:Colors.black}}>VIN No:</Text>
+            <Text style={{marginLeft:2,fontSize:12,color:Colors.black}}>{item?.reservation?.fleet_master?.vin_no}</Text>
+            </View>
+            
           </View>
         </View>
         <View style={[styles.carInfo, {justifyContent: 'space-between'}]}>

@@ -5,7 +5,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
+  RefreshControl,
   View
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -49,6 +49,7 @@ const Reservations = () => {
   }, [data, searchQuery]);
 
   const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+  const [refreshing, setRefreshing] = useState(false); 
   useEffect(() => {
     let isMounted = true;
 
@@ -62,6 +63,11 @@ const Reservations = () => {
       isMounted = false;
     };
   }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true); // Set refreshing true to show spinner
+    dispatch(fetchReservation()).then(() => setRefreshing(false)); // Fetch data and then set refreshing false
+  };
   
   
 
@@ -103,6 +109,13 @@ const Reservations = () => {
           windowSize={5} 
           ListEmptyComponent={
             <Text style={styles.noDataText}>No data found.</Text>
+          }
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[Colors.primary]} // Optional: Customize the color
+            />
           }
         />
       )}

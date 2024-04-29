@@ -1,13 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import {
-  Alert,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
-import {Portal, TextInput, Modal,} from 'react-native-paper';
+import {Portal, TextInput, Modal} from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useSelector} from 'react-redux';
@@ -165,52 +159,16 @@ const RenderPenalties = ({reservation}: any) => {
     );
   };
 
+  const closeModal = () => {
+    setIsModalVisible(false);
+  };
+
   return (
     <View>
-      <View style={styles.tableHeader}>
-        <Text style={[styles.headerText, {flex: 0.3}]}>Type</Text>
-        <Text style={[styles.headerText, {flex: 0.3}]}>Description</Text>
-        <Text style={[styles.headerText, {flex: 0.25}]}>Price</Text>
-        <Text style={[styles.headerText, {flex: 0.1}]}>Action</Text>
-      </View>
-      <View style={styles.modalView}>
-        {penaltiesHistory?.penalties?.map(
-          (
-            penalty_data: {
-              status: string;
-              type: any;
-              description: any;
-              price: any;
-              id: any;
-            },
-            index: React.Key | null | undefined,
-          ) => (
-            <View style={styles.paymentItem} key={penalty_data.id}>
-              <Text style={{color: Colors.black, flex: 0.25}}>
-                {penalty_data?.type}
-              </Text>
-              <Text style={{color: Colors.black, flex: 0.25}}>
-                {penalty_data?.description}
-              </Text>
-              <Text
-                style={{
-                  color: Colors.black,
-                  flex: 0.23,
-                }}>{`${penalty_data.price} AUD`}</Text>
-              {/* <View> */}
-              <TouchableOpacity
-                onPress={() => handleDeletePenalty(penalty_data.id)}
-                style={{flex: 0.13, alignItems: 'center'}}>
-                <Icon name="delete" size={20} color={Colors.red} />
-              </TouchableOpacity>
-              {/* </View> */}
-            </View>
-          ),
-        )}
-
+      <View style={{justifyContent: 'center', alignItems: 'flex-end'}}>
         <TouchableOpacity
           onPress={() => setIsModalVisible(true)}
-          style={[styles.button,{margin:20}]}>
+          style={[styles.button, {width: 100}]}>
           <Text
             style={{
               color: Colors.Iconwhite,
@@ -220,83 +178,150 @@ const RenderPenalties = ({reservation}: any) => {
             Add Penalty
           </Text>
         </TouchableOpacity>
+      </View>
 
-        <Portal>
-          <Modal
-            visible={isModalVisible}
-            contentContainerStyle={styles.modalContainer}>
-            <View style={{justifyContent:'center',alignItems:'center',paddingBottom:15}}>
-              <Text style={{fontSize:18,fontWeight:'bold',color:Colors.black}}>Add Penalty</Text>
-            </View>
-            {penaltyTypesData && penaltyTypesData?.length > 0 && (
-                <Dropdown
-                  style={styles.dropdown}
-                  placeholderStyle={styles.placeholderStyle}
-                  selectedTextStyle={styles.selectedTextStyle}
-                  inputSearchStyle={styles.inputSearchStyle}
-                  data={penaltyTypesData}
-                  search
-                  maxHeight={200}
-                  labelField="longname"
-                  valueField="id"
-                  placeholder="Penalty Type"
-                  searchPlaceholder="Search..."
-                  value={penaltyTypesData?.longname}
-                  itemTextStyle={styles.itemStyle}
-                  onChange={item => {
-                    setType(item?.longname);
-                  }}
-                  onFocus={() => setTypeFocused(true)}
-                  onBlur={() => setTypeFocused(false)}
-                />
-              )}
-              {!typeFocused && typeError ? (
-                <Text style={styles.errorText}>{typeError}</Text>
-              ) : null}
+      <View style={styles.tableHeader}>
+        <Text style={[styles.headerText, {flex: 0.3}]}>Type</Text>
+        <Text style={[styles.headerText, {flex: 0.3}]}>Description</Text>
+        <Text style={[styles.headerText, {flex: 0.25}]}>Price</Text>
+        <Text style={[styles.headerText, {flex: 0.1}]}>Action</Text>
+      </View>
 
-              <TextInput
-                label="Penalty Description"
-                mode="outlined"
-                value={description}
-                style={styles.input}
-                textColor={Colors.black}
-                onChangeText={text => setDescription(text)}
-                onFocus={() => setDescriptionFocused(true)}
-                onBlur={() => setDescriptionFocused(false)}
-              />
-              {!descriptionFocused && descriptionError ? (
-                <Text style={styles.errorText}>{descriptionError}</Text>
-              ) : null}
-            <TextInput
-              label="Price in AUD"
-              mode="outlined"
-              value={price}
-              style={styles.input}
-              textColor={Colors.black}
-              onChangeText={text => setPrice(text)}
-              keyboardType="numeric"
-              onFocus={() => setPriceFocused(true)}
-              onBlur={() => setPriceFocused(false)}
+      {penaltiesHistory.penalties.length ? (
+        <View style={styles.modalView}>
+          {penaltiesHistory?.penalties?.map(
+            (
+              penalty_data: {
+                status: string;
+                type: any;
+                description: any;
+                price: any;
+                id: any;
+              },
+              index: React.Key | null | undefined,
+            ) => (
+              <View style={styles.paymentItem} key={penalty_data.id}>
+                <Text style={{color: Colors.black, flex: 0.25}}>
+                  {penalty_data?.type}
+                </Text>
+                <Text style={{color: Colors.black, flex: 0.25}}>
+                  {penalty_data?.description}
+                </Text>
+                <Text
+                  style={{
+                    color: Colors.black,
+                    flex: 0.23,
+                  }}>{`${penalty_data.price} AUD`}</Text>
+                {/* <View> */}
+                <TouchableOpacity
+                  onPress={() => handleDeletePenalty(penalty_data.id)}
+                  style={{flex: 0.13, alignItems: 'center'}}>
+                  <Icon name="delete" size={20} color={Colors.red} />
+                </TouchableOpacity>
+                {/* </View> */}
+              </View>
+            ),
+          )}
+        </View>
+      ) : (
+        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+          <Text style={{fontSize: 18, color: Colors.grey, marginTop: 10}}>
+            No Data Found
+          </Text>
+        </View>
+      )}
+      <Portal>
+        <Modal
+          visible={isModalVisible}
+          contentContainerStyle={styles.modalContainer}>
+          <View
+            style={{
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexDirection: 'row',
+              paddingBottom: 15,
+            }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: 'bold',
+                color: Colors.black,
+              }}>
+              Add Penalty
+            </Text>
+            <TouchableOpacity onPress={closeModal}>
+              <Icon name={'cancel'} size={25} color={Colors.red} />
+            </TouchableOpacity>
+          </View>
+          {penaltyTypesData && penaltyTypesData?.length > 0 && (
+            <Dropdown
+              style={styles.dropdown}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              inputSearchStyle={styles.inputSearchStyle}
+              data={penaltyTypesData}
+              search
+              maxHeight={200}
+              labelField="longname"
+              valueField="id"
+              placeholder="Penalty Type"
+              searchPlaceholder="Search..."
+              value={penaltyTypesData?.longname}
+              itemTextStyle={styles.itemStyle}
+              onChange={item => {
+                setType(item?.longname);
+              }}
+              onFocus={() => setTypeFocused(true)}
+              onBlur={() => setTypeFocused(false)}
             />
-            {!priceFocused && priceError ? (
-              <Text style={styles.errorText}>{priceError}</Text>
-            ) : null}
-            <View style={styles.buttonContainer}>
+          )}
+          {!typeFocused && typeError ? (
+            <Text style={styles.errorText}>{typeError}</Text>
+          ) : null}
+
+          <TextInput
+            label="Penalty Description"
+            mode="outlined"
+            value={description}
+            style={styles.input}
+            textColor={Colors.black}
+            onChangeText={text => setDescription(text)}
+            onFocus={() => setDescriptionFocused(true)}
+            onBlur={() => setDescriptionFocused(false)}
+          />
+          {!descriptionFocused && descriptionError ? (
+            <Text style={styles.errorText}>{descriptionError}</Text>
+          ) : null}
+          <TextInput
+            label="Price in AUD"
+            mode="outlined"
+            value={price}
+            style={styles.input}
+            textColor={Colors.black}
+            onChangeText={text => setPrice(text)}
+            keyboardType="numeric"
+            onFocus={() => setPriceFocused(true)}
+            onBlur={() => setPriceFocused(false)}
+          />
+          {!priceFocused && priceError ? (
+            <Text style={styles.errorText}>{priceError}</Text>
+          ) : null}
+          <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={handlePenalty}>
               <Text style={{color: Colors.Iconwhite, fontWeight: 'bold'}}>
                 Submit
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={()=>setIsModalVisible(false)}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setIsModalVisible(false)}>
               <Text style={{color: Colors.Iconwhite, fontWeight: 'bold'}}>
                 Cancel
               </Text>
             </TouchableOpacity>
           </View>
-          </Modal>
-        </Portal>
-
-      </View>
+        </Modal>
+      </Portal>
     </View>
   );
 };

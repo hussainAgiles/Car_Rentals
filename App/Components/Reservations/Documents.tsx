@@ -11,7 +11,6 @@ import {WebView} from 'react-native-webview';
 import Loader from '../Loader/Loader';
 
 const Documents = ({item}: any) => {
-  // You will have to manage state and handle selections, this is just static for layout.
   const dispatch = useDispatch();
   // const invoice = useAppSelector( (state: RootState) => state.invoiceReportReducer,)
   // console.log(invoice);

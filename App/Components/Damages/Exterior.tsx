@@ -1,4 +1,5 @@
-import React, {useEffect, useState} from 'react';
+import { debounce } from 'lodash';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Image,
@@ -10,36 +11,32 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Dropdown} from 'react-native-element-dropdown';
+import { Dropdown } from 'react-native-element-dropdown';
 import ImageCropPicker from 'react-native-image-crop-picker';
-import {Button, Modal, Portal, RadioButton} from 'react-native-paper';
-import {Ellipse, Path, Svg} from 'react-native-svg';
+import { Button, Modal, Portal, RadioButton } from 'react-native-paper';
+import { Ellipse, Path, Svg } from 'react-native-svg';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {ImageBase_URL} from '../../API/Constants';
+import { ImageBase_URL } from '../../API/Constants';
 import Colors from '../../Constants/Colors';
 import useDispatch from '../../Hooks/useDispatch';
 import useAppSelector from '../../Hooks/useSelector';
 import {
-  Customers,
-  createDamagee,
-  deleteDamagee,
-  fetchSVG,
+  Customers, createDamagee, deleteDamagee,
+  fetchSVG
 } from '../../Redux/Reducers/ReservationDetailsReducer';
 import DamageList from './DamageList';
-import mime from 'mime';
-import {debounce} from 'lodash';
 
-const Exterior = ({item}: any) => {
+const Exterior = ({ item }: any) => {
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshData, setRefreshData] = useState(false);
-  const {svg} = useAppSelector(state => state.fetchSvgReducer);
+  const { svg } = useAppSelector(state => state.fetchSvgReducer);
   const [editId, setEditId] = useState('');
   const [data_id, setData_id] = useState('');
   const [damageTitle, setDamageTitle] = useState('');
   const [damageDescription, setDamageDescription] = useState('');
   const [damageSeverity, setDamageSeverity] = useState('low');
-  const {customersData} = useAppSelector(state => state.fetchCustomers);
+  const { customersData } = useAppSelector(state => state.fetchCustomers);
   const [value, setValue] = useState('');
   const [isFocus, setIsFocus] = useState(false);
   const [image, setImage] = useState('');
@@ -48,6 +45,8 @@ const Exterior = ({item}: any) => {
   const [extension, setExtension] = useState('');
   const [mimetype, setMimeType] = useState('');
   const [selectedDataId, setSelectedDataId] = useState('');
+  const [exteriorDmg, setExteriorDmg] = useState([])
+
 
   // Use this function to trigger a refresh
   const triggerRefresh = () => {
@@ -58,6 +57,7 @@ const Exterior = ({item}: any) => {
     const loadData = () => {
       dispatch(fetchSVG(item?.reservation?.fleet_master?.id));
       dispatch(Customers());
+
     };
 
     const debouncedLoadData = debounce(loadData, 300);
@@ -66,11 +66,35 @@ const Exterior = ({item}: any) => {
     return () => debouncedLoadData.cancel();
   }, [editId, refreshCounter, refreshData]);
 
+
+  useEffect(() => {
+    // This will fetch damages whenever the svg data changes which should happen
+    // after create, update, or delete operations if your state management is set up correctly.
+    if (svg?.damages_details) {
+      fetchingExteriorDmg();
+    }
+  }, [svg?.damages_details]);
+  
+  const fetchingExteriorDmg = () => {
+    const exterior = svg?.damages_details.filter(d => d.type === "Exterior") || [];
+    console.log("Updated exterior damages:", exterior);
+    setExteriorDmg(exterior);
+  };
+
+
+
+
   const openModal = (id: string) => {
-    setData_id(id);
-    setValue(item?.reservation?.customers?.id);
-    setModalVisible(true);
-    setSelectedDataId(id);
+    if (selectedDataId === id) {
+      // If part is already selected, open modal
+      setData_id(id);
+      setValue(item?.reservation?.customers?.id);
+      setModalVisible(true);
+    } else {
+      // Otherwise, mark the part as selected
+      setSelectedDataId(id);
+    }
+
   };
   const closeModal = () => {
     setModalVisible(false);
@@ -94,7 +118,7 @@ const Exterior = ({item}: any) => {
     id: string;
   }
 
-  const customerDropdownData: {label: string; value: string}[] =
+  const customerDropdownData: { label: string; value: string }[] =
     customersData?.map((customer: Customer) => ({
       label: customer.full_name,
       value: customer.id,
@@ -188,7 +212,7 @@ const Exterior = ({item}: any) => {
           style: 'cancel',
         },
       ],
-      {cancelable: true},
+      { cancelable: true },
     );
   };
 
@@ -212,11 +236,11 @@ const Exterior = ({item}: any) => {
         height: '200',
         extension: mimetype,
       },
-      ...(editId ? {id: editId} : {}),
+      ...(editId ? { id: editId } : {}),
     };
-    // console.log("this is the object",object);
     const response = dispatch(createDamagee(object));
     resetModalState();
+    fetchingExteriorDmg();
     setRefreshData(!refreshData);
     setExtension('');
     setModalVisible(false);
@@ -225,7 +249,7 @@ const Exterior = ({item}: any) => {
 
   const handleEdit = (id: string) => {
     const editData = svg.damages_details.find(
-      (item: {id: string}) => item.id === id,
+      (item: { id: string }) => item.id === id,
     );
     setRefreshData(!refreshData);
     setDamageTitle(editData.title);
@@ -239,6 +263,7 @@ const Exterior = ({item}: any) => {
     setData_id(editData.reservation_id);
     setEditId(editData.id);
     setModalVisible(true);
+    fetchingExteriorDmg();
   };
 
   const handleConfirmDelete = () => {
@@ -255,20 +280,20 @@ const Exterior = ({item}: any) => {
           onPress: () => handleDeleteDamage(),
         },
       ],
-      {cancelable: false},
+      { cancelable: false },
     );
   };
 
   const handleDeleteDamage = () => {
-    // Assuming you have a deleteDamage action similar to createDamagee
     dispatch(deleteDamagee(editId));
     closeModal();
+    fetchingExteriorDmg();
     setRefreshData(!refreshData); // To refresh the list
   };
 
   return (
     <View style={styles.container}>
-      <View style={{justifyContent: 'center', alignItems: 'center'}}>
+      <View style={{ justifyContent: 'center', alignItems: 'center' }}>
         <Svg height="380" width="238.4" viewBox="0 0 498.4 623">
           {svg?.car_exterior_array?.map((part: any, index: string) => {
             const isSelected = part.data_id === selectedDataId; // Check if the part is selected
@@ -276,8 +301,8 @@ const Exterior = ({item}: any) => {
               part.type === 'path'
                 ? Path
                 : part.type === 'ellipse'
-                ? Ellipse
-                : null;
+                  ? Ellipse
+                  : null;
             return Element ? (
               <Element
                 key={`${part.type}_${index}`}
@@ -286,7 +311,7 @@ const Exterior = ({item}: any) => {
                 strokeMiterlimit={part.strokeMiterlimit}
                 strokeWidth={part.strokeWidth}
                 stroke={part.stroke || '#000'}
-                fill={isSelected ? 'orange' : part.fill || 'none'} // Change fill color if selected
+                fill={isSelected ? Colors.primary : part.fill || 'none'} // Change fill color if selected
               />
             ) : null;
           })}
@@ -307,7 +332,7 @@ const Exterior = ({item}: any) => {
               paddingBottom: 10,
             }}>
             <Text
-              style={{fontSize: 20, fontWeight: 'bold', color: Colors.black}}>
+              style={{ fontSize: 20, fontWeight: 'bold', color: Colors.black }}>
               Add new damage
             </Text>
             <TouchableOpacity onPress={closeModal}>
@@ -327,7 +352,7 @@ const Exterior = ({item}: any) => {
             multiline
             style={styles.input}
           />
-          <Text style={{fontSize: 20, fontWeight: 'bold', color: Colors.black}}>
+          <Text style={{ fontSize: 20, fontWeight: 'bold', color: Colors.black }}>
             Choose damage level:
           </Text>
           <RadioButton.Group
@@ -345,7 +370,7 @@ const Exterior = ({item}: any) => {
             </View>
           </RadioButton.Group>
           <Dropdown
-            style={[styles.dropdown, isFocus && {borderColor: 'blue'}]}
+            style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
             placeholderStyle={styles.placeholderStyle}
             selectedTextStyle={styles.selectedTextStyle}
             inputSearchStyle={styles.inputSearchStyle}
@@ -406,16 +431,16 @@ const Exterior = ({item}: any) => {
               <Text>Drop the photos</Text>
             </TouchableOpacity>
 
-            <View style={{flexDirection: 'row'}}>
+            <View style={{ flexDirection: 'row' }}>
               {extension && (
                 <Image
-                  source={{uri: extension}}
-                  style={{width: 80, height: 80, marginLeft: 20}}
+                  source={{ uri: extension }}
+                  style={{ width: 80, height: 80, marginLeft: 20 }}
                 />
               )}
               {image_url && (
                 <Image
-                  source={{uri: ImageBase_URL + image_url}}
+                  source={{ uri: ImageBase_URL + image_url }}
                   style={{
                     width: 80,
                     height: 80,
@@ -437,7 +462,7 @@ const Exterior = ({item}: any) => {
                 mode="contained"
                 buttonColor={Colors.red}
                 onPress={handleConfirmDelete}
-                style={{marginRight: 10}}>
+                style={{ marginRight: 10 }}>
                 Remove
               </Button>
             )}
@@ -467,16 +492,16 @@ const Exterior = ({item}: any) => {
           paddingHorizontal: 40,
           borderWidth: 0.5,
           borderColor: Colors.primary,
-          backgroundColor:Colors.primary
+          backgroundColor: Colors.primary
         }}>
-        <Text style={{fontWeight: 'bold', color: Colors.Iconwhite}}>
+        <Text style={{ fontWeight: 'bold', color: Colors.Iconwhite }}>
           Vehicle Part
         </Text>
         <View style={styles.divider}></View>
-        <Text style={{fontWeight: 'bold', color: Colors.Iconwhite,}}>Condition</Text>
+        <Text style={{ fontWeight: 'bold', color: Colors.Iconwhite, }}>Condition</Text>
       </View>
       <View>
-        <DamageList damages={svg?.damages_details} handleEdit={handleEdit} />
+        <DamageList damages={exteriorDmg} handleEdit={handleEdit} />
       </View>
     </View>
   );

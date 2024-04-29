@@ -1,18 +1,12 @@
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
-import {
-  Alert,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
+import React, {useEffect, useState} from 'react';
+import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Dropdown} from 'react-native-element-dropdown';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { Modal, Portal, TextInput } from 'react-native-paper';
+import {Modal, Portal, TextInput} from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 import Colors from '../../Constants/Colors';
 import useDispatch from '../../Hooks/useDispatch';
 import useIsMounted from '../../Hooks/useIsMounted';
@@ -23,8 +17,7 @@ import {
   delete_Violation,
   fetchingViolations,
 } from '../../Redux/Reducers/ReservationDetailsReducer';
-import { RootState } from '../../Redux/Store';
-
+import {RootState} from '../../Redux/Store';
 
 const RenderViolation = ({reservation}: any) => {
   // console.log('Id related to reservation', reservation.reservation?.id);
@@ -207,68 +200,16 @@ const RenderViolation = ({reservation}: any) => {
       }
     }
   };
+  const closeModal = () => {
+    setIsModalVisible(false);
+  };
 
   return (
     <View>
-      {violation?.violations.length > 0 ? (
-        <View style={styles.tableHeader}>
-          <View style={{flex: 1, flexDirection: 'row'}}>
-            <Text style={[styles.headerText, {flex: 0.25}]}>Name</Text>
-            <Text style={[styles.headerText, {flex: 0.25}]}>Date</Text>
-            <Text style={[styles.headerText, {flex: 0.15}]}>Amount</Text>
-            <Text style={[styles.headerText, {flex: 0.22}]}>Description</Text>
-            <Text style={[styles.headerText, {flex: 0.1}]}>Action</Text>
-          </View>
-        </View>
-      ) : (
-        <View style={{justifyContent: 'center', alignItems: 'center'}}>
-          <Text style={{fontSize: 18, color: Colors.grey}}>No Data Found</Text>
-        </View>
-      )}
-      <View style={styles.modalView}>
-        {violation?.violations?.map(
-          (
-            violation_data: {
-              status: string;
-              type: any;
-              description: any;
-              amount: any;
-              full_name: any;
-              created_at: any;
-              id: any;
-              customer: object;
-            },
-            index: React.Key | null | undefined,
-          ) => (
-            <View
-              style={[styles.paymentItem, {flexDirection: 'row'}]}
-              key={violation_data.id}>
-              <Text style={{color: Colors.black, flex: 0.25}}>
-                {violation_data?.customer?.full_name}
-              </Text>
-              <Text style={{color: Colors.black, flex: 0.25}}>
-                {moment(violation_data.created_at).format('DD-MM-YYYY')}
-              </Text>
-              <Text
-                style={{
-                  color: Colors.black,
-                  flex: 0.15,
-                }}>{`${violation_data.amount} AUD`}</Text>
-              <Text style={{color: Colors.black, flex: 0.22}}>
-                {violation_data.description}
-              </Text>
-              <TouchableOpacity
-                style={{flex: 0.13, alignItems: 'center'}}
-                onPress={() => handleDeleteViolation(violation_data.id)}>
-                <Icon name="delete" size={20} color={Colors.red} />
-              </TouchableOpacity>
-            </View>
-          ),
-        )}
-
+      <View style={{justifyContent: 'center', alignItems: 'flex-end'}}>
         <TouchableOpacity
           onPress={() => setIsModalVisible(true)}
-          style={[styles.button]}>
+          style={[styles.button, {width: 115}]}>
           <Text
             style={{
               color: Colors.Iconwhite,
@@ -278,143 +219,216 @@ const RenderViolation = ({reservation}: any) => {
             Add Violations
           </Text>
         </TouchableOpacity>
-
-        <Portal>
-          <Modal
-            visible={isModalVisible}
-            contentContainerStyle={styles.modalContainer}>
-            <View style={{justifyContent:'center',alignItems:'center'}}>
-              <Text style={{fontSize:18,fontWeight:'bold',color:Colors.black}}>Add Violations</Text>
-            </View>
-            {customersData && customersData.length > 0 && (
-              <Dropdown
-                style={[styles.dropdown]}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
-                data={customersData}
-                search
-                maxHeight={200}
-                labelField="full_name"
-                valueField="id"
-                placeholder="Select Customer"
-                searchPlaceholder="Search..."
-                value={customersData?.id}
-                itemTextStyle={styles.itemStyle}
-                onChange={item => setCustomer(item?.id)}
-                onFocus={() => setCustomerFocused(true)}
-                onBlur={() => setCustomerFocused(false)}
-              />
-            )}
-            {!customerFocused && customerError ? (
-              <Text style={styles.errorText}>{customerError}</Text>
-            ) : null}
-
-            {violationTypes && violationTypes.length > 0 && (
-              <Dropdown
-                style={[styles.dropdown]}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
-                data={violationTypes}
-                search
-                maxHeight={300}
-                labelField="longname"
-                valueField="id"
-                placeholder="Select Violation"
-                searchPlaceholder="Search..."
-                value={violationTypes?.id}
-                itemTextStyle={styles.itemStyle}
-                onChange={item => setType(item?.longname)}
-                onFocus={() => setTypeFocused(true)}
-                onBlur={() => setTypeFocused(false)}
-              />
-            )}
-            {!typeFocused && typeError ? (
-              <Text style={styles.errorText}>{typeError}</Text>
-            ) : null}
-
-            <View>
-              <TouchableOpacity
-                style={[
-                  styles.input,
-                  {
-                    borderWidth: 0.7,
-                    borderRadius: 3,
-                    justifyContent: 'space-between',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingHorizontal: 15,
-                  },
-                ]}
-                onPress={() => setDatePickerVisibility(true)}>
-                <Text style={{color: Colors.black}}>
-                  {selectedDate ? selectedDate.toDateString() : 'Select Date'}
-                </Text>
-                <Icon name="calendar-month" size={20} color={Colors.black} />
-              </TouchableOpacity>
-              {dateError ? (
-                <Text style={styles.errorText}>{dateError}</Text>
-              ) : null}
-            </View>
-
-            <TextInput
-              label="Amount"
-              mode="outlined"
-              value={amount}
-              style={[styles.input]}
-              textColor={Colors.black}
-              onChangeText={text => setAmount(text)}
-              keyboardType="numeric"
-              onFocus={() => setAmountFocused(true)}
-              onBlur={() => setAmountFocused(false)}
-            />
-            {!amountFocused && amountError ? (
-              <Text style={styles.errorText}>{amountError}</Text>
-            ) : null}
-            <TextInput
-              label="Comments"
-              mode="outlined"
-              value={description}
-              style={[styles.input]}
-              textColor={Colors.black}
-              onChangeText={text => setDescription(text)}
-              onFocus={() => setDescriptionFocused(true)}
-              onBlur={() => setDescriptionFocused(false)}
-            />
-            {!descriptionFocused && descriptionError ? (
-              <Text style={styles.errorText}>{descriptionError}</Text>
-            ) : null}
-
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <View style={[styles.buttonContainer]}>
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={handleVoilations}>
-                  <Text style={{color: Colors.Iconwhite, fontWeight: 'bold'}}>
-                    Submit
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <View style={[styles.buttonContainer]}>
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => setIsModalVisible(false)}>
-                  <Text style={{color: Colors.Iconwhite, fontWeight: 'bold'}}>
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-        </Portal>
-
       </View>
+
+      <View style={styles.tableHeader}>
+        <View style={{flex: 1, flexDirection: 'row'}}>
+          <Text style={[styles.headerText, {flex: 0.25}]}>Name</Text>
+          <Text style={[styles.headerText, {flex: 0.25}]}>Date</Text>
+          <Text style={[styles.headerText, {flex: 0.15}]}>Amount</Text>
+          <Text style={[styles.headerText, {flex: 0.22}]}>Description</Text>
+          <Text style={[styles.headerText, {flex: 0.1}]}>Action</Text>
+        </View>
+      </View>
+
+      {violation?.violations.length > 0 ? (
+        <View style={styles.modalView}>
+          {violation?.violations?.map(
+            (
+              violation_data: {
+                status: string;
+                type: any;
+                description: any;
+                amount: any;
+                full_name: any;
+                created_at: any;
+                id: any;
+                customer: object;
+              },
+              index: React.Key | null | undefined,
+            ) => (
+              <View
+                style={[styles.paymentItem, {flexDirection: 'row'}]}
+                key={violation_data.id}>
+                <Text style={{color: Colors.black, flex: 0.25}}>
+                  {violation_data?.customer?.full_name}
+                </Text>
+                <Text style={{color: Colors.black, flex: 0.25}}>
+                  {moment(violation_data.created_at).format('DD-MM-YYYY')}
+                </Text>
+                <Text
+                  style={{
+                    color: Colors.black,
+                    flex: 0.15,
+                  }}>{`${violation_data.amount} AUD`}</Text>
+                <Text style={{color: Colors.black, flex: 0.22}}>
+                  {violation_data.description}
+                </Text>
+                <TouchableOpacity
+                  style={{flex: 0.13, alignItems: 'center'}}
+                  onPress={() => handleDeleteViolation(violation_data.id)}>
+                  <Icon name="delete" size={20} color={Colors.red} />
+                </TouchableOpacity>
+              </View>
+            ),
+          )}
+        </View>
+      ) : (
+        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+          <Text style={{fontSize: 18, color: Colors.grey, marginTop: 10}}>
+            No Data Found
+          </Text>
+        </View>
+      )}
+      <Portal>
+        <Modal
+          visible={isModalVisible}
+          contentContainerStyle={styles.modalContainer}>
+          <View
+            style={{
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexDirection: 'row',
+            }}>
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: 'bold',
+                color: Colors.black,
+              }}>
+              Add Violations
+            </Text>
+            <TouchableOpacity onPress={closeModal}>
+              <Icon name={'cancel'} size={25} color={Colors.red} />
+            </TouchableOpacity>
+          </View>
+          {customersData && customersData.length > 0 && (
+            <Dropdown
+              style={[styles.dropdown]}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              inputSearchStyle={styles.inputSearchStyle}
+              data={customersData}
+              search
+              maxHeight={200}
+              labelField="full_name"
+              valueField="id"
+              placeholder="Select Customer"
+              searchPlaceholder="Search..."
+              value={customersData?.id}
+              itemTextStyle={styles.itemStyle}
+              onChange={item => setCustomer(item?.id)}
+              onFocus={() => setCustomerFocused(true)}
+              onBlur={() => setCustomerFocused(false)}
+            />
+          )}
+          {!customerFocused && customerError ? (
+            <Text style={styles.errorText}>{customerError}</Text>
+          ) : null}
+
+          {violationTypes && violationTypes.length > 0 && (
+            <Dropdown
+              style={[styles.dropdown]}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              inputSearchStyle={styles.inputSearchStyle}
+              data={violationTypes}
+              search
+              maxHeight={300}
+              labelField="longname"
+              valueField="id"
+              placeholder="Select Violation"
+              searchPlaceholder="Search..."
+              value={violationTypes?.id}
+              itemTextStyle={styles.itemStyle}
+              onChange={item => setType(item?.longname)}
+              onFocus={() => setTypeFocused(true)}
+              onBlur={() => setTypeFocused(false)}
+            />
+          )}
+          {!typeFocused && typeError ? (
+            <Text style={styles.errorText}>{typeError}</Text>
+          ) : null}
+
+          <View>
+            <TouchableOpacity
+              style={[
+                styles.input,
+                {
+                  borderWidth: 0.7,
+                  borderRadius: 3,
+                  justifyContent: 'space-between',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 15,
+                },
+              ]}
+              onPress={() => setDatePickerVisibility(true)}>
+              <Text style={{color: Colors.black}}>
+                {selectedDate ? selectedDate.toDateString() : 'Select Date'}
+              </Text>
+              <Icon name="calendar-month" size={20} color={Colors.black} />
+            </TouchableOpacity>
+            {dateError ? (
+              <Text style={styles.errorText}>{dateError}</Text>
+            ) : null}
+          </View>
+
+          <TextInput
+            label="Amount"
+            mode="outlined"
+            value={amount}
+            style={[styles.input]}
+            textColor={Colors.black}
+            onChangeText={text => setAmount(text)}
+            keyboardType="numeric"
+            onFocus={() => setAmountFocused(true)}
+            onBlur={() => setAmountFocused(false)}
+          />
+          {!amountFocused && amountError ? (
+            <Text style={styles.errorText}>{amountError}</Text>
+          ) : null}
+          <TextInput
+            label="Comments"
+            mode="outlined"
+            value={description}
+            style={[styles.input]}
+            textColor={Colors.black}
+            onChangeText={text => setDescription(text)}
+            onFocus={() => setDescriptionFocused(true)}
+            onBlur={() => setDescriptionFocused(false)}
+          />
+          {!descriptionFocused && descriptionError ? (
+            <Text style={styles.errorText}>{descriptionError}</Text>
+          ) : null}
+
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <View style={[styles.buttonContainer]}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleVoilations}>
+                <Text style={{color: Colors.Iconwhite, fontWeight: 'bold'}}>
+                  Submit
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View style={[styles.buttonContainer]}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setIsModalVisible(false)}>
+                <Text style={{color: Colors.Iconwhite, fontWeight: 'bold'}}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </Portal>
       {/* Date Time Picker Modal */}
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
