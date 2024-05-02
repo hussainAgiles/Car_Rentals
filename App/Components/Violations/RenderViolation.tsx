@@ -1,12 +1,12 @@
 import moment from 'moment';
-import React, {useEffect, useState} from 'react';
-import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {Dropdown} from 'react-native-element-dropdown';
+import React, { useEffect, useState } from 'react';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import {Modal, Portal, TextInput} from 'react-native-paper';
+import { Modal, Portal, TextInput } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import Colors from '../../Constants/Colors';
 import useDispatch from '../../Hooks/useDispatch';
 import useIsMounted from '../../Hooks/useIsMounted';
@@ -17,14 +17,13 @@ import {
   delete_Violation,
   fetchingViolations,
 } from '../../Redux/Reducers/ReservationDetailsReducer';
-import {RootState} from '../../Redux/Store';
+import { RootState } from '../../Redux/Store';
 
 const RenderViolation = ({reservation}: any) => {
   // console.log('Id related to reservation', reservation.reservation?.id);
 
   const dispatch = useDispatch();
   const isMounted = useIsMounted();
-  const [isLoading, setIsLoading] = useState(true);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [date, setDate] = useState('');

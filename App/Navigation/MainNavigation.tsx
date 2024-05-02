@@ -30,7 +30,7 @@ const MainNavigator: React.FC = () => {
         headerShown: false,
         tabBarShowLabel: false,
       }}>
-          <Tab.Screen
+          {/* <Tab.Screen
             name="Home"
             component={Home}
             options={{
@@ -38,7 +38,7 @@ const MainNavigator: React.FC = () => {
                 <TabIcon name="home-outline" {...props} label="Home" />
               ),
             }}
-          />
+          /> */}
           <Tab.Screen
             name="Reservation"
             component={Reservations}

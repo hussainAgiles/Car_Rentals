@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Alert,
   Image,
@@ -11,12 +11,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
+import {Dropdown} from 'react-native-element-dropdown';
 import ImageCropPicker from 'react-native-image-crop-picker';
-import { Button, Modal, Portal, RadioButton } from 'react-native-paper';
-import { Ellipse, G, Path, Svg } from 'react-native-svg';
+import {Button, Modal, Portal, RadioButton} from 'react-native-paper';
+import {Ellipse, G, Path, Svg} from 'react-native-svg';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { ImageBase_URL } from '../../API/Constants';
+import {ImageBase_URL} from '../../API/Constants';
 import Colors from '../../Constants/Colors';
 import useDispatch from '../../Hooks/useDispatch';
 import useAppSelector from '../../Hooks/useSelector';
@@ -27,27 +27,27 @@ import {
   fetchSVG,
 } from '../../Redux/Reducers/ReservationDetailsReducer';
 import DamageList from './DamageList';
-import { debounce } from 'lodash';
+import {debounce} from 'lodash';
 
-const Interior = ({ item }: any) => {
+const Interior = ({item}: any) => {
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshData, setRefreshData] = useState(false);
-  const { svg,dmgError } = useAppSelector(state => state.fetchSvgReducer);
+  const {svg, dmgError} = useAppSelector(state => state.fetchSvgReducer);
   const [editId, setEditId] = useState('');
   const [damageTitle, setDamageTitle] = useState('');
   const [damageDescription, setDamageDescription] = useState('');
   const [damageSeverity, setDamageSeverity] = useState('low');
-  const { customersData } = useAppSelector(state => state.fetchCustomers);
+  const {customersData} = useAppSelector(state => state.fetchCustomers);
   const [value, setValue] = useState('');
   const [isFocus, setIsFocus] = useState(false);
   const [image, setImage] = useState('');
   const [data_id, setData_id] = useState('');
   const [refreshCounter, setRefreshCounter] = useState(0);
-  const [extension, setExtension] = useState('')
-  const [mimetype, setMimeType] = useState('')
+  const [extension, setExtension] = useState('');
+  const [mimetype, setMimeType] = useState('');
   const [selectedDataId, setSelectedDataId] = useState('');
-  const [interiorDmg,setInteriorDmg] = useState([])
+  const [interiorDmg, setInteriorDmg] = useState([]);
 
   // Use this function to trigger a refresh
   const triggerRefresh = () => {
@@ -59,25 +59,28 @@ const Interior = ({ item }: any) => {
     const loadData = () => {
       dispatch(fetchSVG(item?.reservation?.fleet_master?.id));
       dispatch(Customers());
-      fetchingExteriorDmg()
     };
-    
+
     const debouncedLoadData = debounce(loadData, 300);
     debouncedLoadData();
 
     return () => debouncedLoadData.cancel();
-  }, [refreshCounter, editId, refreshData]);
+  }, [refreshCounter, editId, refreshData, svg?.car_interior_array]);
 
+  useEffect(() => {
+    // This will fetch damages whenever the svg data changes which should happen
+    if (svg?.damages_details) {
+      fetchingExteriorDmg();
+    }
+  }, [svg?.damages_details]);
 
   const fetchingExteriorDmg = () => {
-    let interior = [];
-    for(let i=0;i<svg?.damages_details.length;i++){
-        if(svg?.damages_details[i].type === "Interior"){
-          interior.push(svg?.damages_details[i])
-        }
-    }
-    setInteriorDmg(interior)
-  }
+    const interior =
+      svg?.damages_details.filter(
+        (d: {type: string}) => d.type === 'Interior',
+      ) || [];
+    setInteriorDmg(interior);
+  };
 
   // Example customers
 
@@ -113,12 +116,11 @@ const Interior = ({ item }: any) => {
     id: string;
   }
 
-  const customerDropdownData: { label: string; value: string }[] = customersData?.map(
-    (customer: Customer) => ({
+  const customerDropdownData: {label: string; value: string}[] =
+    customersData?.map((customer: Customer) => ({
       label: customer.full_name,
       value: customer.id,
-    })
-  ) || [];
+    })) || [];
   const selectImage = async () => {
     if (Platform.OS === 'android') {
       try {
@@ -161,11 +163,11 @@ const Interior = ({ item }: any) => {
                 if (image.data) {
                   setImage(image.data);
                 } else {
-                  setImage('')
+                  setImage('');
                   // Handle null or undefined case
                 }
-                setExtension(image.path)
-                setMimeType(image.mime)// `path` is used instead of `uri`
+                setExtension(image.path);
+                setMimeType(image.mime); // `path` is used instead of `uri`
               })
               .catch(e => {
                 if (e.code !== 'E_PICKER_CANCELLED') {
@@ -187,11 +189,11 @@ const Interior = ({ item }: any) => {
                 if (image.data) {
                   setImage(image.data);
                 } else {
-                  setImage('')
+                  setImage('');
                   // Handle null or undefined case
                 }
-                setExtension(image.path)
-                setMimeType(image.mime) // `path` is used instead of `uri`
+                setExtension(image.path);
+                setMimeType(image.mime); // `path` is used instead of `uri`
               })
               .catch(e => {
                 if (e.code !== 'E_PICKER_CANCELLED') {
@@ -205,7 +207,7 @@ const Interior = ({ item }: any) => {
           style: 'cancel',
         },
       ],
-      { cancelable: true },
+      {cancelable: true},
     );
   };
 
@@ -220,23 +222,26 @@ const Interior = ({ item }: any) => {
       image_url: image_url,
       reservation_id: item?.reservation?.fleet_id,
       data_id: data_id,
-      device: "mobile",
+      device: 'mobile',
       imagedata: {
         image: image,
-        folder: "damage",
-        filename: "damage",
-        width: "320",
-        height: "200",
-        extension: mimetype
+        folder: 'damage',
+        filename: 'damage',
+        width: '320',
+        height: '200',
+        extension: mimetype,
       },
-      ...(editId ? { id: editId } : {}),
+      ...(editId ? {id: editId} : {}),
     };
     // console.log("edit object === ",object)
     try {
       const response = dispatch(createDamagee(object));
       console.log(dmgError);
     } catch (error) {
-      console.log("Response fetch error reducers",error || 'An error occurred')
+      console.log(
+        'Response fetch error reducers',
+        error || 'An error occurred',
+      );
     }
     resetModalState();
     setRefreshData(!refreshData);
@@ -247,7 +252,7 @@ const Interior = ({ item }: any) => {
   const handleEdit = (id: string) => {
     // console.log("Interior")
     const editData = svg.damages_details.find(
-      (item: { id: string }) => item.id === id,
+      (item: {id: string}) => item.id === id,
     );
     setDamageTitle(editData.title);
     setDamageSeverity(editData.damage_level);
@@ -276,7 +281,7 @@ const Interior = ({ item }: any) => {
           onPress: () => handleDeleteDamage(),
         },
       ],
-      { cancelable: false },
+      {cancelable: false},
     );
   };
 
@@ -288,8 +293,19 @@ const Interior = ({ item }: any) => {
   };
 
   const renderElement = (element: any, index: string) => {
-
-    const { type, d, strokeMiterlimit, strokeWidth, stroke, fill, cx, cy, rx, ry, data_id } = element;
+    const {
+      type,
+      d,
+      strokeMiterlimit,
+      strokeWidth,
+      stroke,
+      fill,
+      cx,
+      cy,
+      rx,
+      ry,
+      data_id,
+    } = element;
     const isSelected = data_id === selectedDataId;
     switch (type) {
       case 'Path':
@@ -302,7 +318,7 @@ const Interior = ({ item }: any) => {
             strokeMiterlimit={strokeMiterlimit}
             strokeWidth={strokeWidth}
             stroke={stroke || '#000'}
-            fill={isSelected ? Colors.primary : fill || 'none'}  // Default stroke color if none provided    // Default fill if none provided
+            fill={isSelected ? Colors.grey : fill || 'none'} // Default stroke color if none provided    // Default fill if none provided
           />
         );
       case 'Ellipse':
@@ -318,8 +334,8 @@ const Interior = ({ item }: any) => {
             strokeMiterlimit={strokeMiterlimit}
             strokeWidth={strokeWidth}
             stroke={stroke || '#000'} // Default stroke color
-            fill={isSelected ? Colors.primary : fill || 'none'} 
-          // Default fill
+            fill={isSelected ? Colors.grey : fill || 'none'}
+            // Default fill
           />
         );
       default:
@@ -328,7 +344,14 @@ const Interior = ({ item }: any) => {
   };
 
   const groups = [];
-  let currentGroup: (number & any[]) | (false & any[]) | (true & any[]) | (React.ReactElement<any, string | React.JSXElementConstructor<any>> & any[]) | (Iterable<React.ReactNode> & any[]) | (React.JSX.Element | null)[] = [];
+  let currentGroup:
+    | (number & any[])
+    | (false & any[])
+    | (true & any[])
+    | (React.ReactElement<any, string | React.JSXElementConstructor<any>> &
+        any[])
+    | (Iterable<React.ReactNode> & any[])
+    | (React.JSX.Element | null)[] = [];
 
   svg?.car_interior_array.forEach((element: any, index: string) => {
     if (element.type === 'G-1' || element.type === 'G-2') {
@@ -336,7 +359,6 @@ const Interior = ({ item }: any) => {
         groups.push(<G key={`group-${groups.length}`}>{currentGroup}</G>);
         currentGroup = [];
       }
-
     } else {
       currentGroup.push(renderElement(element, index));
     }
@@ -347,11 +369,104 @@ const Interior = ({ item }: any) => {
     groups.push(<G key={`group-${groups.length}`}>{currentGroup}</G>);
   }
 
+  const renderPathElements = seq => {
+    return svg?.car_interior_array
+      .filter(item => item.type === 'path' && item.seq === seq)
+      .map((item, index) => (
+        <Path
+          key={index}
+          data-id={item.data_id}
+          fill={item.fill}
+          stroke={item.stroke}
+          strokeWidth={item.stroke_width}
+          strokeLinecap={item.stroke_linecap}
+          strokeLinejoin={item.stroke_linejoin}
+          strokeMiterlimit={item.stroke_miterlimit}
+          className={item.class}
+          d={item.d}
+          onPress={() => openModal(data_id)}
+        />
+      ));
+  };
+
+  const renderEllipseElements = seq => {
+    return svg?.car_interior_array
+      .filter(item => item.type === 'ellipse' && item.seq === seq)
+      .map((item, index) => (
+        <Ellipse
+          key={index}
+          data-id={item.data_id}
+          fill={item.fill}
+          className={item.class}
+          cx={item.cx}
+          cy={item.cy}
+          rx={item.rx}
+          ry={item.ry}
+          onPress={() => openModal(data_id)}
+        />
+      ));
+  };
+
+  const renderGElements = seq => {
+    return svg?.car_interior_array
+      .filter(item => item.type === 'g' && item.seq === seq)
+      .map((item, index) => (
+        <G key={index} className={item.class}>
+          {/* Add other SVG elements inside the <G> element if needed */}
+        </G>
+      ));
+  };
+
   return (
     <View style={styles.container}>
-      <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{justifyContent: 'center', alignItems: 'center'}}>
         <Svg height="380" width="238.4" viewBox="0 0 380 474.8">
-          {groups}
+          {renderPathElements(1)}
+          {renderPathElements(2)}
+          {renderPathElements(3)}
+          {renderPathElements(4)}
+          {renderPathElements(5)}
+          {renderPathElements(6)}
+          {renderPathElements(7)}
+          {renderPathElements(8)}
+          {renderPathElements(9)}
+          {renderPathElements(10)}
+          {renderPathElements(11)}
+          {renderPathElements(12)}
+          {renderPathElements(13)}
+          {renderPathElements(14)}
+          {renderPathElements(15)}
+          {renderPathElements(16)}
+          {renderPathElements(17)}
+          {renderPathElements(18)}
+          {renderGElements(19)}
+          {renderPathElements(20)}
+          {renderPathElements(21)}
+          {renderPathElements(22)}
+          {renderPathElements(23)}
+          {renderPathElements(24)}
+          {renderGElements(25)}
+          {renderPathElements(26)}
+          {renderPathElements(27)}
+          {renderPathElements(28)}
+          {renderGElements(29)}
+          {renderPathElements(30)}
+          {renderPathElements(31)}
+          {renderPathElements(32)}
+          {renderGElements(33)}
+          {renderPathElements(34)}
+          {renderEllipseElements(35)}
+          {renderPathElements(36)}
+          {renderGElements(37)}
+          {renderPathElements(38)}
+          {renderPathElements(39)}
+          {renderPathElements(40)}
+          {renderGElements(41)}
+          {renderPathElements(42)}
+          {/* {renderPathElements(13)}
+          {renderEllipseElements(14)}
+          {renderGElements(4)}
+          {renderGElements(9)} */}
         </Svg>
       </View>
 
@@ -369,7 +484,7 @@ const Interior = ({ item }: any) => {
               paddingBottom: 10,
             }}>
             <Text
-              style={{ fontSize: 20, fontWeight: 'bold', color: Colors.black }}>
+              style={{fontSize: 20, fontWeight: 'bold', color: Colors.black}}>
               Add new damage
             </Text>
             <TouchableOpacity onPress={closeModal}>
@@ -389,7 +504,7 @@ const Interior = ({ item }: any) => {
             multiline
             style={styles.input}
           />
-          <Text style={{ fontSize: 20, fontWeight: 'bold', color: Colors.black }}>
+          <Text style={{fontSize: 20, fontWeight: 'bold', color: Colors.black}}>
             Choose damage level:
           </Text>
           <RadioButton.Group
@@ -407,7 +522,7 @@ const Interior = ({ item }: any) => {
             </View>
           </RadioButton.Group>
           <Dropdown
-            style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+            style={[styles.dropdown, isFocus && {borderColor: 'blue'}]}
             placeholderStyle={styles.placeholderStyle}
             selectedTextStyle={styles.selectedTextStyle}
             inputSearchStyle={styles.inputSearchStyle}
@@ -468,16 +583,16 @@ const Interior = ({ item }: any) => {
               <Text>Drop the photos</Text>
             </TouchableOpacity>
 
-            <View style={{ flexDirection: 'row' }}>
+            <View style={{flexDirection: 'row'}}>
               {extension && (
                 <Image
-                  source={{ uri: extension }}
-                  style={{ width: 80, height: 80, marginLeft: 20 }}
+                  source={{uri: extension}}
+                  style={{width: 80, height: 80, marginLeft: 20}}
                 />
               )}
               {image_url && (
                 <Image
-                  source={{ uri: ImageBase_URL + image_url }}
+                  source={{uri: ImageBase_URL + image_url}}
                   style={{
                     width: 80,
                     height: 80,
@@ -499,7 +614,7 @@ const Interior = ({ item }: any) => {
                 mode="contained"
                 buttonColor={Colors.red}
                 onPress={handleConfirmDelete}
-                style={{ marginRight: 10 }}>
+                style={{marginRight: 10}}>
                 Remove
               </Button>
             )}
@@ -520,13 +635,15 @@ const Interior = ({ item }: any) => {
           paddingHorizontal: 40,
           borderWidth: 0.5,
           borderColor: Colors.primary,
-          backgroundColor:Colors.primary
+          backgroundColor: Colors.primary,
         }}>
         <Text style={{fontWeight: 'bold', color: Colors.Iconwhite}}>
           Vehicle Part
         </Text>
         <View style={styles.divider}></View>
-        <Text style={{fontWeight: 'bold', color: Colors.Iconwhite,}}>Condition</Text>
+        <Text style={{fontWeight: 'bold', color: Colors.Iconwhite}}>
+          Condition
+        </Text>
       </View>
       <View>
         <DamageList damages={interiorDmg} handleEdit={handleEdit} />

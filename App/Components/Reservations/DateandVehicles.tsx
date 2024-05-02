@@ -85,31 +85,6 @@ const DateandVehicles = ({item}: any) => {
   return (
     <ScrollView style={styles.Container}>
       <View style={styles.vehicleDetails}>
-        <View style={styles.carInfo}>
-          <Avatar.Image
-            size={60}
-            source={{
-              uri:
-                ImageBase_URL +
-                item?.reservation?.fleet_master?.vehiclemodel?.image_url,
-            }}
-          />
-          <View style={styles.carText}>
-            <Text style={{fontWeight: 'bold', color: Colors.black}}>
-              {item?.reservation?.fleet_master?.vehicle_variant}
-            </Text>
-            <View style={{backgroundColor:Colors.primary,width:"100%",padding:5,borderRadius:5}}>
-            <Text style={{color: Colors.Iconwhite,fontSize:12,fontWeight:'bold'}}>
-            Reg No : {item?.reservation?.fleet_master?.registration_no}
-            </Text>
-            </View>
-            <View style={{flexDirection:'row'}}>
-            <Text style={{fontSize:12,color:Colors.black}}>VIN No:</Text>
-            <Text style={{marginLeft:2,fontSize:12,color:Colors.black}}>{item?.reservation?.fleet_master?.vin_no}</Text>
-            </View>
-            
-          </View>
-        </View>
         <View style={[styles.carInfo, {justifyContent: 'space-between'}]}>
           <View style={styles.carInfo}>
             <Icon name={'location-on'} color={Colors.black} size={28} />
