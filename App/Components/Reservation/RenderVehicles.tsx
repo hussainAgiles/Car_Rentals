@@ -38,7 +38,7 @@ const RenderVehicles = React.memo(({item}: any) => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const imageUrl = item?.fleet_master?.vehiclemodel?.image_url
     ? {uri: ImageBase_URL + item.fleet_master?.vehiclemodel?.image_url}
-    : require('../../Assets/car.png');
+    : require('../../Assets/Default_Car.png');
 
   const handleRental = (id: string, status: string) => {
       navigation.navigate('Rental', {id});
@@ -143,8 +143,8 @@ const getStatusColor = (status: string) => {
   switch (status) {
     case 'Rented':
       return Colors.green;
-    case 'Active':
-      return Colors.orange;
+    case 'Reserved':
+      return Colors.primary;
     case 'Returned':
       return Colors.red;
     default:
@@ -174,7 +174,6 @@ const styles = StyleSheet.create({
   leftContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
-    // alignItems: 'center',
     // Add padding or margin if needed, to space it from the rightContainer
   },
   rightContainer: {

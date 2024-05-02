@@ -217,7 +217,7 @@ const Interior = ({ item }: any) => {
       damage_level: damageSeverity,
       vehicle_id: item?.reservation?.fleet_master?.vehicledetails?.id,
       client_id: item?.reservation?.customers?.id,
-      image_url: image,
+      image_url: image_url,
       reservation_id: item?.reservation?.fleet_id,
       data_id: data_id,
       device: "mobile",
@@ -231,6 +231,7 @@ const Interior = ({ item }: any) => {
       },
       ...(editId ? { id: editId } : {}),
     };
+    // console.log("edit object === ",object)
     try {
       const response = dispatch(createDamagee(object));
       console.log(dmgError);
@@ -244,6 +245,7 @@ const Interior = ({ item }: any) => {
   };
 
   const handleEdit = (id: string) => {
+    // console.log("Interior")
     const editData = svg.damages_details.find(
       (item: { id: string }) => item.id === id,
     );
@@ -255,7 +257,7 @@ const Interior = ({ item }: any) => {
     setIsFocus(false);
     setImage('');
     setExtension('');
-    setData_id(editData.reservation_id);
+    setData_id(editData.data_id);
     setEditId(editData.id);
     setModalVisible(true);
   };

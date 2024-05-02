@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import Colors from '../../Constants/Colors';
 import useDispatch from '../../Hooks/useDispatch';
@@ -6,6 +6,8 @@ import useIsMounted from '../../Hooks/useIsMounted';
 import { fetchingCurrency } from '../../Redux/Reducers/ReservationDetailsReducer';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../Redux/Store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { currencyFormat } from '../../API/NormalApi';
 
 const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any) => {
   
@@ -21,6 +23,7 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
   useEffect(() => {
     if (isMounted()) {
       dispatch(fetchingCurrency());
+      defaultCurrencyy()
     }
   }, []);
   const calculateSubtotal = () => {
@@ -58,6 +61,34 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
     reservation?.dropoff_date,
   );
 
+
+  const [currency,SetCurrency] = useState('')
+  const defaultCurrencyy = async () => {
+     try {
+      const response = await AsyncStorage.getItem("currency");
+      if(response){
+        SetCurrency(response);
+      }
+     } catch (error) {
+       console.log(error)
+     }
+  }
+
+
+  const formatPayments =  (value:string) => {
+    if (reservation && reservation.vehicle_price) { 
+      const formattedValue =  currencyFormat({
+        value: value,
+        formatType: 'suffix',
+        currency:currency
+      });
+      return formattedValue;
+    }
+  };
+
+
+
+
   return (
     <View style={styles.container}>
       {/* <Text
@@ -93,7 +124,8 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
             <Text style={styles.subtitle}>{reservation?.fleet_master?.vehicledetails?.name}</Text>
           </View>
           <Text style={styles.price}>
-            {reservation?.vehicle_price.toFixed(2)} {defaultCurrency?.parameter_value}
+            {formatPayments(reservation?.vehicle_price)}
+            {/* {reservation?.vehicle_price.toFixed(2)} {defaultCurrency?.parameter_value} */}
           </Text>
         </View>
 
@@ -104,7 +136,8 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
               <Text style={styles.subtitle}>Insurance Price</Text>
             </View>
             <Text style={styles.price}>
-              {insuranceAddon?.insuranceId?.toFixed(2)} {defaultCurrency?.parameter_value}
+            {formatPayments(insuranceAddon?.insuranceId)}
+              {/* {insuranceAddon?.insuranceId?.toFixed(2)} {defaultCurrency?.parameter_value} */}
             </Text>
           </View>
         )}
@@ -116,9 +149,10 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
               <Text style={styles.subtitle}>Addon Price</Text>
             </View>
             <Text style={styles.price}>
-              {Number(reservation?.addon_total_price?.toFixed(2)) +
+            {formatPayments(reservation?.addon_total_price)} + {formatPayments(insuranceAddon.addonsId)} 
+              {/* {Number(reservation?.addon_total_price?.toFixed(2)) +
                 Number(insuranceAddon.addonsId)}{' '}
-              {defaultCurrency?.parameter_value}
+              {defaultCurrency?.parameter_value} */}
             </Text>
           </View>
         ) : (
@@ -128,7 +162,8 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
               <Text style={styles.subtitle}>Addon Price</Text>
             </View>
             <Text style={styles.price}>
-              {Number(reservation?.addon_total_price?.toFixed(2))} {defaultCurrency?.parameter_value}
+              {formatPayments(reservation?.addon_total_price)} 
+              {/* {Number(reservation?.addon_total_price?.toFixed(2))} {defaultCurrency?.parameter_value} */}
             </Text>
           </View>
         )}
@@ -141,7 +176,7 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
           </View>
 
           <View style={{alignItems: 'flex-end', justifyContent: 'center'}}>
-            <Text style={styles.price}>{reservation?.vmc.toFixed(2)} AUD</Text>
+            <Text style={styles.price}> {formatPayments(reservation?.vmc)}</Text>
             <Text style={styles.price}>{reservation?.vat}%</Text>
           </View>
         </View>
@@ -153,10 +188,10 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
           </View>
 
           <View>
-            <Text style={styles.summaryValue}>{subtotal.toFixed(2)} {defaultCurrency?.parameter_value}</Text>
+            <Text style={styles.summaryValue}> {formatPayments(subtotal.toString())}</Text>
 
             <Text style={styles.summaryValue}>
-              {paymentCompleted? paymentCompleted : 0} {defaultCurrency?.parameter_value}
+              {paymentCompleted? formatPayments(paymentCompleted)  : 0}
             </Text>
           </View>
         </View>
@@ -164,12 +199,12 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
         <View style={styles.dueBalanceContainer}>
           <Text style={styles.summaryTitle}>Security deposit</Text>
           <Text style={styles.summaryValue}>
-            {reservation?.security_deposit?.toFixed(2)} {defaultCurrency?.parameter_value}
+            {formatPayments(reservation?.security_deposit)}
           </Text>
         </View>
         <View style={styles.dueBalanceContainer}>
           <Text style={styles.dueBalanceTitle}>Due balance:</Text>
-          <Text style={styles.dueBalanceValue}>{totalDue.toFixed(2)} {defaultCurrency?.parameter_value}</Text>
+          <Text style={styles.dueBalanceValue}>{formatPayments(totalDue.toString())}</Text>
         </View>
       </View>
     </View>

@@ -30,7 +30,9 @@ const Exterior = ({ item }: any) => {
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshData, setRefreshData] = useState(false);
+
   const { svg } = useAppSelector(state => state.fetchSvgReducer);
+
   const [editId, setEditId] = useState('');
   const [data_id, setData_id] = useState('');
   const [damageTitle, setDamageTitle] = useState('');
@@ -45,6 +47,7 @@ const Exterior = ({ item }: any) => {
   const [extension, setExtension] = useState('');
   const [mimetype, setMimeType] = useState('');
   const [selectedDataId, setSelectedDataId] = useState('');
+
   const [exteriorDmg, setExteriorDmg] = useState([])
 
 
@@ -71,12 +74,15 @@ const Exterior = ({ item }: any) => {
     // This will fetch damages whenever the svg data changes which should happen
     // after create, update, or delete operations if your state management is set up correctly.
     if (svg?.damages_details) {
+      // console.log("each time this is called")
       fetchingExteriorDmg();
     }
   }, [svg?.damages_details]);
+
+  // console.log("Damage details == ",svg?.damages_details)
   
   const fetchingExteriorDmg = () => {
-    const exterior = svg?.damages_details.filter(d => d.type === "Exterior") || [];
+    const exterior = svg?.damages_details.filter((d: { type: string; }) => d.type === "Exterior") || [];
     console.log("Updated exterior damages:", exterior);
     setExteriorDmg(exterior);
   };
@@ -224,7 +230,7 @@ const Exterior = ({ item }: any) => {
       damage_level: damageSeverity,
       vehicle_id: item?.reservation?.fleet_master?.vehicledetails?.id,
       client_id: item?.reservation?.customers?.id,
-      image_url: 'image',
+      image_url: image_url,
       reservation_id: item?.reservation?.fleet_id,
       data_id: data_id,
       device: 'mobile',
@@ -239,6 +245,7 @@ const Exterior = ({ item }: any) => {
       ...(editId ? { id: editId } : {}),
     };
     const response = dispatch(createDamagee(object));
+    // console.log("this is the edit response third == ",response)
     resetModalState();
     fetchingExteriorDmg();
     setRefreshData(!refreshData);
@@ -251,6 +258,7 @@ const Exterior = ({ item }: any) => {
     const editData = svg.damages_details.find(
       (item: { id: string }) => item.id === id,
     );
+    // console.log("Image url ====",editData)
     setRefreshData(!refreshData);
     setDamageTitle(editData.title);
     setDamageSeverity(editData.damage_level);
@@ -260,7 +268,7 @@ const Exterior = ({ item }: any) => {
     setIsFocus(false);
     setImage('');
     setExtension('');
-    setData_id(editData.reservation_id);
+    setData_id(editData.data_id);
     setEditId(editData.id);
     setModalVisible(true);
     fetchingExteriorDmg();

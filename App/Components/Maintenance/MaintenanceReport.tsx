@@ -8,7 +8,7 @@ const MaintenanceReport = ({item}: any) => {
   const [loading, setLoading] = useState(false);
   const imageUrl = item?.vehicle?.vehiclemodel?.image_url
     ? {uri: ImageBase_URL + item.vehicle?.vehiclemodel?.image_url}
-    : require('../../Assets/car.png');
+    : require('../../Assets/Default_Car.png');
 
   const onLoading = (value: boolean) => {
     setLoading(value);

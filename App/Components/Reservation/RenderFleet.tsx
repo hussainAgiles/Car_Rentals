@@ -42,7 +42,7 @@ const RenderFleet = React.memo(({item}: any) => {
   // const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const imageUrl = item?.vehiclemodel?.image_url
     ? {uri: ImageBase_URL + item.vehiclemodel?.image_url}
-    : require('../../Assets/car.png');
+    : require('../../Assets/Default_Car.png');
   const [loading, setLoading] = useState(false);
 
   const onLoading = (value: boolean) => {

@@ -137,7 +137,6 @@ const Insurance = ({item,onInsuranceUpdate}: InsuranceProps) => {
     // Pass the updated total addons price to the parent component
     onInsuranceUpdate(selectedInsurance, totalAddons);
   };
-  
 
   return (
     <View style={styles.container}>

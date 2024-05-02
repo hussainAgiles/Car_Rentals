@@ -6,7 +6,6 @@ import Colors from '../../Constants/Colors';
 
 // New component for each damage item
 const DamageItem = ({ item, handleEdit }: any) => {
-    // console.log("item === ",item.image_url)
     return (
         <TouchableOpacity onPress={() => handleEdit(item.id)}>
             <View style={styles.itemContainer}>

@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import API from './APIClients';
 import {Base_url} from './Constants';
 
@@ -199,7 +200,6 @@ export const fetchSvg = async (reservation_id: string) => {
     const response = await API.post(
       Base_url + 'fetch-updated-mobile-svg-layout', body
     );
-   
     return response.data;
   } catch (error) {
     console.error('Error fetching Payment Status :', error);
@@ -337,5 +337,10 @@ export const fetchMaintenanceReport = async () => {
     throw error; // Rethrow the error to be caught by the calling code
   }
 };
+
+
+
+
+
 
 

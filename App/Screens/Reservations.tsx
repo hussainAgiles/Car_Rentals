@@ -1,11 +1,11 @@
-import React, { useEffect, useState,useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Dimensions,
   FlatList,
+  RefreshControl,
   StyleSheet,
   Text,
   TextInput,
-  RefreshControl,
   View
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -14,7 +14,7 @@ import Loader from '../Components/Loader/Loader';
 import RenderVehicles from '../Components/Reservation/RenderVehicles';
 import Colors from '../Constants/Colors';
 import useIsMounted from '../Hooks/useIsMounted';
-import { fetchReservation, fetchingCurrency } from '../Redux/Reducers/ReservationDetailsReducer';
+import { fetchReservation } from '../Redux/Reducers/ReservationDetailsReducer';
 import { AppDispatch, RootState } from '../Redux/Store';
 
 const Reservations = () => {
