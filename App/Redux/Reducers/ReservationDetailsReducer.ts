@@ -345,7 +345,8 @@ export const createDamagee = createAsyncThunk(
   async (payload: createDamagePayload, {rejectWithValue}) => {
     // console.log("payload received",payload);
     try {
-      const response = await createDamage({body: payload});    
+      const response = await createDamage({body: payload});   
+      console.log("this is the respone",response) 
       return response;
     } catch (error) {
       return rejectWithValue(error);

@@ -1,16 +1,16 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Dimensions,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  FlatList,
   View,
 } from 'react-native';
-import { Checkbox } from 'react-native-paper';
+import { Avatar, Checkbox } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { ImageBase_URL } from '../API/Constants';
 import Header from '../Components/Header/Header';
 import Loader from '../Components/Loader/Loader';
 import Customers from '../Components/Reservations/Customers';
@@ -26,18 +26,16 @@ import useAppSelector from '../Hooks/useSelector';
 import {
   fetchPayment,
   fetchRentalDetail,
-  fetchingCurrency,
 } from '../Redux/Reducers/ReservationDetailsReducer';
 import { RootState } from '../Redux/Store';
-import { useSelector } from 'react-redux';
 
 const sections = ['vehicle', 'customer', 'insurance', 'payment', 'documents'];
 
-const Rental = ({ route }: any) => {
+const Rental = ({route}: any) => {
   const dispatch = useDispatch();
   const isMounted = useIsMounted();
   const navigation = useNavigation();
-  const { rentalDetail, loading } = useAppSelector(
+  const {rentalDetail, loading} = useAppSelector(
     (state: RootState) => state.rentalDetailReducer,
   );
   const [insuranceOptions, setInsuranceOptions] = useState({
@@ -48,23 +46,20 @@ const Rental = ({ route }: any) => {
   const [paymentCompleted, setPaymentCompleted] = useState(0);
 
   const scrollViewRef = useRef(null);
-  const { paymentHistory } = useAppSelector(
+  const {paymentHistory} = useAppSelector(
     (state: RootState) => state.fetchPaymentReducer,
   );
 
   useEffect(() => {
     if (rentalDetail) {
-      setInsuranceOptions(prev => ({ ...prev, baseCost: rentalDetail.baseCost }));
+      setInsuranceOptions(prev => ({...prev, baseCost: rentalDetail.baseCost}));
       // console.log(insuranceOptions);
     }
   }, [rentalDetail]);
 
-  useEffect(() => {
-   
-  }, [rentalDetail?.reservation?.id]);
+  useEffect(() => {}, [rentalDetail?.reservation?.id]);
 
-  useEffect(() => {
-  }, [paymentHistory]);
+  useEffect(() => {}, [paymentHistory]);
 
   useEffect(() => {
     // Then fetch new data
@@ -76,17 +71,16 @@ const Rental = ({ route }: any) => {
   }, [rentalDetail?.reservation?.id]);
 
   useEffect(() => {
-   
     if (paymentHistory?.reservation_payment) {
-      let totalPaid = 0; 
+      let totalPaid = 0;
       paymentHistory.reservation_payment.forEach(
-        (payment: { status: string; value: string }) => {
+        (payment: {status: string; value: string}) => {
           if (payment.status === 'Paid') {
             totalPaid += parseFloat(payment.value);
           }
         },
       );
-      setPaymentCompleted(totalPaid); 
+      setPaymentCompleted(totalPaid);
     }
   }, [paymentHistory]);
 
@@ -106,7 +100,7 @@ const Rental = ({ route }: any) => {
   const [currentOpenSection, setCurrentOpenSection] = useState('vehicle');
 
   const handleCheck = (section: string | number) => {
-    setCheckedItems(prev => ({ ...prev, [section]: !prev[section] }));
+    setCheckedItems(prev => ({...prev, [section]: !prev[section]}));
   };
 
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
@@ -155,7 +149,7 @@ const Rental = ({ route }: any) => {
     return (
       <React.Fragment key={key}>
         <View style={styles.subHeadingView}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Checkbox
               status={checkedItems[section] ? 'checked' : 'unchecked'}
               onPress={() => handleCheck(section)}
@@ -179,7 +173,7 @@ const Rental = ({ route }: any) => {
                 section === currentOpenSection ? '' : section,
               )
             }>
-            <View style={{ alignItems: 'center', alignSelf: 'center' }}>
+            <View style={{alignItems: 'center', alignSelf: 'center'}}>
               <Icon
                 name={
                   currentOpenSection === section
@@ -269,15 +263,14 @@ const Rental = ({ route }: any) => {
 
   const renderSections = () => {
     return sections.map((section, index) => (
-      <View key={section} style={{ width: screenWidth,minHeight:520 }}>
+      <View key={section} style={{width: screenWidth, minHeight: 520}}>
         {renderAccordion(section, section)}
       </View>
     ));
   };
-  
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{flex: 1}}>
       <Header text="Rental" />
       <ScrollView style={styles.container}>
         {loading === 'pending' ? (
@@ -285,6 +278,7 @@ const Rental = ({ route }: any) => {
         ) : (
           <>
             {/* Your existing code to render rental details */}
+            <Text style={{paddingLeft:20,fontWeight:'bold',color:Colors.black,textAlign:'center',fontSize:18,marginTop:10}}>Check Reservations Before</Text>
             <View
               style={{
                 flexDirection: 'row',
@@ -292,7 +286,52 @@ const Rental = ({ route }: any) => {
                 paddingBottom: 0,
                 justifyContent: 'space-between',
               }}>
-              <Text style={styles.headingText}>Check Reservations before</Text>
+              <View style={styles.carInfo}>
+                <Avatar.Image
+                  size={60}
+                  source={{
+                    uri:
+                      ImageBase_URL +
+                      rentalDetail?.reservation?.fleet_master?.vehiclemodel
+                        ?.image_url,
+                  }}
+                />
+                <View style={styles.carText}>
+                  <Text style={{fontWeight: 'bold', color: Colors.black}}>
+                    {rentalDetail?.reservation?.fleet_master?.vehicle_variant}
+                  </Text>
+                  <View
+                    style={{
+                      backgroundColor: Colors.primary,
+                      width: '100%',
+                      padding: 5,
+                      borderRadius: 5,
+                    }}>
+                    <Text
+                      style={{
+                        color: Colors.Iconwhite,
+                        fontSize: 12,
+                        fontWeight: 'bold',
+                      }}>
+                      Reg No :{' '}
+                      {rentalDetail?.reservation?.fleet_master?.registration_no}
+                    </Text>
+                  </View>
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={{fontSize: 12, color: Colors.black}}>
+                      VIN No:
+                    </Text>
+                    <Text
+                      style={{
+                        marginLeft: 2,
+                        fontSize: 12,
+                        color: Colors.black,
+                      }}>
+                      {rentalDetail?.reservation?.fleet_master?.vin_no}
+                    </Text>
+                  </View>
+                </View>
+              </View>
               <View
                 style={[
                   styles.statusIndicator,
@@ -307,6 +346,7 @@ const Rental = ({ route }: any) => {
                 </Text>
               </View>
             </View>
+
             <ScrollView
               ref={scrollViewRef}
               horizontal={true} // Enable horizontal scrolling
@@ -341,14 +381,14 @@ const Rental = ({ route }: any) => {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.actionButton, { backgroundColor: Colors.primary }]}
+                style={[styles.actionButton, {backgroundColor: Colors.primary}]}
                 onPress={() => navigation.goBack()}>
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.actionButton,
-                  { backgroundColor: Colors.primary },
+                  {backgroundColor: Colors.primary},
                 ]}>
                 <Text style={styles.buttonText}>Reject</Text>
               </TouchableOpacity>
@@ -461,6 +501,14 @@ const styles = StyleSheet.create({
   pageNumberText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  carInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  carText: {
+    marginLeft: 5,
   },
 });
 

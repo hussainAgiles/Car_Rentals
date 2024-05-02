@@ -339,3 +339,49 @@ export const fetchMaintenanceReport = async () => {
 };
 
 
+export const fetchCountries = async () => {
+  try {
+    const response = await API.get(
+      Base_url + `fetch-countries-for-frontend`,  
+    );
+    return response.data.countries;
+  } catch (error) {
+    
+  }
+}
+
+
+export const fetchDocumentType = async (lookup_type: string) => {
+  let body = {
+    lookup_type: lookup_type
+  };
+  try {
+    const response = await API.get(Base_url + 'fetchlookup', {
+      params: body
+    });
+    console.log("response",response)
+    return response.data.lookup_details;
+  } catch (error) {
+    // Handle error
+    console.error('Error fetching document types:', error);
+    throw error; // Rethrow the error for the caller to handle
+  }
+};
+
+
+export const uploadDocuments = async ({body}: {body: object}) => {
+  console.log("objec",body)
+  try {
+    const response = await API.post(
+      Base_url + 'save-kyc', body
+    );
+    console.log("responsedata",response.data)
+    return response.data;
+
+  } catch (error) {
+    console.error('Error fetching Payment Status :', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
+
+

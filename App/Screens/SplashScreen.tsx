@@ -25,7 +25,7 @@ const SplashScreen = () => {
   useEffect(() => {
     fetchToken();
     dispatch(fetchingCurrency())
-    AsyncStorage.setItem('currency',defaultCurrency.parameter_value);
+    // AsyncStorage.setItem('currency',defaultCurrency.parameter_value);
   }, [])
 
   const fetchToken = async () => {

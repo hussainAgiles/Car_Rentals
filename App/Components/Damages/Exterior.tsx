@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import ImageCropPicker from 'react-native-image-crop-picker';
-import { Button, Modal, Portal, RadioButton } from 'react-native-paper';
+import { Button, Modal, Portal, RadioButton,Tooltip } from 'react-native-paper';
 import { Ellipse, Path, Svg } from 'react-native-svg';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ImageBase_URL } from '../../API/Constants';
@@ -64,7 +64,7 @@ const Exterior = ({ item }: any) => {
     debouncedLoadData();
 
     return () => debouncedLoadData.cancel();
-  }, [editId, refreshCounter, refreshData]);
+  }, [editId, refreshCounter, refreshData,svg?.car_exterior_array]);
 
 
   useEffect(() => {
@@ -76,13 +76,9 @@ const Exterior = ({ item }: any) => {
   }, [svg?.damages_details]);
   
   const fetchingExteriorDmg = () => {
-    const exterior = svg?.damages_details.filter(d => d.type === "Exterior") || [];
-    console.log("Updated exterior damages:", exterior);
+    const exterior = svg?.damages_details.filter((d: { type: string; }) => d.type === "Exterior") || [];
     setExteriorDmg(exterior);
   };
-
-
-
 
   const openModal = (id: string) => {
     if (selectedDataId === id) {
@@ -251,6 +247,7 @@ const Exterior = ({ item }: any) => {
     const editData = svg.damages_details.find(
       (item: { id: string }) => item.id === id,
     );
+    console.log(editData);
     setRefreshData(!refreshData);
     setDamageTitle(editData.title);
     setDamageSeverity(editData.damage_level);
@@ -311,7 +308,7 @@ const Exterior = ({ item }: any) => {
                 strokeMiterlimit={part.strokeMiterlimit}
                 strokeWidth={part.strokeWidth}
                 stroke={part.stroke || '#000'}
-                fill={isSelected ? Colors.primary : part.fill || 'none'} // Change fill color if selected
+                fill={isSelected ? Colors.grey : part.fill || 'none'} // Change fill color if selected
               />
             ) : null;
           })}
