@@ -79,7 +79,7 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
     if (reservation && reservation.vehicle_price) { 
       const formattedValue =  currencyFormat({
         value: value,
-        formatType: 'suffix',
+        formatType: 'prefix',
         currency:currency
       });
       return formattedValue;
@@ -188,7 +188,7 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
           </View>
 
           <View>
-            <Text style={styles.summaryValue}> {formatPayments(subtotal.toString())}</Text>
+            <Text style={styles.summaryValue}> {formatPayments(Number(subtotal).toFixed(2))}</Text>
 
             <Text style={styles.summaryValue}>
               {paymentCompleted? formatPayments(paymentCompleted)  : 0}
@@ -204,7 +204,7 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
         </View>
         <View style={styles.dueBalanceContainer}>
           <Text style={styles.dueBalanceTitle}>Due balance:</Text>
-          <Text style={styles.dueBalanceValue}>{formatPayments(totalDue.toString())}</Text>
+          <Text style={styles.dueBalanceValue}>{formatPayments(Number(totalDue).toFixed(2))}</Text>
         </View>
       </View>
     </View>

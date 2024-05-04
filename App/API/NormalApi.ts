@@ -128,31 +128,6 @@ export const fetchViolations = async (id:string) => {
     console.error('Error fetching Voilations :', error);
   }
 }
-// export const fetchInvoiceReport = async ({slug}: {slug: string}) => {
-//  console.log("Slug === ",slug)
-//   try {
-//     const response = await API.get(
-//       Base_url + `perfoma-invoice?invoiceslug=${slug}`, 
-//     );
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error fetching Fleet reports :', error);
-//     throw error; // Rethrow the error to be caught by the calling code
-//   }
-// };
-
-// export const fetchAgreementReport = async ({slug}: {slug: string}) => {
- 
-//   try {
-//     const response = await API.get(
-//       Base_url + `fetch-agreement-details/${slug}`, 
-//     );
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error fetching Fleet Agreement :', error);
-//     throw error; // Rethrow the error to be caught by the calling code
-//   }
-// };
 
 export const createVoilation = async ({body}: {body: object}) => {
   // console.log("Body received in api === ",body)
@@ -290,7 +265,7 @@ export const createDamage = async ({body}: {body: object}) => {
     const response = await API.post(
       Base_url + 'create-damage', body
     );
-    console.log("responsedata",response.data)
+    // console.log("responsedata",response.data)
     return response.data;
 
   } catch (error) {
@@ -358,7 +333,7 @@ export const fetchDocumentType = async (lookup_type: string) => {
     const response = await API.get(Base_url + 'fetchlookup', {
       params: body
     });
-    console.log("response",response)
+    // console.log("response",response)
     return response.data.lookup_details;
   } catch (error) {
     // Handle error
@@ -369,12 +344,11 @@ export const fetchDocumentType = async (lookup_type: string) => {
 
 
 export const uploadDocuments = async ({body}: {body: object}) => {
-  console.log("objec",body)
   try {
     const response = await API.post(
       Base_url + 'save-kyc', body
     );
-    console.log("responsedata",response.data)
+    // console.log("responsedata",response.data)
     return response.data;
 
   } catch (error) {
@@ -383,11 +357,27 @@ export const uploadDocuments = async ({body}: {body: object}) => {
   }
 };
 
+export const fetchDocument = async ({slug}: {slug: string}) => {
+ 
+  try {
+    const response = await API.get(
+      Base_url + `fetch-kyc/${slug}`, 
+    );
+    // console.log("Response in fetching document",response.data)
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Documents :', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
+
 // Custom function to add Prefix or suffix to default currency 
-export const currencyFormat =  ({ value, formatType,currency }: any) => {
+export const currencyFormat =  ({ value,currency }: any) => {
   if (value == null || isNaN(value)) {
     return "";
   }
+
+  let  formatType = "prefix";
   let formattedValue = "";
   if (formatType === "prefix") {
     formattedValue = currency + " " + value;
@@ -398,4 +388,19 @@ export const currencyFormat =  ({ value, formatType,currency }: any) => {
   }
   return formattedValue;
 };
+
+export const updateRentals = async ({body}: {body: object}) => {
+  // console.log("object",body)
+  try {
+    const response = await API.post(
+      Base_url + 'update-rental-status',body
+    );
+    // console.log("Updating rentals",response.data)
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Status :', error);
+    throw error; // Rethrow the error to be caught by the calling code
+  }
+};
+
 

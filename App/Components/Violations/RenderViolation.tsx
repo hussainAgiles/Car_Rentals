@@ -20,7 +20,7 @@ import {
 import { RootState } from '../../Redux/Store';
 
 const RenderViolation = ({reservation}: any) => {
-  // console.log('Id related to reservation', reservation.reservation?.id);
+  // console.log('Id related to reservation', reservation);
 
   const dispatch = useDispatch();
   const isMounted = useIsMounted();
@@ -55,6 +55,12 @@ const RenderViolation = ({reservation}: any) => {
   const {violationData} = useSelector(
     (state: RootState) => state.fleetViolationCreationReducer,
   );
+
+  useEffect(() => {
+    if (reservation && reservation.reservation && reservation.reservation.customer_id) {
+      setCustomer(reservation.reservation.customer_id);
+    }
+  }, [reservation]);
 
   useEffect(() => {
     if (isMounted()) {
@@ -183,7 +189,9 @@ const RenderViolation = ({reservation}: any) => {
           setDescription('');
           setCustomer('');
           setDate('');
+          setSelectedDate(null);
           setIsModalVisible(false);
+          setCustomer(reservation.reservation.customer_id);
           dispatch(fetchingViolations(reservation?.reservation?.id));
         } else {
           Toast.show({
@@ -199,15 +207,31 @@ const RenderViolation = ({reservation}: any) => {
       }
     }
   };
+
+  const openModal = () => {
+      setIsModalVisible(true);
+  };
+
   const closeModal = () => {
     setIsModalVisible(false);
   };
+
+  interface Customer {
+    full_name: string;
+    id: string;
+  }
+
+  const customerDropdownData: {label: string; value: string}[] =
+    customersData?.map((customer: Customer) => ({
+      label: customer.full_name,
+      value: customer.id,
+    })) || [];
 
   return (
     <View>
       <View style={{justifyContent: 'center', alignItems: 'flex-end'}}>
         <TouchableOpacity
-          onPress={() => setIsModalVisible(true)}
+          onPress={openModal}
           style={[styles.button, {width: 115}]}>
           <Text
             style={{
@@ -307,19 +331,28 @@ const RenderViolation = ({reservation}: any) => {
               placeholderStyle={styles.placeholderStyle}
               selectedTextStyle={styles.selectedTextStyle}
               inputSearchStyle={styles.inputSearchStyle}
-              data={customersData}
+              data={customerDropdownData}
               search
               maxHeight={200}
-              labelField="full_name"
-              valueField="id"
-              placeholder="Select Customer"
+              labelField="label"
+              valueField="value"
+              placeholder={!customerFocused ? 'Select Customer' : '...'}
               searchPlaceholder="Search..."
-              value={customersData?.id}
+              value={customer_id}
               itemTextStyle={styles.itemStyle}
-              onChange={item => setCustomer(item?.id)}
+              onChange={item => setCustomer(item?.value)}
               onFocus={() => setCustomerFocused(true)}
               onBlur={() => setCustomerFocused(false)}
+              renderLeftIcon={() => (
+                <Icon
+                  style={styles.icon}
+                  color={customerFocused ? 'blue' : 'black'}
+                  name="person"
+                  size={20}
+                />
+              )}
             />
+            
           )}
           {!customerFocused && customerError ? (
             <Text style={styles.errorText}>{customerError}</Text>
@@ -535,5 +568,8 @@ const styles = StyleSheet.create({
     padding: 20,
     width: '90%',
     height: '55%', // Adjust the width as needed
+  },
+  icon: {
+    marginRight: 5,
   },
 });

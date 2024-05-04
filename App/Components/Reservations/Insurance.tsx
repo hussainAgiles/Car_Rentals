@@ -97,7 +97,7 @@ const Insurance = ({item,onInsuranceUpdate}: InsuranceProps) => {
           alignItems: 'center',
           marginBottom: 10,
         }}>
-        <Text style={{fontWeight: 'bold'}}>No insurance found.</Text>
+        <Text style={{fontWeight: 'bold',color:Colors.black}}>No insurance found.</Text>
       </View>
     );
   }
@@ -110,7 +110,7 @@ const Insurance = ({item,onInsuranceUpdate}: InsuranceProps) => {
           alignItems: 'center',
           marginBottom: 10,
         }}>
-        <Text style={{fontWeight: 'bold'}}>No insurance found.</Text>
+        <Text style={{fontWeight: 'bold',color:Colors.black}}>No insurance found.</Text>
       </View>
     );
   }
@@ -184,7 +184,6 @@ const Insurance = ({item,onInsuranceUpdate}: InsuranceProps) => {
         />
         ))}
         </View>
-      
       </ScrollView>
     </View>
   );
@@ -207,6 +206,7 @@ const styles = StyleSheet.create({
   },
   radioText: {
     marginLeft: 10,
+    color:Colors.black
   },
   insuranceIcon: {
     marginLeft: 5,

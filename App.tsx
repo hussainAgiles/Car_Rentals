@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
+import {SafeAreaView, StatusBar, LogBox} from 'react-native';
 import {PaperProvider} from 'react-native-paper';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {Provider} from 'react-redux';
@@ -8,6 +8,8 @@ import Navigation from './App/Navigation/Navigation';
 import store, {persistor} from './App/Redux/Store';
 import SplashScreen from './App/Screens/SplashScreen';
 import Toast from 'react-native-toast-message';
+LogBox.ignoreAllLogs();
+
 
 const Main = () => {
   return (

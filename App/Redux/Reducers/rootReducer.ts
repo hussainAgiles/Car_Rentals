@@ -1,5 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import { addOns,customers, damage, deleteDamageReducer, fleetCustomers, fleetDeletePenalties, fleetDeleteViolation, fleetFetchCurrency, fleetPenaltyCreation, fleetPenaltyHistory, fleetPenaltyTypes, fleetReport, fleetViolation, fleetViolationCreate, fleetViolationTypes, insuranceDetails,maintenanceReport, paymentHistory, paymentStatus, payments, rentalDetails, resrvationDetails, svg, } from './ReservationDetailsReducer';
+import { addOns,customers, damage, deleteDamageReducer, fleetCustomers, fleetDeletePenalties, fleetDeleteViolation, fleetFetchCurrency, fleetPenaltyCreation, fleetPenaltyHistory, fleetPenaltyTypes, fleetReport, fleetViolation, fleetViolationCreate, fleetViolationTypes, insuranceDetails,kycDocument,maintenanceReport, paymentHistory, paymentStatus, payments, rentalDetails, resrvationDetails, svg, } from './ReservationDetailsReducer';
 import persistedLoginSlice from './loginReducer';
 
 
@@ -30,7 +30,8 @@ const rootReducer = combineReducers({
   createDamage:damage,
   deleteDamageReducer:deleteDamageReducer,
   // agreemnetReportReducer:agreementReport,
-  maintenanceReportReducer:maintenanceReport
+  maintenanceReportReducer:maintenanceReport,
+  documentReducer:kycDocument
 });
 
 export default rootReducer;

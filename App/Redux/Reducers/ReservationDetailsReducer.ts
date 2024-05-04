@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { createDamage, createPayment, createPenalties, createVoilation, deleteDamage, deletePenalty, deleteViolations,fetchCustomers, fetchDefaultCurrency, fetchFleetReport, fetchInsurance,fetchMaintenanceReport, fetchPayments, fetchPenalty, fetchPenaltyTypes, fetchRentalDetails, fetchResrvationDetails, fetchSvg, fetchViolationTypes, fetchViolations, handleAddons, updatePayment } from '../../API/NormalApi';
+import { createDamage, createPayment, createPenalties, createVoilation, deleteDamage, deletePenalty, deleteViolations,fetchCustomers, fetchDefaultCurrency, fetchDocument, fetchFleetReport, fetchInsurance,fetchMaintenanceReport, fetchPayments, fetchPenalty, fetchPenaltyTypes, fetchRentalDetails, fetchResrvationDetails, fetchSvg, fetchViolationTypes, fetchViolations, handleAddons, updatePayment } from '../../API/NormalApi';
 
 export const fetchReservation = createAsyncThunk(
   'home/reservedVehicles',
@@ -346,7 +346,7 @@ export const createDamagee = createAsyncThunk(
     // console.log("payload received",payload);
     try {
       const response = await createDamage({body: payload});   
-      console.log("this is the respone",response) 
+      // console.log("this is the respone",response) 
       return response;
     } catch (error) {
       return rejectWithValue(error);
@@ -381,6 +381,19 @@ export const fetchingMaintenance = createAsyncThunk(
   }
 );
 
+export const fetchKycDocuments = createAsyncThunk(
+  'home/fetchDocuments',
+  async (slug:any, {rejectWithValue}) => {
+    // console.log("id received",slug);
+    try {
+      const response = fetchDocument({slug:slug});
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
 
 
 
@@ -411,6 +424,7 @@ type InitialStateType = {
   dmgError:any;
   // agreement:any;
   maintenanceServices:any;
+  kycDocuments:any
 };
 
 const initialState: InitialStateType = {
@@ -433,13 +447,12 @@ const initialState: InitialStateType = {
   penaltyData:null,
   penaltiesHistory:null,
   defaultCurrency:null,
-  // invoice:null,
   svg:null,
   customers:null,
   damage:null,
   dmgError:null,
-  // agreement:null,
   maintenanceServices:null,
+  kycDocuments:null
 };
 
 export const resrvationDetailSlice = createSlice({
@@ -982,6 +995,27 @@ export const maintenanceReportSlice = createSlice({
   },
 });
 
+export const DocumentSlice = createSlice({
+  name: 'Kycdocuments',
+  initialState,
+  reducers: {},
+  extraReducers: builder => {
+    builder
+      .addCase(fetchKycDocuments.pending, state => {
+        state.loading = 'pending';
+      })
+      .addCase(fetchKycDocuments.fulfilled, (state, action) => {
+        state.loading = 'idle';
+        state.kycDocuments = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchKycDocuments.rejected, (state, action) => {
+        state.loading = 'idle';
+        state.error = action.payload as string;
+      })
+  },
+});
+
 
 
 
@@ -1009,6 +1043,6 @@ export const { reducer: svg} = svgSlice;
 export const { reducer: customers} = customersSlice;
 export const { reducer: damage} = createDamageSlice;
 export const { reducer: deleteDamageReducer} = deleteDamageSlice;
-// export const { reducer: agreementReport} = agreementReportSlice;
 export const { reducer: maintenanceReport} = maintenanceReportSlice;
+export const { reducer: kycDocument} = DocumentSlice;
 

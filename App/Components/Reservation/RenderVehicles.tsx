@@ -69,7 +69,7 @@ const RenderVehicles = React.memo(({item}: any) => {
               {item?.fleet_master?.registration_no}
             </Text>
           </View>
-          <View style={[styles.leftContainer, {width: '30%'}]}>
+          <View style={[styles.leftContainer, {width: '25%'}]}>
             <Text style={styles.title}>
               {item?.fleet_master?.vehicle_variant}
             </Text>
@@ -81,7 +81,7 @@ const RenderVehicles = React.memo(({item}: any) => {
               <InfoItem icon="user" text={item?.customers?.full_name} />
             </View>
           </View>
-          <View style={[styles.leftContainer, {width: '30%'}]}>
+          <View style={[styles.leftContainer, {width: '35%'}]}>
             <InfoItem
               icon="calendar"
               text={`${item.pickup_date} - ${item.dropoff_date}`}

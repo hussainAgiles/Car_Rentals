@@ -150,7 +150,7 @@ const Payment = ({item}: any) => {
     if (paymentHistory && paymentHistory.reservation_payment) { 
       const formattedValue =  currencyFormat({
         value: value,
-        formatType: 'suffix',
+        formatType: 'prefix',
         currency:currency
       });
       return formattedValue;
@@ -366,7 +366,7 @@ const Payment = ({item}: any) => {
         mode="date"
         onConfirm={handleDateConfirm}
         onCancel={() => setDatePickerVisibility(false)}
-        minimumDate={new Date()}
+        // minimumDate={new Date()}
       />
     </View>
   );

@@ -27,6 +27,7 @@ import {
 import DamageList from './DamageList';
 
 const Exterior = ({ item }: any) => {
+  // console.log("this is the item",item)
   const dispatch = useDispatch();
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshData, setRefreshData] = useState(false);
@@ -58,7 +59,7 @@ const Exterior = ({ item }: any) => {
 
   useEffect(() => {
     const loadData = () => {
-      dispatch(fetchSVG(item?.reservation?.fleet_master?.id));
+      dispatch(fetchSVG(item?.reservation?.fleet_id));
       dispatch(Customers());
 
     };
@@ -83,7 +84,7 @@ const Exterior = ({ item }: any) => {
   
   const fetchingExteriorDmg = () => {
     const exterior = svg?.damages_details.filter(d => d.type === "Exterior") || [];
-    console.log("Updated exterior damages:", exterior);
+    // console.log("Updated exterior damages:", exterior);
     setExteriorDmg(exterior);
   };
 
@@ -225,10 +226,12 @@ const Exterior = ({ item }: any) => {
       title: damageTitle,
       description: damageDescription,
       damage_level: damageSeverity,
-      vehicle_id: item?.reservation?.fleet_master?.vehicledetails?.id,
+      vehicle_id: item?.reservation?.fleet_id,
       client_id: item?.reservation?.customers?.id,
       image_url: image_url,
-      reservation_id: item?.reservation?.fleet_id,
+      reservation_id: item?.reservation?.id,
+      entity_id:item?.reservation?.fleet_id,
+      entity_name: item.reservation.reservations_status === "Reserved" ? "Rental" : "Return",
       data_id: data_id,
       device: 'mobile',
       imagedata: {

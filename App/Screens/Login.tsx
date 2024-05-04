@@ -9,6 +9,7 @@ import useDispatch from '../Hooks/useDispatch';
 import { login } from '../Redux/Reducers/loginReducer';
 import useAppSelector from '../Hooks/useSelector';
 import { setClientToken } from '../API/APIClients';
+import { fetchReservation } from '../Redux/Reducers/ReservationDetailsReducer';
 
 
 const Login = ({ navigation }: any) => {
@@ -39,8 +40,10 @@ const Login = ({ navigation }: any) => {
           Toast.show({
             type: 'success',
             text1: "Login Success",
+            visibilityTime:2000
           });
           navigation.navigate('Root');
+          dispatch(fetchReservation());
         } else {
           Toast.show({
             type: 'error',
@@ -65,7 +68,7 @@ const Login = ({ navigation }: any) => {
         <Text style={styles.Headings}>WELCOME BACK</Text>
       </View>
       <View style={{marginTop: 20, marginBottom: 20}}>
-        <Text style={{fontSize: 16}}>Sign in to continue</Text>
+        <Text style={{fontSize: 16,color:Colors.black}}>Sign in to continue</Text>
       </View>
 
       <View style={{marginBottom: 15}}>

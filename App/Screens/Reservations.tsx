@@ -16,21 +16,33 @@ import Colors from '../Constants/Colors';
 import useIsMounted from '../Hooks/useIsMounted';
 import { fetchReservation } from '../Redux/Reducers/ReservationDetailsReducer';
 import { AppDispatch, RootState } from '../Redux/Store';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Reservations = () => {
   const dispatch = useDispatch<AppDispatch>();
   const isMounted = useIsMounted();
+
+  const {data, loading} = useSelector(
+    (state: RootState) => state.reservationDetailReducer,
+  );
+
   useEffect(() => {
     if (isMounted()) {
       dispatch(fetchReservation());
     }
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      dispatch(fetchReservation());
+    }, [])
+  );
+
  
 
-  const {data, loading} = useSelector(
-    (state: RootState) => state.reservationDetailReducer,
-  );
+  
+
+  // console.log("Data fetched == ",data)
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (text: string) => {
@@ -101,7 +113,7 @@ const Reservations = () => {
         <FlatList
           data={filteredCarDetails}
           renderItem={({item}) => <RenderVehicles item={item}/>}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={item => item?.id.toString()}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
           initialNumToRender={10} // Adjust numbers based on your list size and performance

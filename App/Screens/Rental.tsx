@@ -1,5 +1,5 @@
-import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import {useNavigation} from '@react-navigation/native';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   Dimensions,
   ScrollView,
@@ -8,9 +8,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Avatar, Checkbox } from 'react-native-paper';
+import {Avatar, Checkbox} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { ImageBase_URL } from '../API/Constants';
+import {ImageBase_URL} from '../API/Constants';
 import Header from '../Components/Header/Header';
 import Loader from '../Components/Loader/Loader';
 import Customers from '../Components/Reservations/Customers';
@@ -27,7 +27,8 @@ import {
   fetchPayment,
   fetchRentalDetail,
 } from '../Redux/Reducers/ReservationDetailsReducer';
-import { RootState } from '../Redux/Store';
+import {RootState} from '../Redux/Store';
+import {updateRentals} from '../API/NormalApi';
 
 const sections = ['vehicle', 'customer', 'insurance', 'payment', 'documents'];
 
@@ -35,9 +36,12 @@ const Rental = ({route}: any) => {
   const dispatch = useDispatch();
   const isMounted = useIsMounted();
   const navigation = useNavigation();
+
   const {rentalDetail, loading} = useAppSelector(
     (state: RootState) => state.rentalDetailReducer,
   );
+
+  // console.log("Rental Details === ",rentalDetail)
   const [insuranceOptions, setInsuranceOptions] = useState({
     baseCost: null,
     selectedInsurance: null, // Selected insurance plan
@@ -53,7 +57,6 @@ const Rental = ({route}: any) => {
   useEffect(() => {
     if (rentalDetail) {
       setInsuranceOptions(prev => ({...prev, baseCost: rentalDetail.baseCost}));
-      // console.log(insuranceOptions);
     }
   }, [rentalDetail]);
 
@@ -64,7 +67,6 @@ const Rental = ({route}: any) => {
   useEffect(() => {
     // Then fetch new data
     if (isMounted() && rentalDetail?.reservation?.id) {
-      // console.log(rentalDetail?.reservation?.id);
       setPaymentCompleted(0);
       dispatch(fetchPayment(rentalDetail.reservation.id));
     }
@@ -213,8 +215,8 @@ const Rental = ({route}: any) => {
     switch (status) {
       case 'Rented':
         return Colors.green;
-      case 'Active':
-        return Colors.orange;
+      case 'Reserved':
+        return Colors.primary;
       case 'Returned':
         return Colors.red;
       default:
@@ -225,6 +227,29 @@ const Rental = ({route}: any) => {
   const statusColor = getStatusColor(
     rentalDetail?.reservation?.reservations_status,
   );
+
+  const handleRentals = async () => {
+    console.log("Entered")
+    const checkedStatus = allItemsChecked();
+    let object = {
+      id: rentalDetail?.reservation?.id,
+      reservations_status:
+        rentalDetail?.reservation?.reservations_status === 'Reserved'
+          ? 'Rented'
+          : 'Returned',
+      payment_notes: rentalDetail?.reservation?.payment_notes,
+      signature_type: rentalDetail?.reservation?.signature_type,
+    };
+    if (checkedStatus === true) {
+      const response = await updateRentals({body: object});
+      dispatch(fetchRentalDetail(route.params.id));
+      setCurrentOpenSection('vehicle');
+      scrollViewRef.current?.scrollTo({
+        x: 0,
+        animated: true,
+      });
+    }
+  };
 
   const isRented = rentalDetail?.reservation?.reservations_status === 'Rented';
 
@@ -278,7 +303,17 @@ const Rental = ({route}: any) => {
         ) : (
           <>
             {/* Your existing code to render rental details */}
-            <Text style={{paddingLeft:20,fontWeight:'bold',color:Colors.black,textAlign:'center',fontSize:18,marginTop:10}}>Check Reservations Before</Text>
+            <Text
+              style={{
+                paddingLeft: 20,
+                fontWeight: 'bold',
+                color: Colors.black,
+                textAlign: 'center',
+                fontSize: 18,
+                marginTop: 10,
+              }}>
+              Check Reservations Before
+            </Text>
             <View
               style={{
                 flexDirection: 'row',
@@ -365,33 +400,43 @@ const Rental = ({route}: any) => {
               paymentCompleted={paymentCompleted}
             />
             <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={[
-                  styles.actionButton,
-                  {
-                    backgroundColor: allItemsChecked()
-                      ? Colors.primary
-                      : '#ccc',
-                  },
-                ]}
-                disabled={!allItemsChecked()}>
-                <Text style={styles.buttonText}>
-                  {isRented ? 'Return' : 'Rental'}
-                </Text>
-              </TouchableOpacity>
+              {rentalDetail?.reservation?.reservations_status !==
+                'Returned' && (
+                <TouchableOpacity
+                  style={[
+                    styles.actionButton,
+                    {
+                      backgroundColor: allItemsChecked()
+                        ? Colors.primary
+                        : '#ccc',
+                    },
+                  ]}
+                  disabled={!allItemsChecked()}
+                  onPress={handleRentals}>
+                  <Text style={styles.buttonText}>
+                    {rentalDetail?.reservation?.reservations_status === 'Rented'
+                      ? 'Return'
+                      : 'Rental'}
+                  </Text>
+                </TouchableOpacity>
+              )}
 
               <TouchableOpacity
                 style={[styles.actionButton, {backgroundColor: Colors.primary}]}
                 onPress={() => navigation.goBack()}>
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.actionButton,
-                  {backgroundColor: Colors.primary},
-                ]}>
-                <Text style={styles.buttonText}>Reject</Text>
-              </TouchableOpacity>
+
+              {rentalDetail?.reservation?.reservations_status !==
+                'Returned' && (
+                <TouchableOpacity
+                  style={[
+                    styles.actionButton,
+                    {backgroundColor: Colors.primary},
+                  ]}>
+                  <Text style={styles.buttonText}>Reject</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </>
         )}

@@ -1,5 +1,5 @@
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Alert,
   Image,
@@ -11,15 +11,25 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
+import {Dropdown} from 'react-native-element-dropdown';
 import ImageCropPicker from 'react-native-image-crop-picker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { Button, Modal, Portal, RadioButton } from 'react-native-paper';
+import {Button, Modal, Portal, RadioButton} from 'react-native-paper';
 import Icon2 from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { fetchCountries, fetchDocumentType, uploadDocuments } from '../../API/NormalApi';
+import {
+  fetchCountries,
+  fetchDocument,
+  fetchDocumentType,
+  uploadDocuments,
+} from '../../API/NormalApi';
 import Colors from '../../Constants/Colors';
 import useIsMounted from '../../Hooks/useIsMounted';
+import {fetchKycDocuments} from '../../Redux/Reducers/ReservationDetailsReducer';
+import useDispatch from '../../Hooks/useDispatch';
+import useAppSelector from '../../Hooks/useSelector';
+import Toast from 'react-native-toast-message';
+import {ImageBase_URL} from '../../API/Constants';
 
 const HeadingView = ({item}: any) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -43,12 +53,21 @@ const HeadingView = ({item}: any) => {
   const [documents, setDocuments] = useState([]);
   const [document, setDocument] = useState('');
   const [documentFocus, setDocumentFocus] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageModalVisible, setImageModalVisible] = useState(false);
+
   let isMounted = useIsMounted();
+  const dispatch = useDispatch();
+
+  const {kycDocuments} = useAppSelector(state => state.documentReducer);
+
+  // console.log('Documents fetched', kycDocuments?.kyc[0]?.kyc?.length);
 
   useEffect(() => {
     if (isMounted()) {
       fetchingCountries();
       fetchingDocumentType();
+      dispatch(fetchKycDocuments(item?.reservation?.customers?.slug));
     }
   }, [citizenType, citizenYear]);
 
@@ -143,7 +162,7 @@ const HeadingView = ({item}: any) => {
         return;
       }
     }
-  
+
     // Common alert for both Android and iOS
     Alert.alert(
       'Select Image',
@@ -182,9 +201,20 @@ const HeadingView = ({item}: any) => {
                 // Handle multiple image selection
                 if (Array.isArray(images)) {
                   // If multiple images are selected
-                  const imagePaths = images.map(image => image.data);
-                  setImage(imagePaths);
-                  setImageUrl(images) // Store image paths in state
+                  let arrayImages = [];
+                  for (let i = 0; i < images.length; i++) {
+                    let imagedata = {
+                      width: images[i].width,
+                      height: images[i].height,
+                    };
+                    arrayImages.push(images[i].data);
+                  }
+
+                  setImage(arrayImages);
+                  // const imagePaths = images.map(image => image.data);
+
+                  setImageUrl(images); // Store image paths in state
+                  // setExtension()
                 } else {
                   // If a single image is selected
                   setImage([images.data]);
@@ -207,28 +237,54 @@ const HeadingView = ({item}: any) => {
     );
   };
 
-
   const handleUploadDocument = async () => {
-    let object ={
+    let object = {
       id: 0,
-      citizen_type:citizenType,
-      customer_id:item.reservation?.customers?.id,
-      monthtype:citizenYear,
-      country_id:country,
-      document_type:document,
-      document_name:documentName,
-      image_url: "",
+      citizen_type: citizenType,
+      customer_id: item.reservation?.customers?.id,
+      monthtype: citizenYear,
+      country_id: country,
+      document_type: document,
+      document_name: documentName,
+      image_url: '',
       status: 0,
-      issue_date: moment(selectedDate).format('DD-MM-YYYY'),
-      expiry_date: moment(selectedDatee).format('DD-MM-YYYY'),
-      uploaded_by: "cmsadmin",
-      fileList:image_urls,
-      device:"mobile"
+      issue_date: moment(selectedDate).format('YYYY-MM-DD'),
+      expiry_date: moment(selectedDatee).format('YYYY-MM-DD'),
+      uploaded_by: 'cmsadmin',
+      fileList: image_urls,
+      device: 'mobile',
+      folder: 'damage',
+      filename: 'damage',
+    };
+    // console.log("Object received ==== ",object.image_url)
+    try {
+      const response = await uploadDocuments({body: object});
+      // console.log("this is the response",response);
+      if (response.status === 'S') {
+        Toast.show({
+          type: 'success',
+          text1: 'Document Uploaded Successfully',
+        });
+        resetModalState();
+        setModalVisible(false);
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Error uploading',
+        });
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Something went wrong',
+      });
     }
-  
-    const response = await uploadDocuments({body:object});
-    console.log("this is the response",response)
-  }
+  };
+
+  const handleImagePress = image => {
+    setSelectedImage(image);
+    setImageModalVisible(true);
+  };
 
   return (
     <View style={styles.container}>
@@ -277,7 +333,16 @@ const HeadingView = ({item}: any) => {
                 flexDirection: 'row',
               },
             ]}>
-           <Icon name={'add-circle-outline'} size={25} color={Colors.primary} />
+            <Icon
+              name={'add-circle-outline'}
+              size={25}
+              color={Colors.primary}
+            />
+            {kycDocuments?.kyc[0]?.kyc?.length > 0 ? (
+              <Text style={{marginLeft: 5, fontWeight: 'bold'}}>
+                {kycDocuments?.kyc[0]?.kyc?.length} Document
+              </Text>
+            ) : null}
           </TouchableOpacity>
         </View>
       </View>
@@ -493,9 +558,80 @@ const HeadingView = ({item}: any) => {
               justifyContent: 'center',
               marginTop: 20,
             }}>
-            <Button mode="contained" onPress={handleUploadDocument} buttonColor={Colors.primary}>
+            <Button
+              mode="contained"
+              onPress={handleUploadDocument}
+              buttonColor={Colors.primary}>
               Submit
             </Button>
+          </View>
+
+          <View style={{marginTop: 20}}>
+            <View
+              style={[
+                styles.row,
+                {backgroundColor: Colors.primary, paddingVertical: 10},
+              ]}>
+              <Text style={[styles.cell, {color: Colors.Iconwhite}]}>
+                Document Name
+              </Text>
+              <Text style={[styles.cell, {color: Colors.Iconwhite}]}>
+                Date of Issue
+              </Text>
+              <Text style={[styles.cell, {color: Colors.Iconwhite}]}>
+                Date of expiry
+              </Text>
+              <Text style={[styles.cell, {color: Colors.Iconwhite}]}>
+                Image
+              </Text>
+              {/* <Text style={styles.cell}>Action</Text> */}
+            </View>
+
+            {kycDocuments?.kyc[0]?.kyc?.map((item: any, index: any) => (
+              <View
+                key={index}
+                style={{
+                  flexDirection: 'row',
+                  padding: 5,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Text style={{flex: 1.5, fontSize: 13, color: Colors.black}}>
+                  {item.document_name}
+                </Text>
+                <Text style={{flex: 1.1, fontSize: 13, color: Colors.black}}>
+                  {moment(item.issue_date).format('DD-MM-YYYY')}
+                </Text>
+                <Text style={{flex: 1, fontSize: 13, color: Colors.black}}>
+                  {moment(item.expiry_date).format('DD-MM-YYYY')}
+                </Text>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                  onPress={() =>
+                    handleImagePress(
+                      item.kycimages?.multipleimages[0]?.image_url,
+                    )
+                  }>
+                  {item.kycimages?.multipleimages?.map((image, index) => (
+                    <Image
+                      key={index}
+                      source={{uri: ImageBase_URL + image.image_url}}
+                      style={{
+                        width: 50,
+                        height: 50,
+                        borderRadius: 5,
+                        marginRight: 5,
+                      }}
+                      resizeMode="contain"
+                    />
+                  ))}
+                </TouchableOpacity>
+              </View>
+            ))}
           </View>
         </Modal>
       </Portal>
@@ -515,6 +651,24 @@ const HeadingView = ({item}: any) => {
         onCancel={() => setDatePickerVisibilityy(false)}
         minimumDate={new Date()}
       />
+
+      {/* Image modal */}
+      <Portal>
+        <Modal
+          visible={imageModalVisible}
+          onDismiss={() => {
+            setImageModalVisible(false);
+          }}
+          contentContainerStyle={styles.imageModalContainer}>
+          <View style={styles.imageModalContainer}>
+            <Image
+              source={{uri: ImageBase_URL + selectedImage}}
+              style={{flex: 1, width: '100%', height: '100%'}}
+              resizeMode="contain"
+            />
+          </View>
+        </Modal>
+      </Portal>
     </View>
   );
 };
@@ -604,6 +758,12 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: 5,
   },
+  imageModalContainer:{
+    height:300,
+    width:'90%',
+    justifyContent:'center',
+    alignItems:'center'
+  }
 });
 
 export default HeadingView;
