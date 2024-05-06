@@ -89,7 +89,7 @@ const RenderFleet = React.memo(({item}: any) => {
             </View>
 
             <View>
-              <Text>Fuel Level:</Text>
+              <Text style={{color:Colors.black}}>Fuel Level:</Text>
               <View style={{flexDirection: 'row'}}>
                 <Icon3 name={'fuel'} color={Colors.black} size={24} />
                 <Text style={styles.subText}>{item?.fuel_level}</Text>
@@ -107,6 +107,7 @@ const RenderFleet = React.memo(({item}: any) => {
                     borderWidth: 1,
                     borderRadius: 15,
                     backgroundColor: Colors.primary,
+                    borderColor:Colors.primary,
                     margin: 5,
                     flexDirection: 'row',
                     // flexWrap:'wrap',
@@ -156,14 +157,14 @@ const RenderFleet = React.memo(({item}: any) => {
               </Text>
             </View>
             
-            <Text >Odometer:</Text>
+            <Text style={{color:Colors.black}}>Odometer:</Text>
             <View style={{flexDirection: 'row', marginTop: 5}}>
               <Icon2 name={'speed'} color={Colors.black} size={24} />
               <Text style={styles.subText}>{item?.speedometer}</Text>
             </View>
 
             <View>
-              <Text>Fuel Level:</Text>
+              <Text style={{color:Colors.black}}>Fuel Level:</Text>
               <View style={{flexDirection: 'row'}}>
                 <Icon3 name={'fuel'} color={Colors.black} size={24} />
                 <Text style={styles.subText}>{item?.fuel_level}</Text>
@@ -181,6 +182,7 @@ const RenderFleet = React.memo(({item}: any) => {
                       backgroundColor: Colors.primary,
                       marginVertical: 5,
                       marginHorizontal: 5,
+                      borderColor:Colors.primary,
                       justifyContent: 'center',
                       flexDirection:'row',
                       alignItems:'center'

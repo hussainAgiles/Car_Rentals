@@ -339,8 +339,16 @@ const HeadingView = ({item}: any) => {
               color={Colors.primary}
             />
             {kycDocuments?.kyc[0]?.kyc?.length > 0 ? (
-              <Text style={{marginLeft: 5, fontWeight: 'bold'}}>
-                {kycDocuments?.kyc[0]?.kyc?.length} Document
+              <Text
+                style={{
+                  marginLeft: 5,
+                  fontWeight: 'bold',
+                  color: Colors.black,
+                }}>
+                {kycDocuments?.kyc[0]?.kyc?.length}{' '}
+                {kycDocuments?.kyc[0]?.kyc?.length === 1
+                  ? 'Document'
+                  : 'Documents'}
               </Text>
             ) : null}
           </TouchableOpacity>
@@ -691,6 +699,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontWeight: 'bold',
     textAlign: 'center',
+    color: Colors.black,
   },
   text: {
     paddingVertical: 5,
@@ -758,12 +767,12 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: 5,
   },
-  imageModalContainer:{
-    height:300,
-    width:'90%',
-    justifyContent:'center',
-    alignItems:'center'
-  }
+  imageModalContainer: {
+    height: 300,
+    width: '90%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 export default HeadingView;

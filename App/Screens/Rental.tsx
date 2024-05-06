@@ -401,7 +401,7 @@ const Rental = ({route}: any) => {
             />
             <View style={styles.buttonRow}>
               {rentalDetail?.reservation?.reservations_status !==
-                'Returned' && (
+                'Returned' && rentalDetail?.reservation?.reservations_status !==  'Draft' ? (
                 <TouchableOpacity
                   style={[
                     styles.actionButton,
@@ -419,7 +419,7 @@ const Rental = ({route}: any) => {
                       : 'Rental'}
                   </Text>
                 </TouchableOpacity>
-              )}
+              ):null}
 
               <TouchableOpacity
                 style={[styles.actionButton, {backgroundColor: Colors.primary}]}
@@ -428,7 +428,7 @@ const Rental = ({route}: any) => {
               </TouchableOpacity>
 
               {rentalDetail?.reservation?.reservations_status !==
-                'Returned' && (
+                'Returned'  && rentalDetail?.reservation?.reservations_status !==  'Draft' ?(
                 <TouchableOpacity
                   style={[
                     styles.actionButton,
@@ -436,7 +436,8 @@ const Rental = ({route}: any) => {
                   ]}>
                   <Text style={styles.buttonText}>Reject</Text>
                 </TouchableOpacity>
-              )}
+              ):null}
+             
             </View>
           </>
         )}

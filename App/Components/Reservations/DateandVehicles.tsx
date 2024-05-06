@@ -199,16 +199,16 @@ const DateandVehicles = ({item}: any) => {
         {/* limit, fuel , speedometer , fuel percentage */}
         <View style={{justifyContent:'space-between'}}>
           <View>
-            <Text>Mileage limit:</Text>
+            <Text style={{color:Colors.black}}>Mileage limit:</Text>
             <Text style={styles.subText}>{item?.reservation?.priceperday?.mileage} Km / DAILY</Text>
           </View>
           <View style={{marginTop: 10}}>
-            <Text>Fuel Policy:</Text>
+            <Text style={{color:Colors.black}}>Fuel Policy:</Text>
             <Text style={styles.subText}>Fuel Limit : {item?.reservation?.fleet_master?.fuel_level}</Text>
           </View>
           <View style={{marginTop: 10}}>
             <View>
-              <Text>Odometer:</Text>
+              <Text style={{color:Colors.black}}>Odometer:</Text>
               <View style={{flexDirection: 'row'}}>
                 <Icon name={'speed'} color={Colors.black} size={24} />
                 <Text style={styles.subText}>
@@ -217,7 +217,7 @@ const DateandVehicles = ({item}: any) => {
               </View>
             </View>
             <View style={{marginTop: 10}}>
-              <Text>Fuel Level:</Text>
+              <Text style={{color:Colors.black}}>Fuel Level:</Text>
               <View style={{flexDirection: 'row'}}>
                 <Icon2 name={'fuel'} color={Colors.black} size={24} />
                 <Text style={styles.subText}>

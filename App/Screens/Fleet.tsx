@@ -37,13 +37,18 @@ const Fleet = () => {
     if (!searchQuery) {
       return fleetData;
     }
-    return fleetData.filter((fleet:any) => {
-      // console.log("Fleet == ",fleet)
-      return fleet?.vehicledetails?.name
+  
+    return fleetData.filter((fleet: any) => {
+      const carNameMatches = fleet?.vehicledetails?.name
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
+      const carNumberMatches = fleet?.registration_no
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      return carNameMatches || carNumberMatches;
     });
   }, [fleetData, searchQuery]);
+  
 
   return (
     <View style={styles.container}>

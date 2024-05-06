@@ -65,7 +65,7 @@ const Documents = ({item}: any) => {
         {/* Replace with actual Card and Button components */}
         <View style={styles.card}>
           <Icon name="insert-drive-file" color={Colors.black} size={20} />
-          <Text style={{marginLeft: 5}}>Performa-Invoice</Text>
+          <Text style={{marginLeft: 5,color:Colors.black}}>Performa-Invoice</Text>
           <TouchableOpacity onPress={handleDownload}>
             <Icon
               name="download"
@@ -78,7 +78,7 @@ const Documents = ({item}: any) => {
         </View>
         <View style={styles.card}>
           <Icon name="insert-drive-file" color={Colors.black} size={20} />
-          <Text>Agreement</Text>
+          <Text style={{color:Colors.black}}>Agreement</Text>
           <TouchableOpacity onPress={handleAgreementDownload}>
             <Icon
               name="download"
@@ -93,7 +93,7 @@ const Documents = ({item}: any) => {
       </View>
 
       <View style={styles.notesContainer}>
-        <TextInput label="Notes" multiline={true} />
+        <TextInput label="Notes"  multiline={true} />
       </View>
 
       <Portal>

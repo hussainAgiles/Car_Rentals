@@ -82,6 +82,7 @@ const Login = ({ navigation }: any) => {
           }}
           placeholderTextColor={Colors.primary}
           onChangeText={text => setText(text)}
+          textColor='black'
           theme={{colors: {text: Colors.primary, placeholder: Colors.primary}}}
         />
       </View>
@@ -90,6 +91,7 @@ const Login = ({ navigation }: any) => {
           label="Password"
           value={password}
           mode="outlined"
+          textColor='black'
           outlineStyle={{
             borderColor: Colors.black,
             backgroundColor: Colors.Iconwhite,

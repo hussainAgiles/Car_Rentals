@@ -112,6 +112,8 @@ const styles = StyleSheet.create({
     padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor:Colors.Iconwhite,
+    borderRadius:6
   },
   image: {
     width: 70,
