@@ -5,7 +5,7 @@ import {Portal, TextInput, Modal} from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useSelector} from 'react-redux';
-import {deletePenalty} from '../../API/NormalApi';
+import {currencyFormat, deletePenalty} from '../../API/NormalApi';
 import Colors from '../../Constants/Colors';
 import useDispatch from '../../Hooks/useDispatch';
 import useIsMounted from '../../Hooks/useIsMounted';
@@ -13,9 +13,11 @@ import {
   PenaltyTypes,
   create_Penalty,
   delete_Penalties,
+  fetchingCurrency,
   fetchingPenalties,
 } from '../../Redux/Reducers/ReservationDetailsReducer';
 import {RootState} from '../../Redux/Store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RenderPenalties = ({reservation}: any) => {
   const [type, setType] = useState('');
@@ -51,6 +53,9 @@ const RenderPenalties = ({reservation}: any) => {
     if (isMounted()) {
       dispatch(PenaltyTypes());
       dispatch(fetchingPenalties(reservation?.reservation?.id));
+      dispatch(fetchingCurrency());
+      defaultCurrencyy();
+
     }
   }, [penaltyData]);
 
@@ -95,7 +100,8 @@ const RenderPenalties = ({reservation}: any) => {
         if (penaltyResponse?.payload?.status === 'S') {
           Toast.show({
             type: 'success',
-            text1: 'Penalties Added',
+            text1: penaltyResponse?.payload?.message,
+            visibilityTime:2000
           });
           setType('');
           setPrice('');
@@ -105,13 +111,15 @@ const RenderPenalties = ({reservation}: any) => {
         } else {
           Toast.show({
             type: 'error',
-            text1: penaltyResponse.payload,
+            text1: penaltyResponse.payload?.message,
+            visibilityTime:2000
           });
         }
       } catch (error) {
         Toast.show({
           type: 'error',
           text1: 'Something went wrong',
+          visibilityTime:2000
         });
       }
     }
@@ -136,7 +144,7 @@ const RenderPenalties = ({reservation}: any) => {
               const Response = await dispatch(delete_Penalties(penaltyId));
               if (Response?.payload?.status === 'S') {
                 Toast.show({
-                  type: 'success',
+                  type: 'error',
                   text1: 'Deleted Successfully',
                 });
                 dispatch(fetchingPenalties(reservation?.reservation?.id));
@@ -163,8 +171,30 @@ const RenderPenalties = ({reservation}: any) => {
     setIsModalVisible(false);
   };
 
+  const [currency, SetCurrency] = useState('');
+  const defaultCurrencyy = async () => {
+    try {
+      const response = await AsyncStorage.getItem('currency');
+      if (response) {
+        SetCurrency(response);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const formatPayments = (value: string) => {
+    const formattedValue = currencyFormat({
+      value: value,
+      formatType: 'prefix',
+      currency: currency,
+    });
+    return formattedValue;
+  };
+
   return (
     <View>
+      {/* Add Penalty button */}
       <View style={{justifyContent: 'center', alignItems: 'flex-end'}}>
         <TouchableOpacity
           onPress={() => setIsModalVisible(true)}
@@ -181,14 +211,14 @@ const RenderPenalties = ({reservation}: any) => {
       </View>
 
       <View style={styles.tableHeader}>
-        <Text style={[styles.headerText, {flex: 0.3}]}>Type</Text>
-        <Text style={[styles.headerText, {flex: 0.3}]}>Description</Text>
-        <Text style={[styles.headerText, {flex: 0.25}]}>Price</Text>
-        <Text style={[styles.headerText, {flex: 0.1}]}>Action</Text>
+        <Text style={[styles.headerText,styles.cell]}>Type</Text>
+        <Text style={[styles.headerText,styles.cell]}>Description</Text>
+        <Text style={[styles.headerText,styles.cell]}>Price</Text>
+        <Text style={[styles.headerText,styles.cell]}>Action</Text>
       </View>
 
       {penaltiesHistory.penalties.length ? (
-        <View style={styles.modalView}>
+        <View style={styles.row}>
           {penaltiesHistory?.penalties?.map(
             (
               penalty_data: {
@@ -201,21 +231,17 @@ const RenderPenalties = ({reservation}: any) => {
               index: React.Key | null | undefined,
             ) => (
               <View style={styles.paymentItem} key={penalty_data.id}>
-                <Text style={{color: Colors.black, flex: 0.25}}>
+                <Text style={[styles.cell,{color: Colors.black}]}>
                   {penalty_data?.type}
                 </Text>
-                <Text style={{color: Colors.black, flex: 0.25}}>
+                <Text style={[styles.cell,{color: Colors.black}]}>
                   {penalty_data?.description}
                 </Text>
-                <Text
-                  style={{
-                    color: Colors.black,
-                    flex: 0.23,
-                  }}>{`${penalty_data.price} AUD`}</Text>
+                <Text style={[styles.cell,{color: Colors.black}]}>{formatPayments(penalty_data.price)}</Text>
                 {/* <View> */}
                 <TouchableOpacity
                   onPress={() => handleDeletePenalty(penalty_data.id)}
-                  style={{flex: 0.13, alignItems: 'center'}}>
+                  style={[styles.cell,{alignItems: 'center'}]}>
                   <Icon name="delete" size={20} color={Colors.red} />
                 </TouchableOpacity>
                 {/* </View> */}
@@ -293,7 +319,7 @@ const RenderPenalties = ({reservation}: any) => {
             <Text style={styles.errorText}>{descriptionError}</Text>
           ) : null}
           <TextInput
-            label="Price in AUD"
+            label="Price in QAR"
             mode="outlined"
             value={price}
             style={styles.input}
@@ -414,5 +440,18 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: 'white',
     borderRadius: 10,
+  },
+  cell: {
+    flex: 1,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: Colors.Iconwhite,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+    alignItems: 'center',
+    alignSelf: 'center',
   },
 });

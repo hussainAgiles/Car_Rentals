@@ -259,24 +259,27 @@ const HeadingView = ({item}: any) => {
     // console.log("Object received ==== ",object.image_url)
     try {
       const response = await uploadDocuments({body: object});
-      // console.log("this is the response",response);
       if (response.status === 'S') {
         Toast.show({
           type: 'success',
           text1: 'Document Uploaded Successfully',
+          visibilityTime:2000
         });
         resetModalState();
-        setModalVisible(false);
+        dispatch(fetchKycDocuments(item?.reservation?.customers?.slug));
+        // setModalVisible(false);
       } else {
         Toast.show({
           type: 'error',
-          text1: 'Error uploading',
+          text1: response.message,
+          visibilityTime:2000
         });
       }
     } catch (error) {
       Toast.show({
         type: 'error',
         text1: 'Something went wrong',
+        visibilityTime:2000
       });
     }
   };
@@ -574,25 +577,18 @@ const HeadingView = ({item}: any) => {
             </Button>
           </View>
 
-          <View style={{marginTop: 20}}>
-            <View
-              style={[
-                styles.row,
-                {backgroundColor: Colors.primary, paddingVertical: 10},
-              ]}>
-              <Text style={[styles.cell, {color: Colors.Iconwhite}]}>
-                Document Name
-              </Text>
-              <Text style={[styles.cell, {color: Colors.Iconwhite}]}>
-                Date of Issue
-              </Text>
-              <Text style={[styles.cell, {color: Colors.Iconwhite}]}>
-                Date of expiry
-              </Text>
-              <Text style={[styles.cell, {color: Colors.Iconwhite}]}>
-                Image
-              </Text>
-              {/* <Text style={styles.cell}>Action</Text> */}
+          <>
+            <View style={styles.tableHeader}>
+              <View style={{flex: 1, flexDirection: 'row'}}>
+                <Text style={[styles.headerText, styles.cell]}>Name</Text>
+                <Text style={[styles.headerText, styles.cell]}>
+                  Date of Issue
+                </Text>
+                <Text style={[styles.headerText, styles.cell]}>
+                  Date of expiry
+                </Text>
+                <Text style={[styles.headerText, styles.cell]}>Image</Text>
+              </View>
             </View>
 
             {kycDocuments?.kyc[0]?.kyc?.map((item: any, index: any) => (
@@ -604,21 +600,17 @@ const HeadingView = ({item}: any) => {
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}>
-                <Text style={{flex: 1.5, fontSize: 13, color: Colors.black}}>
+                <Text style={[styles.cell,{color: Colors.black}]}>
                   {item.document_name}
                 </Text>
-                <Text style={{flex: 1.1, fontSize: 13, color: Colors.black}}>
+                <Text style={[styles.cell,{color: Colors.black}]}>
                   {moment(item.issue_date).format('DD-MM-YYYY')}
                 </Text>
-                <Text style={{flex: 1, fontSize: 13, color: Colors.black}}>
+                <Text style={[styles.cell,{color: Colors.black}]}>
                   {moment(item.expiry_date).format('DD-MM-YYYY')}
                 </Text>
                 <TouchableOpacity
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
+                  style={[styles.cell,{alignItems:'center'}]}
                   onPress={() =>
                     handleImagePress(
                       item.kycimages?.multipleimages[0]?.image_url,
@@ -640,7 +632,7 @@ const HeadingView = ({item}: any) => {
                 </TouchableOpacity>
               </View>
             ))}
-          </View>
+          </>
         </Modal>
       </Portal>
 
@@ -650,14 +642,14 @@ const HeadingView = ({item}: any) => {
         mode="date"
         onConfirm={handleDateConfirm}
         onCancel={() => setDatePickerVisibility(false)}
-        minimumDate={new Date()}
+        // minimumDate={new Date()}
       />
       <DateTimePickerModal
         isVisible={isDatePickerVisiblee}
         mode="date"
         onConfirm={handleDateConfirmm}
         onCancel={() => setDatePickerVisibilityy(false)}
-        minimumDate={new Date()}
+        // minimumDate={new Date()}
       />
 
       {/* Image modal */}
@@ -699,7 +691,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: Colors.black,
   },
   text: {
     paddingVertical: 5,
@@ -711,6 +702,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     width: 90,
     height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   input: {
     marginBottom: 20,
@@ -772,6 +765,18 @@ const styles = StyleSheet.create({
     width: '90%',
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
+  },
+  headerText: {
+    color: 'white',
+    fontWeight: 'bold',
+    // textAlign: 'center',
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: Colors.primary,
+    padding: 5,
+    marginTop: 20,
   },
 });
 

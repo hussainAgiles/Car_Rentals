@@ -54,13 +54,16 @@ const Reservations = () => {
     }
   
     return data.filter((reservation: any) => {
-      const carNameMatches = reservation.fleet_master?.vehicledetails?.name
+      const carNameMatches = reservation.fleet_master?.vehiclemake?.make_name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+        const carModelNameMatches = reservation.fleet_master?.vehiclemodel?.model_name
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
       const carNumberMatches = reservation.fleet_master?.registration_no
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
-      return carNameMatches || carNumberMatches;
+      return carNameMatches || carNumberMatches ||carModelNameMatches;
     });
   }, [data, searchQuery]);
 

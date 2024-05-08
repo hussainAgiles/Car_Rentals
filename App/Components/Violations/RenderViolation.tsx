@@ -1,12 +1,12 @@
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
+import React, {useEffect, useState} from 'react';
+import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Dropdown} from 'react-native-element-dropdown';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { Modal, Portal, TextInput } from 'react-native-paper';
+import {Modal, Portal, TextInput} from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 import Colors from '../../Constants/Colors';
 import useDispatch from '../../Hooks/useDispatch';
 import useIsMounted from '../../Hooks/useIsMounted';
@@ -15,12 +15,15 @@ import {
   VioltaionTypes,
   create_Violation,
   delete_Violation,
+  fetchingCurrency,
   fetchingViolations,
 } from '../../Redux/Reducers/ReservationDetailsReducer';
-import { RootState } from '../../Redux/Store';
+import {RootState} from '../../Redux/Store';
+import {currencyFormat} from '../../API/NormalApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RenderViolation = ({reservation}: any) => {
-  // console.log('Id related to reservation', reservation);
+  // console.log('Id related to reservation', reservation.reservation.id);
 
   const dispatch = useDispatch();
   const isMounted = useIsMounted();
@@ -57,7 +60,11 @@ const RenderViolation = ({reservation}: any) => {
   );
 
   useEffect(() => {
-    if (reservation && reservation.reservation && reservation.reservation.customer_id) {
+    if (
+      reservation &&
+      reservation.reservation &&
+      reservation.reservation.customer_id
+    ) {
       setCustomer(reservation.reservation.customer_id);
     }
   }, [reservation]);
@@ -67,6 +74,8 @@ const RenderViolation = ({reservation}: any) => {
       dispatch(VioltaionTypes());
       dispatch(Customers());
       dispatch(fetchingViolations(reservation?.reservation?.id));
+      dispatch(fetchingCurrency());
+      defaultCurrencyy();
     }
   }, [violationData]);
 
@@ -97,14 +106,16 @@ const RenderViolation = ({reservation}: any) => {
               );
               if (violationResponse.payload.status === 'S') {
                 Toast.show({
-                  type: 'success',
-                  text1: 'Deleted Successfully',
+                  type: 'error',
+                  text1: violationResponse.payload.message,
+                  visibilityTime:2000
                 });
                 dispatch(fetchingViolations(reservation?.reservation?.id));
               } else {
                 Toast.show({
                   type: 'error',
                   text1: violationResponse.payload.message,
+                  visibilityTime:2000
                 });
               }
             } catch (error) {
@@ -112,6 +123,7 @@ const RenderViolation = ({reservation}: any) => {
               Toast.show({
                 type: 'error',
                 text1: 'Something went wrong',
+                visibilityTime:2000
               });
             }
           },
@@ -182,7 +194,8 @@ const RenderViolation = ({reservation}: any) => {
         if (violationResponse?.payload?.status === 'S') {
           Toast.show({
             type: 'success',
-            text1: 'Voilation Added',
+            text1: violationResponse?.payload?.message as string,
+            visibilityTime:2000
           });
           setType('');
           setAmount('');
@@ -197,19 +210,21 @@ const RenderViolation = ({reservation}: any) => {
           Toast.show({
             type: 'error',
             text1: violationResponse?.payload?.message as string,
+            visibilityTime:2000
           });
         }
       } catch (error) {
         Toast.show({
           type: 'error',
           text1: 'Something went wrong',
+          visibilityTime:2000
         });
       }
     }
   };
 
   const openModal = () => {
-      setIsModalVisible(true);
+    setIsModalVisible(true);
   };
 
   const closeModal = () => {
@@ -226,6 +241,27 @@ const RenderViolation = ({reservation}: any) => {
       label: customer.full_name,
       value: customer.id,
     })) || [];
+
+  const [currency, SetCurrency] = useState('');
+  const defaultCurrencyy = async () => {
+    try {
+      const response = await AsyncStorage.getItem('currency');
+      if (response) {
+        SetCurrency(response);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const formatPayments = (value: string) => {
+    const formattedValue = currencyFormat({
+      value: value,
+      formatType: 'prefix',
+      currency: currency,
+    });
+    return formattedValue;
+  };
 
   return (
     <View>
@@ -244,65 +280,67 @@ const RenderViolation = ({reservation}: any) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.tableHeader}>
-        <View style={{flex: 1, flexDirection: 'row'}}>
-          <Text style={[styles.headerText, {flex: 0.25}]}>Name</Text>
-          <Text style={[styles.headerText, {flex: 0.25}]}>Date</Text>
-          <Text style={[styles.headerText, {flex: 0.15}]}>Amount</Text>
-          <Text style={[styles.headerText, {flex: 0.22}]}>Description</Text>
-          <Text style={[styles.headerText, {flex: 0.1}]}>Action</Text>
+      <>
+        <View style={styles.tableHeader}>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            <Text style={[styles.headerText,styles.cell]}>Name</Text>
+            <Text style={[styles.headerText,styles.cell]}>Date</Text>
+            <Text style={[styles.headerText,styles.cell]}>Amount</Text>
+            <Text style={[styles.headerText,styles.cell]}>Description</Text>
+            <Text style={[styles.headerText,styles.cell]}>Action</Text>
+          </View>
         </View>
-      </View>
 
-      {violation?.violations.length > 0 ? (
-        <View style={styles.modalView}>
-          {violation?.violations?.map(
-            (
-              violation_data: {
-                status: string;
-                type: any;
-                description: any;
-                amount: any;
-                full_name: any;
-                created_at: any;
-                id: any;
-                customer: object;
-              },
-              index: React.Key | null | undefined,
-            ) => (
-              <View
-                style={[styles.paymentItem, {flexDirection: 'row'}]}
-                key={violation_data.id}>
-                <Text style={{color: Colors.black, flex: 0.25}}>
-                  {violation_data?.customer?.full_name}
-                </Text>
-                <Text style={{color: Colors.black, flex: 0.25}}>
-                  {moment(violation_data.created_at).format('DD-MM-YYYY')}
-                </Text>
-                <Text
-                  style={{
-                    color: Colors.black,
-                    flex: 0.15,
-                  }}>{`${violation_data.amount} AUD`}</Text>
-                <Text style={{color: Colors.black, flex: 0.22}}>
-                  {violation_data.description}
-                </Text>
-                <TouchableOpacity
-                  style={{flex: 0.13, alignItems: 'center'}}
-                  onPress={() => handleDeleteViolation(violation_data.id)}>
-                  <Icon name="delete" size={20} color={Colors.red} />
-                </TouchableOpacity>
-              </View>
-            ),
-          )}
-        </View>
-      ) : (
-        <View style={{justifyContent: 'center', alignItems: 'center'}}>
-          <Text style={{fontSize: 18, color: Colors.grey, marginTop: 10}}>
-            No Data Found
-          </Text>
-        </View>
-      )}
+        {violation?.violations.length > 0 ? (
+          <View style={styles.row}>
+            {violation?.violations?.map(
+              (
+                violation_data: {
+                  status: string;
+                  type: any;
+                  description: any;
+                  amount: any;
+                  full_name: any;
+                  created_at: any;
+                  id: any;
+                  customer: object;
+                },
+                index: React.Key | null | undefined,
+              ) => (
+                <View
+                  style={[styles.paymentItem, {flexDirection: 'row'}]}
+                  key={violation_data.id}>
+                  <Text style={[styles.cell,{color: Colors.black}]}>
+                    {violation_data?.customer?.full_name}
+                  </Text>
+                  <Text style={[styles.cell,{color: Colors.black,justifyContent:'center',alignItems:'center'}]}>
+                    {moment(violation_data.created_at).format('DD-MM-YYYY')}
+                  </Text>
+                  <Text
+                    style={[styles.cell,{color: Colors.black}]}>
+                    {formatPayments(violation_data?.amount)}
+                  </Text>
+                  <Text style={[styles.cell,{color: Colors.black}]}>
+                    {violation_data.description}
+                  </Text>
+                  <TouchableOpacity
+                    style={[styles.cell,{alignItems: 'center'}]}
+                    onPress={() => handleDeleteViolation(violation_data.id)}>
+                    <Icon name="delete" size={20} color={Colors.red} />
+                  </TouchableOpacity>
+                </View>
+              ),
+            )}
+          </View>
+        ) : (
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={{fontSize: 18, color: Colors.grey, marginTop: 10}}>
+              No Data Found
+            </Text>
+          </View>
+        )}
+      </>
+
       <Portal>
         <Modal
           visible={isModalVisible}
@@ -352,7 +390,6 @@ const RenderViolation = ({reservation}: any) => {
                 />
               )}
             />
-            
           )}
           {!customerFocused && customerError ? (
             <Text style={styles.errorText}>{customerError}</Text>
@@ -467,7 +504,7 @@ const RenderViolation = ({reservation}: any) => {
         mode="date"
         onConfirm={handleDateConfirm}
         onCancel={() => setDatePickerVisibility(false)}
-        minimumDate={new Date()}
+        // minimumDate={new Date()}
       />
     </View>
   );
@@ -484,16 +521,15 @@ const styles = StyleSheet.create({
   },
   headerText: {
     color: 'white',
-    fontWeight: 'bold',
-    flex: 1,
+    fontWeight: 'bold'
     // textAlign: 'center',
   },
   modalView: {
     paddingVertical: 10,
   },
   paymentItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    // flexDirection: 'row',
+    // justifyContent: 'space-between',
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#e1e1e1',
@@ -571,5 +607,18 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: 5,
+  },
+  cell: {
+    flex: 1,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: Colors.Iconwhite,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+    alignItems: 'center',
+    alignSelf: 'center',
   },
 });

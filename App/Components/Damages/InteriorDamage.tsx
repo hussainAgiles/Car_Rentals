@@ -34,6 +34,7 @@ const Interior = ({item}: any) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshData, setRefreshData] = useState(false);
   const {svg, dmgError} = useAppSelector(state => state.fetchSvgReducer);
+
   const [editId, setEditId] = useState('');
   const [damageTitle, setDamageTitle] = useState('');
   const [damageDescription, setDamageDescription] = useState('');
@@ -121,6 +122,7 @@ const Interior = ({item}: any) => {
       label: customer.full_name,
       value: customer.id,
     })) || [];
+
   const selectImage = async () => {
     if (Platform.OS === 'android') {
       try {
@@ -518,7 +520,7 @@ const Interior = ({item}: any) => {
               <Text>High</Text>
               <RadioButton value="high" />
               <Text>Very High</Text>
-              <RadioButton value="very_high" />
+              <RadioButton value="veryhigh" />
             </View>
           </RadioButton.Group>
           <Dropdown

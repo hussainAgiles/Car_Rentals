@@ -60,18 +60,22 @@ const Payment = ({item}: any) => {
       if ((await paymentResponse).payload.status === 'S') {
         Toast.show({
           type: 'success',
-          text1: 'Payment Added',
+          text1: (await paymentResponse).payload.message,
+          visibilityTime:2000
+          
         });
       } else {
         Toast.show({
           type: 'error',
           text1: (await paymentResponse).payload.message,
+          visibilityTime:2000
         });
       }
     } catch (error) {
       Toast.show({
         type: 'error',
         text1: 'Something went wrong',
+        visibilityTime:2000
       });
     }
   };
@@ -104,7 +108,7 @@ const Payment = ({item}: any) => {
   useEffect(() => {
     if (isMounted()) {
       dispatch(fetchPayment(item?.reservation?.id));
-      defaultCurrencyy()
+      defaultCurrencyy();
     }
   }, [status, paymentHistory]);
 
@@ -133,25 +137,24 @@ const Payment = ({item}: any) => {
     setIsModalVisible(false);
   };
 
-   const [currency,SetCurrency] = useState('')
+  const [currency, SetCurrency] = useState('');
   const defaultCurrencyy = async () => {
-     try {
-      const response = await AsyncStorage.getItem("currency");
-      if(response){
+    try {
+      const response = await AsyncStorage.getItem('currency');
+      if (response) {
         SetCurrency(response);
       }
-     } catch (error) {
-       console.log(error)
-     }
-  }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-
-  const formatPayments =  (value:string) => {
-    if (paymentHistory && paymentHistory.reservation_payment) { 
-      const formattedValue =  currencyFormat({
+  const formatPayments = (value: string) => {
+    if (paymentHistory && paymentHistory.reservation_payment) {
+      const formattedValue = currencyFormat({
         value: value,
         formatType: 'prefix',
-        currency:currency
+        currency: currency,
       });
       return formattedValue;
     }
@@ -175,7 +178,7 @@ const Payment = ({item}: any) => {
           <Text style={styles.buttonText}>Add Payment</Text>
         </TouchableOpacity>
       </View>
-      <View style={{paddingLeft: 10, paddingRight: 10}}>
+      <View style={{paddingHorizontal: 10}}>
         <View style={styles.headerRow}>
           <Text style={styles.headerCell}>Date</Text>
           <Text style={styles.headerCell}>Type</Text>
@@ -199,19 +202,17 @@ const Payment = ({item}: any) => {
               index: React.Key | null | undefined,
             ) => (
               <View style={styles.row} key={payment.id}>
-                <Text style={[styles.paymentDate, styles.cell]}>
+                <Text style={[styles.cell]}>
                   {moment(payment.date).format('DD-MM-YYYY')}
                 </Text>
-                <Text style={[styles.paymentDate, styles.cell]}>
-                  {payment.method}
+                <Text style={[styles.cell]}>{payment.method}</Text>
+                <Text style={[styles.cell]}>
+                  {' '}
+                  {paymentHistory && paymentHistory.reservation_payment
+                    ? formatPayments(payment.value)
+                    : ''}
                 </Text>
-                <Text
-                      style={[
-                        styles.amount, styles.cell
-                      ]}>   {paymentHistory && paymentHistory.reservation_payment 
-                        ? formatPayments(payment.value) 
-                        : ''}</Text>
-             
+
                 <View style={styles.cell}>
                   {/* <Text>Select Status:</Text> */}
                   <TouchableOpacity
@@ -487,8 +488,6 @@ const styles = StyleSheet.create({
   },
   selectedOption: {
     padding: 5,
-    borderWidth: 1,
-    borderColor: 'gray',
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
@@ -516,11 +515,9 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 5,
+    padding: 7,
+    justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'center',
-    padding: 10,
   },
   headerRow: {
     flexDirection: 'row',

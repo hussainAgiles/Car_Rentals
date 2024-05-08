@@ -5,6 +5,7 @@ import { RootState } from '../Redux/Store';
 import Login from '../Screens/Login';
 import Rental from '../Screens/Rental';
 import MainNavigator from './MainNavigation';
+import MaintenanceDetails from '../Components/Maintenance/MaintenanceDetails';
 
 export type RootStackParamList = {
   Root: undefined;
@@ -12,6 +13,7 @@ export type RootStackParamList = {
   Rental: {
     id: string;
   };
+  MaintenanceDetails:undefined;
 };
 
 export default function Navigation() {
@@ -43,6 +45,11 @@ function RootNavigator() {
             component={Rental}
             options={{ headerShown: false }}
           />
+
+          <Stack.Screen
+          name="MaintenanceDetails"
+          component={MaintenanceDetails}
+        />
         </>
       ) : (
         // Fallback to the Login screen if there's no userData or there's an error

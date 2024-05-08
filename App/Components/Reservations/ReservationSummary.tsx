@@ -149,10 +149,7 @@ const ReservationSummary = ({reservation, insuranceAddon,paymentCompleted}: any)
               <Text style={styles.subtitle}>Addon Price</Text>
             </View>
             <Text style={styles.price}>
-            {formatPayments(reservation?.addon_total_price)} + {formatPayments(insuranceAddon.addonsId)} 
-              {/* {Number(reservation?.addon_total_price?.toFixed(2)) +
-                Number(insuranceAddon.addonsId)}{' '}
-              {defaultCurrency?.parameter_value} */}
+            {formatPayments((reservation?.addon_total_price)+(insuranceAddon.addonsId))} 
             </Text>
           </View>
         ) : (

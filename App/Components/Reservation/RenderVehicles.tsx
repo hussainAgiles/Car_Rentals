@@ -19,11 +19,13 @@ import ImageLoader from '../Loader/ImageLoader';
 // const height = Dimensions.get('screen').height;
 
 const RenderVehicles = React.memo(({item}: any) => {
-  const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+  const [screenWidth, setScreenWidth] = useState(
+    Dimensions.get('window').width,
+  );
   useEffect(() => {
     let isMounted = true;
 
-    const onChange = ({ window: { width, height } }) => {
+    const onChange = ({window: {width, height}}) => {
       if (isMounted) {
         setScreenWidth(width);
       }
@@ -41,7 +43,7 @@ const RenderVehicles = React.memo(({item}: any) => {
     : require('../../Assets/Default_Car.png');
 
   const handleRental = (id: string, status: string) => {
-      navigation.navigate('Rental', {id});
+    navigation.navigate('Rental', {id});
   };
 
   const [loading, setLoading] = useState(false);
@@ -71,7 +73,9 @@ const RenderVehicles = React.memo(({item}: any) => {
           </View>
           <View style={[styles.leftContainer, {width: '25%'}]}>
             <Text style={styles.title}>
-              {item?.fleet_master?.vehicle_variant}
+              {item?.fleet_master?.vehiclemake?.make_name +
+                ' ' +
+                item?.fleet_master?.vehiclemodel?.model_name}
             </Text>
             <View
               style={[styles.statusIndicator, {backgroundColor: statusColor}]}>
@@ -107,7 +111,9 @@ const RenderVehicles = React.memo(({item}: any) => {
           </View>
           <View style={[styles.leftContainer, {width: '55%'}]}>
             <Text style={styles.title}>
-              {item?.fleet_master?.vehicle_variant}
+              {item?.fleet_master?.vehiclemake?.make_name +
+                ' ' +
+                item?.fleet_master?.vehiclemodel?.model_name}
             </Text>
             <View
               style={[styles.statusIndicator, {backgroundColor: statusColor}]}>

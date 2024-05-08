@@ -11,6 +11,7 @@ import Loader from '../Components/Loader/Loader';
 import { FlatList } from 'react-native';
 import RenderFleet from '../Components/Reservation/RenderFleet';
 import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import { RefreshControl } from 'react-native';
 
 const Fleet = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -28,24 +29,32 @@ const Fleet = () => {
   // console.log("data recieved == ",fleetData)
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [refreshing, setRefreshing] = useState(false); 
+		 const onRefresh = () => {
+    setRefreshing(true); // Set refreshing true to show spinner
+    dispatch(fetchFleetReports()).then(() => setRefreshing(false)); // Fetch data and then set refreshing false
+  };
 
   const handleSearch = (text: string) => {
-    // console.log("Text",text)
     setSearchQuery(text);
   };
+
   const filteredFleetDetails = useMemo(() => {
     if (!searchQuery) {
       return fleetData;
     }
   
     return fleetData.filter((fleet: any) => {
-      const carNameMatches = fleet?.vehicledetails?.name
+      const carNameMatches = fleet?.vehiclemodel?.model_name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+        const carTypeMatches = fleet?.body_type
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
       const carNumberMatches = fleet?.registration_no
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
-      return carNameMatches || carNumberMatches;
+      return carNameMatches || carNumberMatches ||carTypeMatches;
     });
   }, [fleetData, searchQuery]);
   
@@ -82,6 +91,13 @@ const Fleet = () => {
           windowSize={5}
           ListEmptyComponent={
             <Text style={styles.noDataText}>No data found.</Text>
+          }
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[Colors.primary]} // Optional: Customize the color
+            />
           }
         />
       )}

@@ -61,7 +61,7 @@ const RenderFleet = React.memo(({item}: any) => {
               justifyContent: 'center',
               alignSelf: 'center',
               alignContent: 'center',
-              width: '30%',
+              width: '35%',
               alignItems: 'center',
             }}>
             {loading && <ImageLoader />}
@@ -76,7 +76,7 @@ const RenderFleet = React.memo(({item}: any) => {
           </View>
 
           <View style={styles.details}>
-            <Text style={styles.title}>{item?.vehicle_variant}</Text>
+            <Text style={styles.title}>{item?.vehiclemake?.make_name + " " +item?.vehiclemodel?.model_name}</Text>
             <View
               style={[styles.statusIndicator, {backgroundColor: statusColor}]}>
               <Text style={styles.statusText}>
@@ -103,20 +103,20 @@ const RenderFleet = React.memo(({item}: any) => {
               renderItem={({item}) => (
                 <View
                   style={{
-                    padding: 7,
-                    borderWidth: 1,
-                    borderRadius: 15,
-                    backgroundColor: Colors.primary,
-                    borderColor:Colors.primary,
-                    margin: 5,
+                    // paddingVertical: 7,
+                    // borderWidth: 1,
+                    // borderRadius: 15,
+                    // backgroundColor: Colors.primary,
+                    // borderColor:Colors.primary,
+                    // margin: 5,
                     flexDirection: 'row',
                     // flexWrap:'wrap',
                     alignItems:'center'
                   }}>
-                  <Icon2 name="location-pin" size={12} color={Colors.Iconwhite} />
+                  <Icon2 name="location-pin" size={12} color={Colors.black} />
                   <Text
                     style={{
-                      color: Colors.Iconwhite,
+                      color: Colors.black,
                       fontWeight: 'bold',
                       fontSize: 15,
                     }}>
@@ -149,7 +149,7 @@ const RenderFleet = React.memo(({item}: any) => {
           </View>
 
           <View style={styles.details}>
-            <Text style={styles.title}>{item?.vehicle_variant}</Text>
+            <Text style={styles.title}>{item?.vehiclemodel?.model_name + "-"+item?.body_type}</Text>
             <View
               style={[styles.statusIndicator, {backgroundColor: statusColor}]}>
               <Text style={styles.statusText}>
@@ -176,23 +176,22 @@ const RenderFleet = React.memo(({item}: any) => {
                 renderItem={({item}) => (
                   <View
                     style={{
-                      padding: 7,
-                      borderWidth: 1,
-                      borderRadius: 15,
-                      backgroundColor: Colors.primary,
-                      marginVertical: 5,
-                      marginHorizontal: 5,
-                      borderColor:Colors.primary,
+                      paddingVertical: 7,
+                      // borderWidth: 1,
+                      // borderRadius: 15,
+                      // backgroundColor: Colors.primary,
+                      // marginVertical: 5,
+                      // borderColor:Colors.primary,
                       justifyContent: 'center',
                       flexDirection:'row',
                       alignItems:'center'
                     }}>
-                    <Icon2 name="location-pin" size={12} color={Colors.Iconwhite}/>
+                    <Icon2 name="location-pin" size={18} color={Colors.black}/>
                     <Text
                       style={{
-                        color: Colors.Iconwhite,
+                        color: Colors.black,
                         fontWeight: 'bold',
-                        fontSize: 12,
+                        fontSize: 15,
                       }}>
                       {item?.vehicle_counter?.name}
                     </Text>
@@ -246,10 +245,10 @@ const styles = StyleSheet.create({
   },
   details: {
     flex: 1,
-    width: '20%',
+    width: '25%',
   },
   locationDetails: {
-    width: '50%',
+    width: '35%',
     display: 'flex',
   },
   title: {

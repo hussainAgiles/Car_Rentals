@@ -372,11 +372,10 @@ export const fetchDocument = async ({slug}: {slug: string}) => {
 };
 
 // Custom function to add Prefix or suffix to default currency 
-export const currencyFormat =  ({ value,currency }: any) => {
+export const currencyFormat =  ({ value,currency}: any) => {
   if (value == null || isNaN(value)) {
     return "";
   }
-
   let  formatType = "prefix";
   let formattedValue = "";
   if (formatType === "prefix") {

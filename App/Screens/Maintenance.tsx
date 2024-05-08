@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View,TextInput } from 'react-native'
-import React, { useEffect } from 'react'
+import { StyleSheet, Text, View,TextInput, RefreshControl } from 'react-native'
+import React, { useEffect, useMemo, useState } from 'react'
 import Colors from '../Constants/Colors'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useSelector } from 'react-redux';
@@ -21,13 +21,42 @@ const Maintenance = () => {
 
   const dispatch = useDispatch();
   const isMounted = useIsMounted();
+  
+  const [refreshing, setRefreshing] = useState(false); 
+  const [searchQuery, setSearchQuery] = useState('');
+		 const onRefresh = () => {
+    setRefreshing(true); // Set refreshing true to show spinner
+    dispatch(fetchingMaintenance()).then(() => setRefreshing(false)); // Fetch data and then set refreshing false
+  };
 
   useEffect(() => {
     if (isMounted()) {
       dispatch(fetchingMaintenance());
     }
   }, [])
+
+
+  const filteredMaintenance = useMemo(() => {
+    if (!searchQuery) {
+      return maintenanceServices?.services;
+    }
   
+    return maintenanceServices?.services?.filter((maintenance: any) => {
+      const carNameMatches = maintenance?.vehicle?.vehicle_variant
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const carNumberMatches = maintenance?.vehicle?.registration_no
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      return carNameMatches || carNumberMatches;
+    });
+  }, [maintenanceServices, searchQuery]);
+
+  
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.headerText}>Maintenance Report</Text>
@@ -36,7 +65,7 @@ const Maintenance = () => {
           placeholder="Search.."
           placeholderTextColor={Colors.black}
           style={styles.searchInput}
-          // onChangeText={handleSearch}
+          onChangeText={handleSearch}
         />
         <Icon name="magnify" color={Colors.primary} size={30} />
       </View>
@@ -44,7 +73,7 @@ const Maintenance = () => {
         <Loader />
       ) : (
         <FlatList
-          data={maintenanceServices?.services}
+          data={filteredMaintenance}
           renderItem={({item}) => <MaintenanceReport item={item}/>}
           keyExtractor={item => item.id.toString()}
           showsHorizontalScrollIndicator={false}
@@ -54,6 +83,13 @@ const Maintenance = () => {
           windowSize={5} 
           ListEmptyComponent={
             <Text style={styles.noDataText}>No data found.</Text>
+          }
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[Colors.primary]} // Optional: Customize the color
+            />
           }
         />
       )}
